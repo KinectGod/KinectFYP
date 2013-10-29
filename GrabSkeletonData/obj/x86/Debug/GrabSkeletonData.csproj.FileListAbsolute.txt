@@ -1,0 +1,26 @@
+c:\users\owen\documents\visual studio 2010\Projects\GrabSkeletonData\GrabSkeletonData\bin\Debug\GrabSkeletonData.exe
+c:\users\owen\documents\visual studio 2010\Projects\GrabSkeletonData\GrabSkeletonData\bin\Debug\GrabSkeletonData.pdb
+c:\users\owen\documents\visual studio 2010\Projects\GrabSkeletonData\GrabSkeletonData\obj\x86\Debug\ResolveAssemblyReference.cache
+c:\users\owen\documents\visual studio 2010\Projects\GrabSkeletonData\GrabSkeletonData\obj\x86\Debug\MainWindow.baml
+c:\users\owen\documents\visual studio 2010\Projects\GrabSkeletonData\GrabSkeletonData\obj\x86\Debug\MainWindow.g.cs
+c:\users\owen\documents\visual studio 2010\Projects\GrabSkeletonData\GrabSkeletonData\obj\x86\Debug\App.g.cs
+c:\users\owen\documents\visual studio 2010\Projects\GrabSkeletonData\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData_MarkupCompile.cache
+c:\users\owen\documents\visual studio 2010\Projects\GrabSkeletonData\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.g.resources
+c:\users\owen\documents\visual studio 2010\Projects\GrabSkeletonData\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.Properties.Resources.resources
+c:\users\owen\documents\visual studio 2010\Projects\GrabSkeletonData\GrabSkeletonData\obj\x86\Debug\GenerateResource.read.1.tlog
+c:\users\owen\documents\visual studio 2010\Projects\GrabSkeletonData\GrabSkeletonData\obj\x86\Debug\GenerateResource.write.1.tlog
+c:\users\owen\documents\visual studio 2010\Projects\GrabSkeletonData\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.exe
+c:\users\owen\documents\visual studio 2010\Projects\GrabSkeletonData\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.pdb
+C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.exe
+C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.pdb
+C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\bin\Debug\GrabSkeletonData.exe
+C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\bin\Debug\GrabSkeletonData.pdb
+C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\MainWindow.baml
+C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\MainWindow.g.cs
+C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\App.g.cs
+C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData_MarkupCompile.cache
+C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.g.resources
+C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.Properties.Resources.resources
+C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\GenerateResource.write.1.tlog
