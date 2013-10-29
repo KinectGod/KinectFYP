@@ -24,3 +24,5 @@ C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\GrabSke
 C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.Properties.Resources.resources
 C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\GenerateResource.read.1.tlog
 C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.exe
+C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.pdb

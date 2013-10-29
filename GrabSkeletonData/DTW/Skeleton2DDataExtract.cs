@@ -45,8 +45,8 @@ namespace GrabSkeletonData.DTW
         public static void ProcessData(Skeleton data)
         {
             // Extract the coordinates of the points.
-            var p = new Point[6];
-            Point shoulderRight = new Point(), shoulderLeft = new Point();
+            var p = new Point[14]; //updated
+            Point shoulderRight = new Point(), shoulderLeft = new Point(), lowerCenter = new Point();
             foreach (Joint j in data.Joints)
             {
                 switch (j.JointType)
@@ -75,15 +75,49 @@ namespace GrabSkeletonData.DTW
                     case JointType.ShoulderRight:
                         shoulderRight = new Point(j.Position.X, j.Position.Y);
                         break;
+                    case JointType.HipLeft:
+                        p[6] = new Point(j.Position.X, j.Position.Y);
+                        break;
+                    case JointType.KneeLeft:
+                        p[7] = new Point(j.Position.X, j.Position.Y);
+                        break;
+                    case JointType.AnkleLeft:
+                        p[8] = new Point(j.Position.X, j.Position.Y);
+                        break;
+                    case JointType.FootLeft:
+                        p[9] = new Point(j.Position.X, j.Position.Y);
+                        break;
+                    case JointType.HipRight:
+                        p[10] = new Point(j.Position.X, j.Position.Y);
+                        break;
+                    case JointType.KneeRight:
+                        p[11] = new Point(j.Position.X, j.Position.Y);
+                        break;
+                    case JointType.AnkleRight:
+                        p[12] = new Point(j.Position.X, j.Position.Y);
+                        break;
+                    case JointType.FootRight:
+                        p[13] = new Point(j.Position.X, j.Position.Y);
+                        break;
+                    case JointType.HipCenter:
+                        lowerCenter = new Point(j.Position.X, j.Position.Y);
+                        break;
                 }
             }
 
-            // Centre the data
+            // Centre the data of upper body
             var center = new Point((shoulderLeft.X + shoulderRight.X) / 2, (shoulderLeft.Y + shoulderRight.Y) / 2);
             for (int i = 0; i < 6; i++)
             {
                 p[i].X -= center.X;
                 p[i].Y -= center.Y;
+            }
+
+            //Centre the data of lower body
+            for (int i = 6; i < 14; i++)
+            {
+                p[i].X -= lowerCenter.X;
+                p[i].Y -= lowerCenter.Y;
             }
 
             // Normalization of the coordinates
