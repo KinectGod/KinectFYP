@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using GrabSkeletonData;
+using GrabSkeletonData.Recorder;
 
 namespace GrabSkeletonData.Replay
 {

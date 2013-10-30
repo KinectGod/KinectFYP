@@ -63,12 +63,12 @@ namespace DTWGestureRecognition
         /// <summary>
         /// How many skeleton frames to store in the _video buffer
         /// </summary>
-        private const int BufferSize = 32;
+        private const int BufferSize = 96; // here should be the limitation of recording time, just try to enlarge it
 
         /// <summary>
         /// The minumum number of frames in the _video buffer before we attempt to start matching gestures
         /// </summary>
-        private const int MinimumFrames = 6;
+        private const int MinimumFrames = 24;
 
         /// <summary>
         /// The minumum number of frames in the _video buffer before we attempt to start matching gestures
@@ -78,7 +78,7 @@ namespace DTWGestureRecognition
         /// <summary>
         /// Where we will save our gestures to. The app will append a data/time and .txt to this string
         /// </summary>
-        private const string GestureSaveFileLocation = @"H:\My Dropbox\Dropbox\Microsoft Kinect SDK Beta\DTWGestureRecognition\DTWGestureRecognition\";
+        private const string GestureSaveFileLocation = @"C:\";
 
         /// <summary>
         /// Where we will save our gestures to. The app will append a data/time and .txt to this string

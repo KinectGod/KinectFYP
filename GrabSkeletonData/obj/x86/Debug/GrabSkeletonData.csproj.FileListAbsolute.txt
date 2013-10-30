@@ -26,3 +26,13 @@ C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\Generat
 C:\Users\Owen\Documents\GitHub\KinectTemp\GrabSkeletonData\obj\x86\Debug\GenerateResource.write.1.tlog
 C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.exe
 C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.pdb
+C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.csprojResolveAssemblyReference.cache
+C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\MainWindow.baml
+C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\MainWindow.g.cs
+C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\App.g.cs
+C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData_MarkupCompile.cache
+C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.g.resources
+C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.Properties.Resources.resources
+C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.csproj.GenerateResource.Cache
+C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\bin\Debug\GrabSkeletonData.exe
+C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\bin\Debug\GrabSkeletonData.pdb
