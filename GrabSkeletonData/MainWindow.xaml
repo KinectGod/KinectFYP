@@ -18,12 +18,12 @@
             <Label Height="40" Content="TaiChi Happy Learning" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Width="600" FontStretch="SemiExpanded" FontStyle="Normal" HorizontalContentAlignment="Center" VerticalContentAlignment="Top" FontFamily="Segoe UI"></Label>
         </StackPanel>
         <StackPanel Grid.Column="0" Grid.Row="1">
-            <Button Name="dtwRead" Content="Read" Click="DtwReadClick" Width="200" IsEnabled="False" />
-            <Button Name="dtwCapture" Content="Capture" Click="DtwCaptureClick" Width="200 "/>
-            <Button Name="dtwStore" Content="Store" IsEnabled="False" Click="DtwStoreClick" Width="200" />
-            <Button Name="dtwLoadFile" Content="Load gesture file" IsEnabled="True" Click="DtwLoadFile" Width="200" />
-            <Button Name="dtwSaveToFile" Content="Save to file" IsEnabled="True" Click="DtwSaveToFile" Width="200" />
-            <Button Name="dtwShowGestureTest" Content="Show Gesture Text" IsEnabled="True" Click="DtwShowGestureText" Width="200" />
+            <Button x:Name="dtwRead" Content="Read" Click="DtwReadClick" Width="200" IsEnabled="False" Margin="0,0,1,0" />
+            <Button x:Name="dtwCapture" Content="Capture" Click="DtwCaptureClick" Width="200 "/>
+            <Button x:Name="dtwStore" Content="Store" IsEnabled="False" Click="DtwStoreClick" Width="200" />
+            <Button x:Name="dtwLoadFile" Content="Load gesture file" IsEnabled="True" Click="DtwLoadFile" Width="200" />
+            <Button x:Name="dtwSaveToFile" Content="Save to file" IsEnabled="True" Click="DtwSaveToFile" Width="200" />
+            <Button x:Name="dtwShowGestureTest" Content="Show Gesture Text" IsEnabled="True" Click="DtwShowGestureText" Width="200" />
         </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left">
             <ComboBox Name="gestureList" Width="400">
@@ -44,7 +44,7 @@
         </StackPanel>
         <TextBox Grid.Column="0" Grid.Row="3" FontSize="11" Name="dtwTextOutput" Margin="0,0,0,0" Focusable="True" BorderThickness="0" Text="" TextAlignment="Left" HorizontalAlignment="Center" VerticalAlignment="Top" Width="200" Height="230" VerticalScrollBarVisibility="Auto" IsReadOnly="True" />
 
-        <Label Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" Content="By Rhemyst and Rymix - kinectdtw.codeplex.com" Foreground="White" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" Height="16" FontSize="10" Padding="0">
+        <Label Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2" Content="" Foreground="White" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" Height="16" FontSize="10" Padding="0">
             <Label.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="#FF4D35AB" Offset="1" />
