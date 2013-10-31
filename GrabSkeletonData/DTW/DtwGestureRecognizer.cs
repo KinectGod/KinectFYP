@@ -146,7 +146,9 @@ namespace GrabSkeletonData.DTW
         /// </summary>
         /// <param name="seq">The sequence to recognise</param>
         /// <returns>The recognised gesture name</returns>
-        public string Recognize(ArrayList seq)
+        /// Todo: need to further develop, not to find the corresponding seq, but comparing to the sepecific seq
+        /// ie, Recognize(testing_seq, comapring_seq), or maybe we can use Dtw() directly without this function
+        public string Recognize(ArrayList seq)  
         {
             double minDist = double.PositiveInfinity;
             string classification = "__UNKNOWN";
@@ -235,7 +237,7 @@ namespace GrabSkeletonData.DTW
             {
                 for (int j = 0; j < seq2R.Count + 1; j++)
                 {
-                    tab[i, j] = double.PositiveInfinity;
+                    tab[i, j] = double.PositiveInfinity; //what's this for?
                     slopeI[i, j] = 0;
                     slopeJ[i, j] = 0;
                 }
@@ -272,9 +274,11 @@ namespace GrabSkeletonData.DTW
             }
 
             // Find best between seq2 and an ending (postfix) of seq1.
+            // ToDo: instead of returning bestMatch, we will return an calculated marks
             double bestMatch = double.PositiveInfinity;
             for (int i = 1; i < (seq1R.Count + 1) - _minimumLength; i++)
             {
+                /// should we set constraint when some tab[] are too large, stop fingding best match, treat this as a servious mistake.
                 if (tab[i, seq2R.Count] < bestMatch)
                 {
                     bestMatch = tab[i, seq2R.Count];

@@ -68,7 +68,7 @@ namespace DTWGestureRecognition
         /// <summary>
         /// The minumum number of frames in the _video buffer before we attempt to start matching gestures
         /// </summary>
-        private const int MinimumFrames = 24;
+        private const int MinimumFrames = 24; //ToDo: need to adjust later 
 
         /// <summary>
         /// The minumum number of frames in the _video buffer before we attempt to start matching gestures
