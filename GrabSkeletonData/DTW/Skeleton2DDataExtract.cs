@@ -99,9 +99,6 @@ namespace GrabSkeletonData.DTW
                     case JointType.FootRight:
                         p[13] = new Point(j.Position.X, j.Position.Y);
                         break;
-                    case JointType.HipCenter:
-                        lowerCenter = new Point(j.Position.X, j.Position.Y);
-                        break;
                 }
             }
 
@@ -114,6 +111,7 @@ namespace GrabSkeletonData.DTW
             }
 
             //Centre the data of lower body
+            var lowercenter = new Point((p[6].X + p[10].X) / 2, (p[6].Y + p[10].Y) / 2);
             for (int i = 6; i < 14; i++)
             {
                 p[i].X -= lowerCenter.X;
@@ -124,12 +122,12 @@ namespace GrabSkeletonData.DTW
             double shoulderDist =
                 Math.Sqrt(Math.Pow((shoulderLeft.X - shoulderRight.X), 2) +
                           Math.Pow((shoulderLeft.Y - shoulderRight.Y), 2));
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 14; i++)
             {
                 p[i].X /= shoulderDist;
                 p[i].Y /= shoulderDist;
             }
-
+            
             // Launch the event!
             Skeleton2DdataCoordReady(null, new Skeleton2DdataCoordEventArgs(p));
         }

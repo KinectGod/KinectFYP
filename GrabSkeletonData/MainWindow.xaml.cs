@@ -485,7 +485,7 @@ namespace DTWGestureRecognition
 
             _lastTime = DateTime.Now;
 
-            _dtw = new DtwGestureRecognizer(12, 0.6, 2, 2, 10); //do we beed to change the dimension value?
+            _dtw = new DtwGestureRecognizer(12, 0.6, 2, 2, 10); //do we need to change the dimension value?
             _video = new ArrayList();
 
             // If you want to see the depth image and frames per second then include this
