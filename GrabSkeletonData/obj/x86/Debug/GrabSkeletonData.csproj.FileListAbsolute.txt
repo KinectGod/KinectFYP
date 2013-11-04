@@ -36,3 +36,5 @@ C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkel
 C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.csproj.GenerateResource.Cache
 C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\bin\Debug\GrabSkeletonData.exe
 C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\bin\Debug\GrabSkeletonData.pdb
+C:\Users\yywongad\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.exe
+C:\Users\yywongad\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.pdb

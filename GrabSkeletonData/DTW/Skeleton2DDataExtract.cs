@@ -122,10 +122,17 @@ namespace GrabSkeletonData.DTW
             double shoulderDist =
                 Math.Sqrt(Math.Pow((shoulderLeft.X - shoulderRight.X), 2) +
                           Math.Pow((shoulderLeft.Y - shoulderRight.Y), 2));
-            for (int i = 0; i < 14; i++)
+            double legDist = Math.Sqrt(Math.Pow((p[10].X - p[11].X), 2) + Math.Pow((p[10].Y - p[11].Y), 2));
+            double normalizeIndex = shoulderDist + legDist;
+            for (int i = 0; i < 6; i++)
             {
-                p[i].X /= shoulderDist;
-                p[i].Y /= shoulderDist;
+                p[i].X /= normalizeIndex;
+                p[i].Y /= normalizeIndex;
+            }
+            for (int i = 6; i < 14; i++)
+            {
+                p[i].X /= normalizeIndex;
+                p[i].Y /= normalizeIndex;
             }
             
             // Launch the event!
