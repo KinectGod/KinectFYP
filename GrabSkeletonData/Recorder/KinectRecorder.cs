@@ -21,27 +21,29 @@ namespace GrabSkeletonData.Recorder
         // Constructor
         public KinectRecorder(KinectRecordOptions options, Stream stream)
         {
-            Options = options;
-            recordStream = stream;
-            writer = new BinaryWriter(recordStream);
-            writer.Write((int)Options);
+                Options = options;
+                recordStream = stream;
+                writer = new BinaryWriter(recordStream);
+                writer.Write((int)Options);
 
-            /*
-            if ((Options & KinectRecordOptions.Color) != 0)
-            {
-                colorRecoder = new ColorRecorder(writer);
-            }
-             */
+                /*
+                if ((Options & KinectRecordOptions.Color) != 0)
+                {
+                    colorRecoder = new ColorRecorder(writer);
+                }
+                 */
+
+                if ((Options & KinectRecordOptions.Skeletons) != 0)
+                {
+                    skeletonRecorder = new SkeletonRecorder(writer);
+                }
             
-            if ((Options & KinectRecordOptions.Skeletons) != 0)
-            {
-                skeletonRecorder = new SkeletonRecorder(writer);
-            }
         }
 
         // three methods to record specific frames (color, depth, and skeleton):
         public void Record(SkeletonFrame frame)
         {
+
             if (writer == null)
                 throw new Exception("This recorder is stopped");
 

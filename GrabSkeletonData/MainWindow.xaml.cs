@@ -29,6 +29,9 @@ namespace DTWGestureRecognition
     using System.Linq;
     using Microsoft.Kinect;
     using GrabSkeletonData.DTW;
+    using GrabSkeletonData.Recorder;
+    using GrabSkeletonData.Replay;
+    using System.IO;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -85,6 +88,7 @@ namespace DTWGestureRecognition
         /// </summary>
         private const string GestureSaveFileNamePrefix = @"RecordedGestures";
 
+        private const string SkeletonSaveFileNamePrefix = @"RecordedSkeleton";
         /// <summary>
         /// Dictionary of all the joints Kinect SDK is capable of tracking. You might not want always to use them all but they are included here for thouroughness.
         /// </summary>
@@ -156,6 +160,13 @@ namespace DTWGestureRecognition
         /// ArrayList of coordinates which are recorded in sequence to define one gesture
         /// </summary>
         private ArrayList _video;
+
+        // Kinect recorder
+        private static KinectRecorder _recorder;
+
+        private Stream recordstream;
+
+        private KinectReplay _replay;
 
         /// <summary>
         /// ArrayList of coordinates which are recorded in sequence to define one gesture
@@ -239,11 +250,13 @@ namespace DTWGestureRecognition
                 if (skeletonFrame == null) return; // sometimes frame image comes null, so skip it.
                 var skeletons = new Skeleton[skeletonFrame.SkeletonArrayLength];
                 skeletonFrame.CopySkeletonDataTo(skeletons);
-
+                
                 foreach (Skeleton data in skeletons)
                 {
                     Skeleton2DDataExtract.ProcessData(data);
                 }
+
+                //maker for record
             }
         }
 
@@ -371,7 +384,6 @@ namespace DTWGestureRecognition
         /// <returns>A line or lines</returns>
         private Polyline GetBodySegment(JointCollection joints, Brush brush, params JointType[] ids)
         {
-
             var points = new PointCollection(ids.Length);
             foreach (JointType t in ids)
             {
@@ -398,6 +410,16 @@ namespace DTWGestureRecognition
                 if (frame == null) return;
                 skeletons = new Skeleton[frame.SkeletonArrayLength];
                 frame.CopySkeletonDataTo(skeletons);
+            }
+
+            if (_capturing == true)
+            {
+                using (var sframe = e.OpenSkeletonFrame())
+                {
+                    if (sframe == null)
+                        return;
+                    _recorder.Record(sframe);
+                }
             }
 
             int iSkeleton = 0;
@@ -566,6 +588,8 @@ namespace DTWGestureRecognition
                 if (_flipFlop == 0)
                 {
                     _video.Add(a.GetCoords());
+                    //marker
+                    
                 }
             }
 
@@ -648,7 +672,10 @@ namespace DTWGestureRecognition
 
             // Clear the _video buffer and start from the beginning
             _video = new ArrayList();
+            recordstream = null;
+            _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, recordstream);
         }
+
 
         /// <summary>
         /// Stores our gesture to the DTW sequences list
@@ -678,6 +705,87 @@ namespace DTWGestureRecognition
             DtwReadClick(null, null);
         }
 
+        public static void CopyStream(Stream input, Stream output)
+        {
+            byte[] buffer = new byte[8 * 1024];
+            int len;
+            while ( (len = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, len);
+            }    
+        }
+
+
+        //Replay the saved skeleton
+        private void DtwReplayClick (object sender, RoutedEventArgs e) 
+        {               
+            OpenFileDialog openFileDialog = new OpenFileDialog { Title = "Select filename", Filter = "Replay files|*.replay" };
+            openFileDialog.ShowDialog();
+            if (DialogResult.Value == true)
+            {
+                Stream recordStream = File.OpenRead(openFileDialog.FileName);
+                _replay = new KinectReplay(recordStream);
+                _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
+                _replay.Start();
+            }
+
+            else return;
+
+        }
+
+        void replay_SkeletonFrameReady(object sender, ReplaySkeletonFrameReadyEventArgs e)
+        {
+            Skeleton[] skeletons;
+            var frame = e.SkeletonFrame;
+            if (frame == null) return;
+            skeletons = frame.Skeletons;
+
+            int iSkeleton = 0;
+            var brushes = new Brush[6];
+            brushes[0] = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+            brushes[1] = new SolidColorBrush(Color.FromRgb(0, 255, 0));
+            brushes[2] = new SolidColorBrush(Color.FromRgb(64, 255, 255));
+            brushes[3] = new SolidColorBrush(Color.FromRgb(255, 255, 64));
+            brushes[4] = new SolidColorBrush(Color.FromRgb(255, 64, 255));
+            brushes[5] = new SolidColorBrush(Color.FromRgb(128, 128, 255));
+
+            skeletonCanvas2.Children.Clear();
+            foreach (var data in skeletons)
+            {
+                if (SkeletonTrackingState.Tracked == data.TrackingState)
+                {
+                    // Draw bones
+                    Brush brush = brushes[iSkeleton % brushes.Length];
+                    skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.Spine, JointType.ShoulderCenter, JointType.Head));
+                    skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft));
+                    skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
+                    skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
+                    skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
+
+                    // Draw joints
+                    foreach (Joint joint in data.Joints)
+                    {
+                        Point jointPos = GetDisplayPosition(joint);
+                        var jointLine = new Line();
+                        jointLine.X1 = jointPos.X - 3;
+                        jointLine.X2 = jointLine.X1 + 6;
+                        jointLine.Y1 = jointLine.Y2 = jointPos.Y;
+                        jointLine.Stroke = _jointColors[joint.JointType];
+                        jointLine.StrokeThickness = 6;
+                        skeletonCanvas2.Children.Add(jointLine);
+                    }
+                }
+
+                iSkeleton++;
+            } // for each skeleton
+        }
+
+
+        private void DtwStopReplay(object sender, RoutedEventArgs e)
+        { 
+            
+        }
+
         /// <summary>
         /// Stores our gesture to the DTW sequences list
         /// </summary>
@@ -686,6 +794,8 @@ namespace DTWGestureRecognition
         private void DtwSaveToFile(object sender, RoutedEventArgs e)
         {
             string fileName = GestureSaveFileNamePrefix + DateTime.Now.ToString("yyyy-MM-dd_HH-mm") + ".txt";
+            string filename = SkeletonSaveFileNamePrefix + DateTime.Now.ToString("yyyy-MM-dd_HH-mm" + ".replay");
+            CopyStream (recordstream, File.Create(GestureSaveFileLocation + filename));
             System.IO.File.WriteAllText(GestureSaveFileLocation + fileName, _dtw.RetrieveText());
             status.Text = "Saved to " + fileName;
         }

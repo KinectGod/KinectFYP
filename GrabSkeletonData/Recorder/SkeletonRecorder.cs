@@ -43,8 +43,6 @@ namespace GrabSkeletonData.Recorder
 
             BinaryFormatter formatter = new BinaryFormatter();
             formatter.Serialize(writer.BaseStream, skeletons);
-            
-
         }
     }
 }

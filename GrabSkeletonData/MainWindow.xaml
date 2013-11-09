@@ -24,6 +24,7 @@
             <Button x:Name="dtwLoadFile" Content="Load gesture file" IsEnabled="True" Click="DtwLoadFile" Width="200" />
             <Button x:Name="dtwSaveToFile" Content="Save to file" IsEnabled="True" Click="DtwSaveToFile" Width="200" />
             <Button x:Name="dtwShowGestureTest" Content="Show Gesture Text" IsEnabled="True" Click="DtwShowGestureText" Width="200" />
+            <Button x:Name="dtwReplay" Content="Replay" Click="DtwReplayClick" Width="200" IsEnabled="True" Margin="0,0,1,0" />
         </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left">
             <ComboBox Name="gestureList" Width="400">
@@ -41,6 +42,9 @@
             <Image Width="200" Height="150" x:Name="videoImage" Margin="0,0,0,0" />
             <Canvas Width="200" Height="150" x:Name="skeletonCanvas" Background="Black" ClipToBounds="True" Margin="0,0,0,0" />
             <Image Width="200" Height="150" x:Name="depthImage" Margin="0,0,0,0" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="2" VerticalAlignment="Top" Margin="0,150,0,0" Grid.RowSpan="2">
+            <Canvas Width="200" Height="150" x:Name="skeletonCanvas2" Background="Black" ClipToBounds="True" Margin="0,0,0,0" />
         </StackPanel>
         <TextBox Grid.Column="0" Grid.Row="3" FontSize="11" Name="dtwTextOutput" Margin="0,0,0,0" Focusable="True" BorderThickness="0" Text="" TextAlignment="Left" HorizontalAlignment="Center" VerticalAlignment="Top" Width="200" Height="230" VerticalScrollBarVisibility="Auto" IsReadOnly="True" />
 
