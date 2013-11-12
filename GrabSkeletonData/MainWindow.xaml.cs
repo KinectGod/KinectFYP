@@ -330,6 +330,8 @@ namespace DTWGestureRecognition
         /// </summary>
         /// <param name="sender">The sender object</param>
         /// <param name="e">Image Frame Ready Event Args</param>
+        /// 
+        /*
         private void NuiDepthFrameReady(object sender, DepthImageFrameReadyEventArgs e)
         {
             //PlanarImage image = e.ImageFrame.Image;
@@ -350,6 +352,7 @@ namespace DTWGestureRecognition
                 frameRate.Text = frameDiff + " fps";
             }
         }
+         */
 
         /// <summary>
         /// Gets the display position (i.e. where in the display image) of a Joint
@@ -467,6 +470,8 @@ namespace DTWGestureRecognition
         /// </summary>
         /// <param name="sender">The sender object</param>
         /// <param name="e">Image Frame Ready Event Args</param>
+        /// 
+        /*
         private void NuiColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)
         {
             // 32-bit per pixel, RGBA image
@@ -477,7 +482,7 @@ namespace DTWGestureRecognition
                 videoImage.Source = image.ToBitmapSource();
             }
         }
-
+        */
         /// <summary>
         /// Runs after the window is loaded
         /// </summary>
@@ -507,18 +512,18 @@ namespace DTWGestureRecognition
 
             _lastTime = DateTime.Now;
 
-            _dtw = new DtwGestureRecognizer(12, 0.6, 2, 2, 10); //do we need to change the dimension value?
+            _dtw = new DtwGestureRecognizer(28, 0.6, 2, 2, 10); //do we need to change the dimension value?
             _video = new ArrayList();
 
             // If you want to see the depth image and frames per second then include this
             // I'mma turn this off 'cos my 'puter is proper slow
-            _nui.DepthFrameReady += NuiDepthFrameReady;
+            //_nui.DepthFrameReady += NuiDepthFrameReady;
 
             _nui.SkeletonFrameReady += NuiSkeletonFrameReady;
             _nui.SkeletonFrameReady += SkeletonExtractSkeletonFrameReady;
 
             // If you want to see the RGB stream then include this
-            _nui.ColorFrameReady += NuiColorFrameReady;
+            //_nui.ColorFrameReady += NuiColorFrameReady;
 
             Skeleton2DDataExtract.Skeleton2DdataCoordReady += NuiSkeleton2DdataCoordReady;
 
@@ -672,7 +677,8 @@ namespace DTWGestureRecognition
 
             // Clear the _video buffer and start from the beginning
             _video = new ArrayList();
-            recordstream = null;
+
+            recordstream = File.Create(@"C:\test");
             _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, recordstream);
         }
 
@@ -721,15 +727,15 @@ namespace DTWGestureRecognition
         {               
             OpenFileDialog openFileDialog = new OpenFileDialog { Title = "Select filename", Filter = "Replay files|*.replay" };
             openFileDialog.ShowDialog();
-            if (DialogResult.Value == true)
-            {
+            //if (DialogResult.Value == true)
+            //{
                 Stream recordStream = File.OpenRead(openFileDialog.FileName);
                 _replay = new KinectReplay(recordStream);
                 _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
                 _replay.Start();
-            }
+            //}
 
-            else return;
+            //else return;
 
         }
 
@@ -795,9 +801,10 @@ namespace DTWGestureRecognition
         {
             string fileName = GestureSaveFileNamePrefix + DateTime.Now.ToString("yyyy-MM-dd_HH-mm") + ".txt";
             string filename = SkeletonSaveFileNamePrefix + DateTime.Now.ToString("yyyy-MM-dd_HH-mm" + ".replay");
-            CopyStream (recordstream, File.Create(GestureSaveFileLocation + filename));
+            Stream _replay = File.Create(GestureSaveFileLocation + filename);
+            CopyStream (recordstream, _replay);
             System.IO.File.WriteAllText(GestureSaveFileLocation + fileName, _dtw.RetrieveText());
-            status.Text = "Saved to " + fileName;
+            status.Text = "Saved to " + filename;
         }
 
         /// <summary>
