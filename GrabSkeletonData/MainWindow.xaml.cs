@@ -800,11 +800,12 @@ namespace DTWGestureRecognition
         private void DtwSaveToFile(object sender, RoutedEventArgs e)
         {
             string fileName = GestureSaveFileNamePrefix + DateTime.Now.ToString("yyyy-MM-dd_HH-mm") + ".txt";
-            string filename = SkeletonSaveFileNamePrefix + DateTime.Now.ToString("yyyy-MM-dd_HH-mm" + ".replay");
+            string filename = SkeletonSaveFileNamePrefix + DateTime.Now.ToString("yyyy-MM-dd_HH-mm") + ".replay";
             Stream _replay = File.Create(GestureSaveFileLocation + filename);
-            CopyStream (recordstream, _replay);
+            CopyStream (_recorder.recordStream, _replay);
             System.IO.File.WriteAllText(GestureSaveFileLocation + fileName, _dtw.RetrieveText());
-            status.Text = "Saved to " + filename;
+            status.Text = "Saved to " + fileName;
+            status2.Text = "Saved to" + filename;
         }
 
         /// <summary>
