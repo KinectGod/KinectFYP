@@ -125,7 +125,7 @@ namespace DTWGestureRecognition
         /// Flag to show whether or not the gesture recogniser is capturing a new pose
         /// </summary>
         private bool _capturing;
-
+        private bool _recogn = 0;
         /// <summary>
         /// Dynamic Time Warping object
         /// </summary>
@@ -512,7 +512,7 @@ namespace DTWGestureRecognition
 
             _lastTime = DateTime.Now;
 
-            _dtw = new DtwGestureRecognizer(28, 0.6, 2, 2, 10); //do we need to change the dimension value?
+            _dtw = new DtwGestureRecognizer(28, 0.6, 2, 2, 10);
             _video = new ArrayList();
 
             // If you want to see the depth image and frames per second then include this
@@ -556,7 +556,7 @@ namespace DTWGestureRecognition
             currentBufferFrame.Text = _video.Count.ToString();
 
             // We need a sensible number of frames before we start attempting to match gestures against remembered sequences
-            if (_video.Count > MinimumFrames && _capturing == false)
+            if (_video.Count > MinimumFrames && _capturing == false && _recogn == true)
             {
                 ////Debug.WriteLine("Reading and video.Count=" + video.Count);
                 string s = _dtw.Recognize(_video);
@@ -727,15 +727,10 @@ namespace DTWGestureRecognition
         {               
             OpenFileDialog openFileDialog = new OpenFileDialog { Title = "Select filename", Filter = "Replay files|*.replay" };
             openFileDialog.ShowDialog();
-            //if (DialogResult.Value == true)
-            //{
                 Stream recordStream = File.OpenRead(openFileDialog.FileName);
                 _replay = new KinectReplay(recordStream);
                 _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
                 _replay.Start();
-            //}
-
-            //else return;
 
         }
 
@@ -787,9 +782,14 @@ namespace DTWGestureRecognition
         }
 
 
-        private void DtwStopReplay(object sender, RoutedEventArgs e)
-        { 
-            
+        private void DtwStopRecogn(object sender, RoutedEventArgs e)
+        {
+            _recogn = false;
+        }
+
+        private void DtwStartRecogn(object sender, RoutedEventArgs e)
+        {
+            _recogn = true;
         }
 
         /// <summary>
@@ -801,9 +801,7 @@ namespace DTWGestureRecognition
         {
             string fileName = GestureSaveFileNamePrefix + DateTime.Now.ToString("yyyy-MM-dd_HH-mm") + ".txt";
             string filename = SkeletonSaveFileNamePrefix + DateTime.Now.ToString("yyyy-MM-dd_HH-mm") + ".replay";
-            Stream _replay = File.Create(GestureSaveFileLocation + filename);
-            CopyStream (_recorder.recordStream, _replay);
-            System.IO.File.WriteAllText(GestureSaveFileLocation + fileName, _dtw.RetrieveText());
+            System.IO.File.Move(@"C:\test", GestureSaveFileLocation + filename);
             status.Text = "Saved to " + fileName;
             status2.Text = "Saved to" + filename;
         }

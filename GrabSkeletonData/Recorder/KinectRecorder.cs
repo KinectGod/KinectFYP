@@ -9,7 +9,7 @@ namespace GrabSkeletonData.Recorder
 {
     class KinectRecorder
     {
-        Stream recordStream;
+        public Stream recordStream;
         readonly BinaryWriter writer;
         // Recorders
         //readonly ColorRecorder colorRecoder;
