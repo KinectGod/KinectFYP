@@ -561,6 +561,15 @@ namespace DTWGestureRecognition
                 ////Debug.WriteLine("Reading and video.Count=" + video.Count);
                 string s = _dtw.Recognize(_video);
                 results.Text = "Recognised as: " + s;
+                //score system
+                /*
+                int d = _dtw.Recognize(_video);
+                if (d < 0.10 * BufferSize)
+                    results.Text = "Pecfect! and the distance is " + d;
+                else if (d < 0.20 * BufferSize)
+                    results.Text = "satisfactory! and the distance is " + d;
+                else results.Text = "UNKNOWN! and the distance is " + d;
+                */
                 if (!s.Contains("__UNKNOWN"))
                 {
                     // There was no match so reset the buffer
