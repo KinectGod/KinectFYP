@@ -38,3 +38,5 @@ C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\bin\Debug\GrabSkeleton
 C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\bin\Debug\GrabSkeletonData.pdb
 C:\Users\yywongad\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.exe
 C:\Users\yywongad\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.pdb
+C:\Users\Rin\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.exe
+C:\Users\Rin\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.pdb
