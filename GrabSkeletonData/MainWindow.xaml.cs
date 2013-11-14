@@ -125,7 +125,7 @@ namespace DTWGestureRecognition
         /// Flag to show whether or not the gesture recogniser is capturing a new pose
         /// </summary>
         private bool _capturing;
-        private bool _recogn = 0;
+        private bool _recogn = false;
         /// <summary>
         /// Dynamic Time Warping object
         /// </summary>
