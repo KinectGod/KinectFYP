@@ -66,7 +66,7 @@ namespace DTWGestureRecognition
         /// <summary>
         /// How many skeleton frames to store in the _video buffer
         /// </summary>
-        private const int BufferSize = 96; // here should be the limitation of recording time, just try to enlarge it
+        private const int BufferSize = 32; // here should be the limitation of recording time, just try to enlarge it
 
         /// <summary>
         /// The minumum number of frames in the _video buffer before we attempt to start matching gestures
@@ -150,6 +150,7 @@ namespace DTWGestureRecognition
         /// Total number of framed that have occurred. Used for calculating frames per second
         /// </summary>
         private int _totalFrames;
+        private Stream test;
 
         /// <summary>
         /// Switch used to ignore certain skeleton frames
@@ -556,9 +557,10 @@ namespace DTWGestureRecognition
             currentBufferFrame.Text = _video.Count.ToString();
 
             // We need a sensible number of frames before we start attempting to match gestures against remembered sequences
-            if (_video.Count > MinimumFrames && _capturing == false && _recogn == true)
+            if (_video.Count > MinimumFrames && _capturing == false &&  _recogn == true)
             {
                 ////Debug.WriteLine("Reading and video.Count=" + video.Count);
+<<<<<<< HEAD
                 string s = _dtw.Recognize(_video);
                 results.Text = "Recognised as: " + s;
                 //score system
@@ -572,9 +574,18 @@ namespace DTWGestureRecognition
                 */
                 if (!s.Contains("__UNKNOWN"))
                 {
+=======
+                //string s = _dtw.Recognize(_video);
+                //results.Text = "Recognised as: " + s;
+
+                double score = _dtw.Recognize(_video);
+                results.Text = "Score : " + score;
+                //if (!s.Contains("__UNKNOWN"))
+                //{
+>>>>>>> Yesteday
                     // There was no match so reset the buffer
-                    _video = new ArrayList();
-                }
+                //    _video = new ArrayList();
+                //}
             }
 
             // Ensures that we remember only the last x frames
@@ -689,6 +700,7 @@ namespace DTWGestureRecognition
 
             recordstream = File.Create(@"C:\test");
             _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, recordstream);
+            test = recordstream;
         }
 
 
@@ -734,7 +746,7 @@ namespace DTWGestureRecognition
         //Replay the saved skeleton
         private void DtwReplayClick (object sender, RoutedEventArgs e) 
         {               
-            OpenFileDialog openFileDialog = new OpenFileDialog { Title = "Select filename", Filter = "Replay files|*.replay" };
+            OpenFileDialog openFileDialog = new OpenFileDialog { Title = "Select filename", Filter = "" };
             openFileDialog.ShowDialog();
                 Stream recordStream = File.OpenRead(openFileDialog.FileName);
                 _replay = new KinectReplay(recordStream);
@@ -810,7 +822,8 @@ namespace DTWGestureRecognition
         {
             string fileName = GestureSaveFileNamePrefix + DateTime.Now.ToString("yyyy-MM-dd_HH-mm") + ".txt";
             string filename = SkeletonSaveFileNamePrefix + DateTime.Now.ToString("yyyy-MM-dd_HH-mm") + ".replay";
-            System.IO.File.Move(@"C:\test", GestureSaveFileLocation + filename);
+            Stream output = File.Create(GestureSaveFileLocation + filename);
+            CopyStream(test, output);
             status.Text = "Saved to " + fileName;
             status2.Text = "Saved to" + filename;
         }
