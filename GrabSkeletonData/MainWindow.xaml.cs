@@ -560,7 +560,7 @@ namespace DTWGestureRecognition
             if (_video.Count > MinimumFrames && _capturing == false &&  _recogn == true)
             {
                 ////Debug.WriteLine("Reading and video.Count=" + video.Count);
-<<<<<<< HEAD
+/*<<<<<<< HEAD
                 string s = _dtw.Recognize(_video);
                 results.Text = "Recognised as: " + s;
                 //score system
@@ -572,9 +572,9 @@ namespace DTWGestureRecognition
                     results.Text = "satisfactory! and the distance is " + d;
                 else results.Text = "UNKNOWN! and the distance is " + d;
                 */
-                if (!s.Contains("__UNKNOWN"))
+/*                if (!s.Contains("__UNKNOWN"))
                 {
-=======
+=======*/
                 //string s = _dtw.Recognize(_video);
                 //results.Text = "Recognised as: " + s;
 
@@ -582,7 +582,7 @@ namespace DTWGestureRecognition
                 results.Text = "Score : " + score;
                 //if (!s.Contains("__UNKNOWN"))
                 //{
->>>>>>> Yesteday
+//>>>>>>> Yesteday
                     // There was no match so reset the buffer
                 //    _video = new ArrayList();
                 //}
