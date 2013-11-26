@@ -148,17 +148,9 @@ namespace GrabSkeletonData.DTW
         /// <returns>The recognised gesture name</returns>
         /// Todo: need to further develop, not to find the corresponding seq, but comparing to the sepecific seq
         /// ie, Recognize(testing_seq, comapring_seq), or maybe we can use Dtw() directly without this function
-/*
- * <<<<<<< HEAD
-        
-        //public int Recognize(ArrayList seq)  //return the distance
 
-        public string Recognize(ArrayList seq)  
-=======
- */
         //public string Recognize(ArrayList seq)  
         public double Recognize(ArrayList seq)  
-//>>>>>>> Yesteday
         {
             double minDist = double.PositiveInfinity;
             string classification = "__UNKNOWN";
@@ -180,14 +172,8 @@ namespace GrabSkeletonData.DTW
 
                 }
             }
-/*<<<<<<< HEAD
-            //return d;//return distance
-            return (minDist < _globalThreshold ? classification : "__UNKNOWN") + " " /*+minDist.ToString()*/;
-//=======
-
             return d1;
             //return (minDist < _globalThreshold ? classification : "__UNKNOWN") + " " /*+minDist.ToString()*/;
-//>>>>>>> Yesteday
         }
 
         /// <summary>
