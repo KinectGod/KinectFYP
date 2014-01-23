@@ -1,21 +1,4 @@
-﻿//-----------------------------------------------------------------------
-// <copyright file="MainWindow.xaml.cs" company="Rhemyst and Rymix">
-//     Open Source. Do with this as you will. Include this statement or 
-//     don't - whatever you like.
-//
-//     No warranty or support given. No guarantees this will work or meet
-//     your needs. Some elements of this project have been tailored to
-//     the authors' needs and therefore don't necessarily follow best
-//     practice. Subsequent releases of this project will (probably) not
-//     be compatible with different versions, so whatever you do, don't
-//     overwrite your implementation with any new releases of this
-//     project!
-//
-//     Enjoy working with Kinect!
-// </copyright>
-//-----------------------------------------------------------------------
-
-namespace DTWGestureRecognition
+﻿namespace DTWGestureRecognition
 {
     using System;
     using System.Collections;
@@ -81,7 +64,8 @@ namespace DTWGestureRecognition
         /// <summary>
         /// Where we will save our gestures to. The app will append a data/time and .txt to this string
         /// </summary>
-        private const string GestureSaveFileLocation = @"C:\";
+
+        private const string GestureSaveFileLocation = @".\\Records";
 
         /// <summary>
         /// Where we will save our gestures to. The app will append a data/time and .txt to this string
@@ -552,10 +536,13 @@ namespace DTWGestureRecognition
         /// </summary>
         /// <param name="sender">The sender object</param>
         /// <param name="a">Skeleton 2Ddata Coord Event Args</param>
+        // DEBUG : whether this function relates to the limitation of recording frames
+        
         private void NuiSkeleton2DdataCoordReady(object sender, Skeleton2DdataCoordEventArgs a)
         {
             currentBufferFrame.Text = _video.Count.ToString();
 
+            /*
             // We need a sensible number of frames before we start attempting to match gestures against remembered sequences
             if (_video.Count > MinimumFrames && _capturing == false &&  _recogn == true)
             {
@@ -572,7 +559,9 @@ namespace DTWGestureRecognition
                 //}
             }
 
+            
             // Ensures that we remember only the last x frames
+            
             if (_video.Count > BufferSize)
             {
                 // If we are currently capturing and we reach the maximum buffer size then automatically store
@@ -585,8 +574,9 @@ namespace DTWGestureRecognition
                     // Remove the first frame in the buffer
                     _video.RemoveAt(0);
                 }
+            
             }
-
+             * */
             // Decide which skeleton frames to capture. Only do so if the frames actually returned a number. 
             // For some reason my Kinect/PC setup didn't always return a double in range (i.e. infinity) even when standing completely within the frame.
             // TODO Weird. Need to investigate this
@@ -605,12 +595,13 @@ namespace DTWGestureRecognition
             // Update the debug window with Sequences information
             //dtwTextOutput.Text = _dtw.RetrieveText();
         }
-
         /// <summary>
         /// Read mode. Sets our control variables and button enabled states
         /// </summary>
         /// <param name="sender">The sender object</param>
         /// <param name="e">Routed Event Args</param>
+        /// DEBUG : we don't need it anymore
+        /*
         private void DtwReadClick(object sender, RoutedEventArgs e)
         {
             // Set the buttons enabled state
@@ -624,7 +615,7 @@ namespace DTWGestureRecognition
             // Update the status display
             status.Text = "Reading";
         }
-
+        */
         /// <summary>
         /// Starts a countdown timer to enable the player to get in position to record gestures
         /// </summary>
@@ -668,8 +659,8 @@ namespace DTWGestureRecognition
         private void StartCapture()
         {
             // Set the buttons enabled state
-            dtwRead.IsEnabled = false;
-            dtwCapture.IsEnabled = false;
+            //dtwRead.IsEnabled = false;
+            //dtwCapture.IsEnabled = false;
             dtwStore.IsEnabled = true;
 
             // Set the capturing? flag
@@ -681,8 +672,7 @@ namespace DTWGestureRecognition
 
             // Clear the _video buffer and start from the beginning
             _video = new ArrayList();
-
-            recordstream = File.Create(@"C:\test");
+            recordstream = File.Create(@".\\Records\\buffer");
             _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, recordstream);
             test = recordstream;
         }
@@ -696,8 +686,8 @@ namespace DTWGestureRecognition
         private void DtwStoreClick(object sender, RoutedEventArgs e)
         {
             // Set the buttons enabled state
-            dtwRead.IsEnabled = false;
-            dtwCapture.IsEnabled = true;
+            //dtwRead.IsEnabled = false;
+            //dtwCapture.IsEnabled = true;
             dtwStore.IsEnabled = false;
 
             // Set the capturing? flag
@@ -708,12 +698,13 @@ namespace DTWGestureRecognition
             // Add the current video buffer to the dtw sequences list
             _dtw.AddOrUpdate(_video, gestureList.Text);
             results.Text = "Gesture " + gestureList.Text + "added";
+            status.Text = "";
 
             // Scratch the _video buffer
             _video = new ArrayList();
 
             // Switch back to Read mode
-            DtwReadClick(null, null);
+            // DtwReadClick(null, null);
         }
 
         public static void CopyStream(Stream input, Stream output)
