@@ -70,7 +70,7 @@
         /// <summary>
         /// Where we will save our gestures to. The app will append a data/time and .txt to this string
         /// </summary>
-        private const string GestureSaveFileNamePrefix = @"RecordedGestures";
+        private const string GestureSaveFileNamePrefix = @"RecordedMotion";
 
         private const string SkeletonSaveFileNamePrefix = @"RecordedSkeleton";
         /// <summary>
@@ -109,7 +109,7 @@
         /// Flag to show whether or not the gesture recogniser is capturing a new pose
         /// </summary>
         private bool _capturing;
-        private bool _recogn = false;
+
         /// <summary>
         /// Dynamic Time Warping object
         /// </summary>
@@ -456,7 +456,6 @@
         /// <param name="sender">The sender object</param>
         /// <param name="e">Image Frame Ready Event Args</param>
         /// 
-        /*
         private void NuiColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)
         {
             // 32-bit per pixel, RGBA image
@@ -467,7 +466,7 @@
                 videoImage.Source = image.ToBitmapSource();
             }
         }
-        */
+
         /// <summary>
         /// Runs after the window is loaded
         /// </summary>
@@ -508,7 +507,7 @@
             _nui.SkeletonFrameReady += SkeletonExtractSkeletonFrameReady;
 
             // If you want to see the RGB stream then include this
-            //_nui.ColorFrameReady += NuiColorFrameReady;
+            _nui.ColorFrameReady += NuiColorFrameReady;
 
             Skeleton2DDataExtract.Skeleton2DdataCoordReady += NuiSkeleton2DdataCoordReady;
 
@@ -668,13 +667,13 @@
 
             ////_captureCountdownTimer.Dispose();
 
-            status.Text = "Recording gesture" + gestureList.Text;
+            status.Text = "Recording gesture " + gestureList.Text;
 
             // Clear the _video buffer and start from the beginning
             _video = new ArrayList();
-            recordstream = File.Create(@".\\Records\\buffer");
+            string path = ".\\Records\\" + gestureList.Text;
+            recordstream = File.Create(@path);
             _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, recordstream);
-            test = recordstream;
         }
 
 
@@ -693,11 +692,13 @@
             // Set the capturing? flag
             _capturing = false;
 
+            string fileName = GestureSaveFileNamePrefix + ".txt";
+            System.IO.File.WriteAllText(GestureSaveFileLocation + fileName, _dtw.RetrieveText());
             status.Text = "Remembering " + gestureList.Text;
 
             // Add the current video buffer to the dtw sequences list
             _dtw.AddOrUpdate(_video, gestureList.Text);
-            results.Text = "Gesture " + gestureList.Text + "added";
+            results.Text = "Motion " + gestureList.Text + " added";
             status.Text = "";
 
             // Scratch the _video buffer
@@ -720,14 +721,16 @@
 
         //Replay the saved skeleton
         private void DtwReplayClick (object sender, RoutedEventArgs e) 
-        {               
-            OpenFileDialog openFileDialog = new OpenFileDialog { Title = "Select filename", Filter = "" };
-            openFileDialog.ShowDialog();
-                Stream recordStream = File.OpenRead(openFileDialog.FileName);
-                _replay = new KinectReplay(recordStream);
-                _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
-                _replay.Start();
+        {
+            dtwCapture.IsEnabled = false;
+            dtwStartRegcon.IsEnabled = false;
+            string path = ".\\Records\\" + gestureList.Text;
+            Stream recordStream = File.OpenRead(@path);
+            _replay = new KinectReplay(recordStream);
+            _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
+            _replay.Start();
 
+            dtwStopReplay.IsEnabled = true;
         }
 
         void replay_SkeletonFrameReady(object sender, ReplaySkeletonFrameReadyEventArgs e)
@@ -778,14 +781,27 @@
         }
 
 
-        private void DtwStopRecogn(object sender, RoutedEventArgs e)
+        private void DtwStopReplayClick(object sender, RoutedEventArgs e)
         {
-            _recogn = false;
+            dtwCapture.IsEnabled = true;
+            dtwStopReplay.IsEnabled = false;
+            dtwStartRegcon.IsEnabled = true;
+            _replay.Stop();
         }
 
         private void DtwStartRecogn(object sender, RoutedEventArgs e)
         {
-            _recogn = true;
+            _capturing = true;
+
+            ////_captureCountdownTimer.Dispose();
+
+            status.Text = "Learning " + gestureList.Text;
+
+            // Clear the _video buffer and start from the beginning
+            _video = new ArrayList();
+            string path = ".\\Learnings\\" + gestureList.Text;
+            recordstream = File.Create(@path);
+            _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, recordstream);
         }
 
         /// <summary>
@@ -793,21 +809,20 @@
         /// </summary>
         /// <param name="sender">The sender object</param>
         /// <param name="e">Routed Event Args</param>
+        /*
         private void DtwSaveToFile(object sender, RoutedEventArgs e)
         {
-            string fileName = GestureSaveFileNamePrefix + DateTime.Now.ToString("yyyy-MM-dd_HH-mm") + ".txt";
-            string filename = SkeletonSaveFileNamePrefix + DateTime.Now.ToString("yyyy-MM-dd_HH-mm") + ".replay";
-            Stream output = File.Create(GestureSaveFileLocation + filename);
-            CopyStream(test, output);
+            string fileName = GestureSaveFileNamePrefix + ".txt";
+            System.IO.File.WriteAllText(GestureSaveFileLocation + fileName, _dtw.RetrieveText());
             status.Text = "Saved to " + fileName;
-            status2.Text = "Saved to" + filename;
         }
-
+        */
         /// <summary>
         /// Loads the user's selected gesture file
         /// </summary>
         /// <param name="sender">The sender object</param>
         /// <param name="e">Routed Event Args</param>
+        /*
         private void DtwLoadFile(object sender, RoutedEventArgs e)
         {
             // Create OpenFileDialog
@@ -831,15 +846,12 @@
                 status.Text = "Gestures loaded!";
             } 
         }
+         * */
 
         /// <summary>
         /// Stores our gesture to the DTW sequences list
         /// </summary>
         /// <param name="sender">The sender object</param>
         /// <param name="e">Routed Event Args</param>
-        private void DtwShowGestureText(object sender, RoutedEventArgs e)
-        {
-            dtwTextOutput.Text = _dtw.RetrieveText();
-        }
     }
 }
