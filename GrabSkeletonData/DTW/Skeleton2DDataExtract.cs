@@ -45,8 +45,9 @@ namespace GrabSkeletonData.DTW
         public static void ProcessData(Skeleton data)
         {
             // Extract the coordinates of the points.
-            var p = new Point[14]; //updated
-            Point shoulderRight = new Point(), shoulderLeft = new Point(), lowerCenter = new Point();
+            var p = new Point[12]; //updated
+            Point shoulderRight = new Point(), shoulderLeft = new Point(), lowerCenter = new Point(), HipLeft = new Point(), HipRight = new Point();
+
             foreach (Joint j in data.Joints)
             {
                 switch (j.JointType)
@@ -76,28 +77,28 @@ namespace GrabSkeletonData.DTW
                         shoulderRight = new Point(j.Position.X, j.Position.Y);
                         break;
                     case JointType.HipLeft:
-                        p[6] = new Point(j.Position.X, j.Position.Y);
+                        HipLeft = new Point(j.Position.X, j.Position.Y);
                         break;
                     case JointType.KneeLeft:
-                        p[7] = new Point(j.Position.X, j.Position.Y);
+                        p[6] = new Point(j.Position.X, j.Position.Y);
                         break;
                     case JointType.AnkleLeft:
-                        p[8] = new Point(j.Position.X, j.Position.Y);
+                        p[7] = new Point(j.Position.X, j.Position.Y);
                         break;
                     case JointType.FootLeft:
-                        p[9] = new Point(j.Position.X, j.Position.Y);
+                        p[8] = new Point(j.Position.X, j.Position.Y);
                         break;
                     case JointType.HipRight:
-                        p[10] = new Point(j.Position.X, j.Position.Y);
+                        HipRight = new Point(j.Position.X, j.Position.Y);
                         break;
                     case JointType.KneeRight:
-                        p[11] = new Point(j.Position.X, j.Position.Y);
+                        p[9] = new Point(j.Position.X, j.Position.Y);
                         break;
                     case JointType.AnkleRight:
-                        p[12] = new Point(j.Position.X, j.Position.Y);
+                        p[10] = new Point(j.Position.X, j.Position.Y);
                         break;
                     case JointType.FootRight:
-                        p[13] = new Point(j.Position.X, j.Position.Y);
+                        p[11] = new Point(j.Position.X, j.Position.Y);
                         break;
                 }
             }
@@ -111,8 +112,8 @@ namespace GrabSkeletonData.DTW
             }
 
             //Centre the data of lower body
-            var lowercenter = new Point((p[6].X + p[10].X) / 2, (p[6].Y + p[10].Y) / 2);
-            for (int i = 6; i < 14; i++)
+            var lowercenter = new Point((HipRight.X + HipLeft.X) / 2, (HipRight.Y + HipLeft.Y) / 2);
+            for (int i = 6; i < 12; i++)
             {
                 p[i].X -= lowerCenter.X;
                 p[i].Y -= lowerCenter.Y;
@@ -123,7 +124,7 @@ namespace GrabSkeletonData.DTW
                 Math.Sqrt(Math.Pow((shoulderLeft.X - shoulderRight.X), 2) +
                           Math.Pow((shoulderLeft.Y - shoulderRight.Y), 2));
             double legDist = Math.Sqrt(Math.Pow((p[10].X - p[11].X), 2) + Math.Pow((p[10].Y - p[11].Y), 2));
-            double normalizeIndex = shoulderDist + legDist;
+            double normalizeIndex = shoulderDist + legDist; // not good 
             for (int i = 0; i < 6; i++)
             {
                 p[i].X /= normalizeIndex;
@@ -135,6 +136,7 @@ namespace GrabSkeletonData.DTW
                 p[i].Y /= normalizeIndex;
             }
             
+            /// Question : should we seperate upper body and lower body in order to increase pricision ?
             // Launch the event!
             Skeleton2DdataCoordReady(null, new Skeleton2DdataCoordEventArgs(p));
         }
