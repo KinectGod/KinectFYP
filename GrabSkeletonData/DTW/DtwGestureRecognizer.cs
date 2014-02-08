@@ -155,6 +155,8 @@ namespace GrabSkeletonData.DTW
             double minDist = double.PositiveInfinity;
             string classification = "__UNKNOWN";
             double d1 =0.0;
+
+            //remark: only 1 seq needed
             for (int i = 0; i < _sequences.Count; i++)
             {
                 var example = (ArrayList) _sequences[i];
@@ -239,6 +241,7 @@ namespace GrabSkeletonData.DTW
             var slopeI = new int[seq1R.Count + 1, seq2R.Count + 1];
             var slopeJ = new int[seq1R.Count + 1, seq2R.Count + 1];
 
+            //report:
             for (int i = 0; i < seq1R.Count + 1; i++)
             {
                 for (int j = 0; j < seq2R.Count + 1; j++)
@@ -317,6 +320,8 @@ namespace GrabSkeletonData.DTW
         /// <param name="a">Point a (double)</param>
         /// <param name="b">Point b (double)</param>
         /// <returns>Euclidian distance between the two points</returns>
+        /// 
+        // remark: 0/1? & z coordinate
         private double Dist2(double[] a, double[] b)
         {
             double d = 0;
@@ -326,9 +331,9 @@ namespace GrabSkeletonData.DTW
             }
             Math.Sqrt(d);
             if (d <= 0.1)
-                return 1;
-            else
                 return 0;
+            else
+                return 1;
             //return Math.Sqrt(d);
         }
     }

@@ -130,10 +130,10 @@ namespace GrabSkeletonData.DTW
                 p[i].X /= normalizeIndex;
                 p[i].Y /= normalizeIndex;
             }
-            for (int i = 6; i < 14; i++)
+            for (int i = 6; i < 12; i++)
             {
-                p[i].X /= normalizeIndex;
-                p[i].Y /= normalizeIndex;
+                //p[i].X /= normalizeIndex;
+                //p[i].Y /= normalizeIndex;
             }
             
             /// Question : should we seperate upper body and lower body in order to increase pricision ?

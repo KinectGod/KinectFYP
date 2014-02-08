@@ -496,7 +496,7 @@
 
             _lastTime = DateTime.Now;
 
-            _dtw = new DtwGestureRecognizer(28, 0.6, 2, 2, 10);
+            _dtw = new DtwGestureRecognizer(36, 0.6, 2, 2, 10);
             _video = new ArrayList();
 
             // If you want to see the depth image and frames per second then include this
