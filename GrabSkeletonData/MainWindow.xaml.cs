@@ -148,10 +148,13 @@
 
         // Kinect recorder
         private static KinectRecorder _recorder;
+        private static KinectRecorder _colorrecorder;
 
         private Stream recordstream;
+        private Stream recordcolorstream;
 
         private KinectReplay _replay;
+        private KinectReplay _colorreplay;
 
         /// <summary>
         /// ArrayList of coordinates which are recorded in sequence to define one gesture
@@ -465,6 +468,16 @@
 
                 videoImage.Source = image.ToBitmapSource();
             }
+
+            if (_capturing == true)
+            {
+                using (var scolorImage = e.OpenColorImageFrame())
+                {
+                    if (scolorImage == null)
+                        return;
+                    _colorrecorder.Record(scolorImage);
+                }
+            }
         }
 
         /// <summary>
@@ -671,9 +684,12 @@
 
             // Clear the _video buffer and start from the beginning
             _video = new ArrayList();
-            string path = ".\\Records\\" + gestureList.Text;
-            recordstream = File.Create(@path);
+            string path = ".\\Records\\" + gestureList.Text + "\\";
+            Directory.CreateDirectory(path);
+            recordstream = File.Create(@path + "skeleton");
+            recordcolorstream = File.Create(@path + "colorStream");
             _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, recordstream);
+            _colorrecorder = new KinectRecorder(KinectRecordOptions.Color, recordcolorstream);
         }
 
 
@@ -695,12 +711,12 @@
             string fileName = GestureSaveFileNamePrefix + ".txt";
             System.IO.File.WriteAllText(GestureSaveFileLocation + fileName, _dtw.RetrieveText());
             status.Text = "Remembering " + gestureList.Text;
-
             // Add the current video buffer to the dtw sequences list
             _dtw.AddOrUpdate(_video, gestureList.Text);
             results.Text = "Motion " + gestureList.Text + " added";
             status.Text = "";
-
+            recordstream.Close();
+            recordcolorstream.Close();
             // Scratch the _video buffer
             _video = new ArrayList();
 
@@ -724,13 +740,27 @@
         {
             dtwCapture.IsEnabled = false;
             dtwStartRegcon.IsEnabled = false;
-            string path = ".\\Records\\" + gestureList.Text;
-            Stream recordStream = File.OpenRead(@path);
+            string path = ".\\Records\\" + gestureList.Text + "\\";
+
+            Stream recordStream = File.OpenRead(@path+"skeleton");
             _replay = new KinectReplay(recordStream);
             _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
             _replay.Start();
 
+            Stream recordColorStream = File.OpenRead(@path + "colorStream");
+            _colorreplay = new KinectReplay(recordColorStream);
+            _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
+            _colorreplay.Start();
+
             dtwStopReplay.IsEnabled = true;
+        }
+
+        void replay_ColorImageFrameReady(object sender, ReplayColorImageFrameReadyEventArgs e)
+        {
+            // 32-bit per pixel, RGBA image
+            var image = e.ColorImageFrame;
+            if (image == null) return; // sometimes frame image comes null, so skip it.
+            videoImage2.Source = image.test.ToBitmapSource();
         }
 
         void replay_SkeletonFrameReady(object sender, ReplaySkeletonFrameReadyEventArgs e)

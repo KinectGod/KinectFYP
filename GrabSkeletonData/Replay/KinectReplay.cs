@@ -13,11 +13,13 @@ namespace GrabSkeletonData.Replay
         readonly SynchronizationContext synchronizationContext;
 
         // Events
-        public event EventHandler<ReplaySkeletonFrameReadyEventArgs> SkeletonFrameReady;        
+        public event EventHandler<ReplaySkeletonFrameReadyEventArgs> SkeletonFrameReady;
+        public event EventHandler<ReplayColorImageFrameReadyEventArgs> ColorImageFrameReady; 
 
 
         // Replay
         ReplaySystem<ReplaySkeletonFrame> skeletonReplay;
+        ReplaySystem<ReplayColorImageFrame> colorReplay;
 
         public bool Started { get; internal set; }
 
@@ -27,6 +29,9 @@ namespace GrabSkeletonData.Replay
             {
 
                 if (skeletonReplay != null && !skeletonReplay.IsFinished)
+                    return false;
+
+                if (colorReplay != null && !colorReplay.IsFinished)
                     return false;
 
                 return true;
@@ -42,16 +47,19 @@ namespace GrabSkeletonData.Replay
 
             KinectRecordOptions options = (KinectRecordOptions) reader.ReadInt32();
 
-            /*
+            
             if ((options & KinectRecordOptions.Color) != 0)
             {
                 colorReplay = new ReplaySystem<ReplayColorImageFrame>();
             }
+
+            /*
             if ((options & KinectRecordOptions.Depth) != 0)
             {
                 depthReplay = new ReplaySystem<ReplayDepthImageFrame>();
             }
-             */
+             * */
+            
 
             if ((options & KinectRecordOptions.Skeletons) != 0)
             {
@@ -63,14 +71,16 @@ namespace GrabSkeletonData.Replay
                 KinectRecordOptions header = (KinectRecordOptions)reader.ReadInt32();
                 switch (header)
                 {
-                        /*
+                        
                     case KinectRecordOptions.Color:
                         colorReplay.AddFrame(reader);
                         break;
+                    /*
                     case KinectRecordOptions.Depth:
                         depthReplay.AddFrame(reader);
                         break;
                          * */
+
                     case KinectRecordOptions.Skeletons:
                         skeletonReplay.AddFrame(reader);
                         break;
@@ -84,7 +94,7 @@ namespace GrabSkeletonData.Replay
                 throw new Exception("KinectReplay already started");
 
             Started = true;
-            /*
+           
             if (colorReplay != null)
             {
                 colorReplay.Start();
@@ -94,7 +104,8 @@ namespace GrabSkeletonData.Replay
                         ColorImageFrameReady(this, new ReplayColorImageFrameReadyEventArgs { ColorImageFrame = frame });
                 }, null);
             }
-
+ 
+            /*
             if (depthReplay != null)
             {
                 depthReplay.Start();
@@ -119,17 +130,19 @@ namespace GrabSkeletonData.Replay
 
         public void Stop()
         {
-            /*
+            
             if (colorReplay != null)
             {
                 colorReplay.Stop();
             }
 
+            /*
             if (depthReplay != null)
             {
                 depthReplay.Stop();
             }
             */
+
             if (skeletonReplay != null)
             {
                 skeletonReplay.Stop();
@@ -141,10 +154,12 @@ namespace GrabSkeletonData.Replay
         public void Dispose()
         {
             Stop();
-            /*
+            
             colorReplay = null;
+            /*
             depthReplay = null;
              */
+
             skeletonReplay = null;
 
             if (reader != null)

@@ -14,6 +14,7 @@ namespace GrabSkeletonData.Recorder
         // Recorders
         //readonly ColorRecorder colorRecoder;
         readonly SkeletonRecorder skeletonRecorder;
+        readonly ColorRecorder colorRecoder;
 
         //
         public KinectRecordOptions Options { get; set; }
@@ -26,12 +27,11 @@ namespace GrabSkeletonData.Recorder
                 writer = new BinaryWriter(recordStream);
                 writer.Write((int)Options);
 
-                /*
+                
                 if ((Options & KinectRecordOptions.Color) != 0)
                 {
                     colorRecoder = new ColorRecorder(writer);
                 }
-                 */
 
                 if ((Options & KinectRecordOptions.Skeletons) != 0)
                 {
@@ -54,7 +54,7 @@ namespace GrabSkeletonData.Recorder
            
         }
 
-        /*
+        
         public void Record(ColorImageFrame frame)
         {
             if (writer == null)
@@ -67,7 +67,7 @@ namespace GrabSkeletonData.Recorder
             colorRecoder.Record(frame);
            
         }
-         */
+        
 
 
         public void Stop()

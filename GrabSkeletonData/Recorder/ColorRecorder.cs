@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using Microsoft.Kinect;
 
-namespace GrabSkeletonData
+namespace GrabSkeletonData.Recorder
 {
     class ColorRecorder
     {        
@@ -22,7 +22,7 @@ namespace GrabSkeletonData
         public void Record(ColorImageFrame frame)
         {
             // Header
-            writer.Write((int)KinectRecordOptions.Skeletons);
+            writer.Write((int)KinectRecordOptions.Color);
             
             // ColorFrame Information   
             TimeSpan timeSpan = DateTime.Now.Subtract(recordingTime);
