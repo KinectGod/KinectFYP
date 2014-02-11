@@ -36,6 +36,8 @@ namespace GrabSkeletonData.DTW
          * http://www.youtube.com/watch?v=XsIoN96yF3E
          */
 
+        private ArrayList _path;
+        
         /// <summary>
         /// Size of obeservations vectors.
         /// </summary>
@@ -239,8 +241,8 @@ namespace GrabSkeletonData.DTW
                 for (int j = 0; j < seq2R.Count + 1; j++)
                 {
                     tab[i, j] = double.PositiveInfinity;
-                    slopeI[i, j] = 0;
-                    slopeJ[i, j] = 0;
+                    slopeI[i, j] = 0; //number of times that the shortest path is from the left consecutively
+                    slopeJ[i, j] = 0; //number of times that the shortest path is from the top consecutively
                 }
             }
 
@@ -251,21 +253,21 @@ namespace GrabSkeletonData.DTW
             {
                 for (int j = 1; j < seq2R.Count + 1; j++)
                 {
-                    if (tab[i, j - 1] < tab[i - 1, j - 1] && tab[i, j - 1] < tab[i - 1, j] &&
+                    if (tab[i, j - 1] < tab[i - 1, j - 1] && tab[i, j - 1] < tab[i - 1, j] && //case1: tab[i,j-1] (left) have passed the shortest path so far
                         slopeI[i, j - 1] < _maxSlope)
                     {
                         tab[i, j] = Marker((double[])seq1R[i - 1], (double[])seq2R[j - 1]) + tab[i, j - 1];
-                        slopeI[i, j] = slopeJ[i, j - 1] + 1;
+                        slopeI[i, j] = slopeI[i, j - 1] + 1;
                         slopeJ[i, j] = 0;
                     }
-                    else if (tab[i - 1, j] < tab[i - 1, j - 1] && tab[i - 1, j] < tab[i, j - 1] &&
+                    else if (tab[i - 1, j] < tab[i - 1, j - 1] && tab[i - 1, j] < tab[i, j - 1] && //case2: tab[i-1,j] (top) have passed the shortest path so far
                              slopeJ[i - 1, j] < _maxSlope)
                     {
                         tab[i, j] = Marker((double[])seq1R[i - 1], (double[])seq2R[j - 1]) + tab[i - 1, j];
                         slopeI[i, j] = 0;
                         slopeJ[i, j] = slopeJ[i - 1, j] + 1;
                     }
-                    else
+                    else //case3: tab[i-1,j-1] (top left) have passed the shortest path so far
                     {
                         tab[i, j] = Marker((double[])seq1R[i - 1], (double[])seq2R[j - 1]) + tab[i - 1, j - 1];
                         slopeI[i, j] = 0;
@@ -276,11 +278,38 @@ namespace GrabSkeletonData.DTW
 
             // Find best between seq2 and an ending (postfix) of seq1.
             double bestMatch = double.PositiveInfinity;
+            int bestMatchI = 0;
             for (int i = 1; i < (seq1R.Count + 1) - _minimumLength; i++)
             {
                 if (tab[i, seq2R.Count] < bestMatch)
                 {
                     bestMatch = tab[i, seq2R.Count];
+                    bestMatchI = i; //trace the AugMin of bestMatch
+                }
+            }
+
+            //Reconstruct the best matched path
+            if (bestMatchI < 1) return -1; //error checking 
+            _path = new ArrayList();
+            int currentI = bestMatchI;
+            int currentJ = seq2R.Count;
+            
+            while (currentI != 0 && currentJ != 0)
+            {
+                var target = new DtwPathNode(seq1.Count-currentI,seq2.Count-currentJ,tab[currentI,currentJ]);
+                _path.Add(target);
+                if (slopeI[currentI, currentJ] > 0) //trace the left one
+                {
+                    currentJ -= 1;
+                }
+                else if (slopeJ[currentI, currentJ] > 0) //trace the top one
+                {
+                    currentI -= 1;
+                }
+                else //trace the top left one
+                {
+                    currentI -= 1;
+                    currentJ -= 1;
                 }
             }
 
