@@ -20,6 +20,7 @@ namespace GrabSkeletonData.DTW
     using System;
     using System.Windows;
     using Microsoft.Kinect;
+    using System.Windows.Media.Media3D;
 
     /// <summary>
     /// This class is used to transform the data of the skeleton
@@ -45,65 +46,41 @@ namespace GrabSkeletonData.DTW
         public static void ProcessData(Skeleton data)
         {
             // Extract the coordinates of the points.
-            var p = new Point[12]; //updated
-            Point shoulderRight = new Point(), shoulderLeft = new Point(), lowerCenter = new Point(), HipLeft = new Point(), HipRight = new Point();
+            var p = new Vector3D[8];
 
             foreach (Joint j in data.Joints)
             {
                 switch (j.JointType)
                 {
                     case JointType.HandLeft:
-                        p[0] = new Point(j.Position.X, j.Position.Y);
+                        p[0] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
                     case JointType.WristLeft:
-                        p[1] = new Point(j.Position.X, j.Position.Y);
+                        p[1] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
                     case JointType.ElbowLeft:
-                        p[2] = new Point(j.Position.X, j.Position.Y);
+                        p[2] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
                     case JointType.ElbowRight:
-                        p[3] = new Point(j.Position.X, j.Position.Y);
+                        p[3] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
                     case JointType.WristRight:
-                        p[4] = new Point(j.Position.X, j.Position.Y);
+                        p[4] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
                     case JointType.HandRight:
-                        p[5] = new Point(j.Position.X, j.Position.Y);
+                        p[5] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
                     case JointType.ShoulderLeft:
-                        shoulderLeft = new Point(j.Position.X, j.Position.Y);
+                        p[6] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
                     case JointType.ShoulderRight:
-                        shoulderRight = new Point(j.Position.X, j.Position.Y);
-                        break;
-                    case JointType.HipLeft:
-                        HipLeft = new Point(j.Position.X, j.Position.Y);
-                        break;
-                    case JointType.KneeLeft:
-                        p[6] = new Point(j.Position.X, j.Position.Y);
-                        break;
-                    case JointType.AnkleLeft:
-                        p[7] = new Point(j.Position.X, j.Position.Y);
-                        break;
-                    case JointType.FootLeft:
-                        p[8] = new Point(j.Position.X, j.Position.Y);
-                        break;
-                    case JointType.HipRight:
-                        HipRight = new Point(j.Position.X, j.Position.Y);
-                        break;
-                    case JointType.KneeRight:
-                        p[9] = new Point(j.Position.X, j.Position.Y);
-                        break;
-                    case JointType.AnkleRight:
-                        p[10] = new Point(j.Position.X, j.Position.Y);
-                        break;
-                    case JointType.FootRight:
-                        p[11] = new Point(j.Position.X, j.Position.Y);
+                        p[7] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
                 }
             }
 
-            // Centre the data of upper body
+            /*
+            // Centre the data
             var center = new Point((shoulderLeft.X + shoulderRight.X) / 2, (shoulderLeft.Y + shoulderRight.Y) / 2);
             for (int i = 0; i < 6; i++)
             {
@@ -111,32 +88,19 @@ namespace GrabSkeletonData.DTW
                 p[i].Y -= center.Y;
             }
 
-            //Centre the data of lower body
-            var lowercenter = new Point((HipRight.X + HipLeft.X) / 2, (HipRight.Y + HipLeft.Y) / 2);
-            for (int i = 6; i < 12; i++)
-            {
-                p[i].X -= lowerCenter.X;
-                p[i].Y -= lowerCenter.Y;
-            }
-
             // Normalization of the coordinates
             double shoulderDist =
                 Math.Sqrt(Math.Pow((shoulderLeft.X - shoulderRight.X), 2) +
                           Math.Pow((shoulderLeft.Y - shoulderRight.Y), 2));
-            double legDist = Math.Sqrt(Math.Pow((p[10].X - p[11].X), 2) + Math.Pow((p[10].Y - p[11].Y), 2));
-            double normalizeIndex = shoulderDist + legDist; // not good 
             for (int i = 0; i < 6; i++)
             {
-                p[i].X /= normalizeIndex;
-                p[i].Y /= normalizeIndex;
+                p[i].X /= shoulderDist;
+                p[i].Y /= shoulderDist;
             }
-            for (int i = 6; i < 12; i++)
-            {
-                //p[i].X /= normalizeIndex;
-                //p[i].Y /= normalizeIndex;
-            }
-            
-            /// Question : should we seperate upper body and lower body in order to increase pricision ?
+            */
+
+
+
             // Launch the event!
             Skeleton2DdataCoordReady(null, new Skeleton2DdataCoordEventArgs(p));
         }

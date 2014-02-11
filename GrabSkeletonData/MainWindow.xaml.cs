@@ -1,4 +1,4 @@
-﻿namespace DTWGestureRecognition
+﻿namespace GrabSkeletonData
 {
     using System;
     using System.Collections;
@@ -75,7 +75,10 @@
         private const string SkeletonSaveFileNamePrefix = @"RecordedSkeleton";
         /// <summary>
         /// Dictionary of all the joints Kinect SDK is capable of tracking. You might not want always to use them all but they are included here for thouroughness.
-        /// </summary>
+       
+        /// number of joints that we need
+        private const int dimension = 8;
+
         private readonly Dictionary<JointType, Brush> _jointColors = new Dictionary<JointType, Brush>
         { 
             {JointType.HipCenter, new SolidColorBrush(Color.FromRgb(169, 176, 155))},
@@ -187,7 +190,7 @@
 
             // TODO I'm defaulting this to 12 here for now as it meets my current need but I need to cater for variable lengths in the future
             ArrayList frames = new ArrayList();
-            double[] items = new double[12];
+            double[] items = new double[dimension * 3];
 
             // Read the file and display it line by line.
             System.IO.StreamReader file = new System.IO.StreamReader(fileLocation);
@@ -203,7 +206,7 @@
                 {
                     frames.Add(items);
                     itemCount = 0;
-                    items = new double[12];
+                    items = new double[dimension * 3];
                     continue;
                 }
 
@@ -509,7 +512,7 @@
 
             _lastTime = DateTime.Now;
 
-            _dtw = new DtwGestureRecognizer(36, 0.6, 2, 2, 10);
+            _dtw = new DtwGestureRecognizer( dimension * 3, 0.6, 2, 2, 10);
             _video = new ArrayList();
 
             // If you want to see the depth image and frames per second then include this

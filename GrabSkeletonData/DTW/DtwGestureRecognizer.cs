@@ -21,6 +21,7 @@ namespace GrabSkeletonData.DTW
 {
     using System;
     using System.Collections;
+    using System.Windows.Media.Media3D;
 
     /// <summary>
     /// Dynamic Time Warping nearest neighbour sequence comparison class.
@@ -69,6 +70,9 @@ namespace GrabSkeletonData.DTW
         /// The recorded gesture sequences
         /// </summary>
         private readonly ArrayList _sequences;
+
+
+        private readonly double judgement = 120;
 
         /// <summary>
         /// Initializes a new instance of the DtwGestureRecognizer class
@@ -146,36 +150,25 @@ namespace GrabSkeletonData.DTW
         /// </summary>
         /// <param name="seq">The sequence to recognise</param>
         /// <returns>The recognised gesture name</returns>
-        /// Todo: need to further develop, not to find the corresponding seq, but comparing to the sepecific seq
-        /// ie, Recognize(testing_seq, comapring_seq), or maybe we can use Dtw() directly without this function
-
         //public string Recognize(ArrayList seq)  
-        public double Recognize(ArrayList seq)  
+        public double Recognize(ArrayList seq)
         {
             double minDist = double.PositiveInfinity;
-            string classification = "__UNKNOWN";
-            double d1 =0.0;
 
-            //remark: only 1 seq needed
             for (int i = 0; i < _sequences.Count; i++)
+
             {
-                var example = (ArrayList) _sequences[i];
-                ////Debug.WriteLine(Dist2((double[]) seq[seq.Count - 1], (double[]) example[example.Count - 1]));
-                if (Dist2((double[]) seq[seq.Count - 1], (double[]) example[example.Count - 1]) < _firstThreshold)
+                var example = (ArrayList)_sequences[i];
+                ////Debug.WriteLine(Marker((double[]) seq[seq.Count - 1], (double[]) example[example.Count - 1]));
+                /*
+                if (Marker((double[])seq[seq.Count - 1], (double[])example[example.Count - 1]) < _firstThreshold)
                 {
-                    double d = Dtw(seq, example) / example.Count;
-                    if (d < minDist)
-                    {
-                        minDist = d;
-                        classification = (string)_labels[i];
-                    }
-                    d1 = d;
-
-
-                }
+                 * */
+                double d = Dtw(seq, example) / seq.Count;
+                if (d < minDist) minDist = d;
             }
-            return d1;
-            //return (minDist < _globalThreshold ? classification : "__UNKNOWN") + " " /*+minDist.ToString()*/;
+
+            return 1 - minDist /*+minDist.ToString()*/;
         }
 
         /// <summary>
@@ -241,12 +234,11 @@ namespace GrabSkeletonData.DTW
             var slopeI = new int[seq1R.Count + 1, seq2R.Count + 1];
             var slopeJ = new int[seq1R.Count + 1, seq2R.Count + 1];
 
-            //report:
             for (int i = 0; i < seq1R.Count + 1; i++)
             {
                 for (int j = 0; j < seq2R.Count + 1; j++)
                 {
-                    tab[i, j] = double.PositiveInfinity; //what's this for?
+                    tab[i, j] = double.PositiveInfinity;
                     slopeI[i, j] = 0;
                     slopeJ[i, j] = 0;
                 }
@@ -262,20 +254,20 @@ namespace GrabSkeletonData.DTW
                     if (tab[i, j - 1] < tab[i - 1, j - 1] && tab[i, j - 1] < tab[i - 1, j] &&
                         slopeI[i, j - 1] < _maxSlope)
                     {
-                        tab[i, j] = Dist2((double[]) seq1R[i - 1], (double[]) seq2R[j - 1]) + tab[i, j - 1];
+                        tab[i, j] = Marker((double[])seq1R[i - 1], (double[])seq2R[j - 1]) + tab[i, j - 1];
                         slopeI[i, j] = slopeJ[i, j - 1] + 1;
                         slopeJ[i, j] = 0;
                     }
                     else if (tab[i - 1, j] < tab[i - 1, j - 1] && tab[i - 1, j] < tab[i, j - 1] &&
                              slopeJ[i - 1, j] < _maxSlope)
                     {
-                        tab[i, j] = Dist2((double[]) seq1R[i - 1], (double[]) seq2R[j - 1]) + tab[i - 1, j];
+                        tab[i, j] = Marker((double[])seq1R[i - 1], (double[])seq2R[j - 1]) + tab[i - 1, j];
                         slopeI[i, j] = 0;
                         slopeJ[i, j] = slopeJ[i - 1, j] + 1;
                     }
                     else
                     {
-                        tab[i, j] = Dist2((double[]) seq1R[i - 1], (double[]) seq2R[j - 1]) + tab[i - 1, j - 1];
+                        tab[i, j] = Marker((double[])seq1R[i - 1], (double[])seq2R[j - 1]) + tab[i - 1, j - 1];
                         slopeI[i, j] = 0;
                         slopeJ[i, j] = 0;
                     }
@@ -283,11 +275,9 @@ namespace GrabSkeletonData.DTW
             }
 
             // Find best between seq2 and an ending (postfix) of seq1.
-            // ToDo: instead of returning bestMatch, we will return an calculated marks
             double bestMatch = double.PositiveInfinity;
             for (int i = 1; i < (seq1R.Count + 1) - _minimumLength; i++)
             {
-                /// should we set constraint when some tab[] are too large, stop fingding best match, treat this as a servious mistake.
                 if (tab[i, seq2R.Count] < bestMatch)
                 {
                     bestMatch = tab[i, seq2R.Count];
@@ -320,10 +310,9 @@ namespace GrabSkeletonData.DTW
         /// <param name="a">Point a (double)</param>
         /// <param name="b">Point b (double)</param>
         /// <returns>Euclidian distance between the two points</returns>
-        /// 
-        // remark: 0/1? & z coordinate
-        private double Dist2(double[] a, double[] b)
+        private double Marker(double[] a, double[] b)
         {
+            /*
             double d = 0;
             for (int i = 0; i < _dimension; i++)
             {
@@ -331,10 +320,69 @@ namespace GrabSkeletonData.DTW
             }
             Math.Sqrt(d);
             if (d <= 0.1)
-                return 0;
-            else
                 return 1;
+            else
+                return 0;
             //return Math.Sqrt(d);
+             * */
+            double score = 0.0;
+            double[] temp = new double[2];
+            // 0 represent learner, 1 master
+            double[] XYplane = new double[2];
+            double[] ZYplane = new double[2];
+            Vector3D Learner_joint0to1;
+            Vector3D master_joint0to1;
+            // used to store the vector project to the planes
+            Vector3D[] ProjectToXY = new Vector3D[2];
+            Vector3D[] ProjectToZY = new Vector3D[2];
+
+            for (int i = 0; i < _dimension - 5; i += 3)
+            {
+                // calculate vector joining two points
+                Learner_joint0to1 = new Vector3D(a[i] - a[i + 3], a[i + 1] - a[i + 4], a[i + 2] - a[i + 5]);
+                ProjectToXY[0] = new Vector3D(Math.Abs(a[i] - a[i + 3]), Math.Abs(a[i + 1] - a[i + 4]), 0);
+                ProjectToZY[0] = new Vector3D(0, Math.Abs(a[i + 1] - a[i + 4]), Math.Abs(a[i + 2] - a[i + 5]));
+
+                master_joint0to1 = new Vector3D(b[i] - b[i + 3], b[i + 1] - b[i + 4], b[i + 2] - b[i + 5]);
+                ProjectToXY[1] = new Vector3D(Math.Abs(b[i] - b[i + 3]), Math.Abs(b[i + 1] - b[i + 4]), 0);
+                ProjectToZY[1] = new Vector3D(0, b[i + 1] - b[i + 4], b[i + 2] - b[i + 5]);
+
+                // calculate angle between the vector and the plane
+                XYplane[0] = Vector3D.AngleBetween(Learner_joint0to1, ProjectToXY[0]);
+                XYplane[1] = Vector3D.AngleBetween(master_joint0to1, ProjectToXY[1]);
+                temp[0] = Math.Abs(XYplane[0] - XYplane[1]);
+                ZYplane[0] = Vector3D.AngleBetween(Learner_joint0to1, ProjectToZY[0]);
+                ZYplane[1] = Vector3D.AngleBetween(master_joint0to1, ProjectToZY[1]);
+                temp[1] = Math.Abs(ZYplane[0] - ZYplane[1]);
+
+                for (int j = 0; j < 2; j++)
+                {
+                    if (temp[j] > judgement)
+                    {
+                        score += 0.5;
+                    }
+                    else if (temp[j] > judgement * 3 / 4)
+                    {
+                        score += 0.4;
+                    }
+                    else if (temp[j] > judgement / 2)
+                    {
+                        score += 0.3;
+                    }
+                    else if (temp[j] > judgement / 4)
+                    {
+                        score += 0.2;
+                    }
+                    else if (temp[j] > judgement / 5)
+                    {
+                        score += 0.1;
+                    }
+                }
+
+            }
+
+            return score;
+
         }
     }
 }

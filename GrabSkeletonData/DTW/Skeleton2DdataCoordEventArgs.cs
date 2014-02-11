@@ -18,6 +18,7 @@
 namespace GrabSkeletonData.DTW
 {
     using System.Windows;
+    using System.Windows.Media.Media3D;
 
     /// <summary>
     /// Takes Kinect SDK Skeletal Frame coordinates and converts them intoo a format useful to th DTW
@@ -27,15 +28,15 @@ namespace GrabSkeletonData.DTW
         /// <summary>
         /// Positions of the elbows, the wrists and the hands (placed from left to right)
         /// </summary>
-        private readonly Point[] _points;
+        private readonly Vector3D[] _points;
 
         /// <summary>
         /// Initializes a new instance of the Skeleton2DdataCoordEventArgs class
         /// </summary>
         /// <param name="points">The points we need to handle in this class</param>
-        public Skeleton2DdataCoordEventArgs(Point[] points)
+        public Skeleton2DdataCoordEventArgs(Vector3D[] points)
         {
-            _points = (Point[]) points.Clone(); //
+            _points = (Vector3D[])points.Clone();
         }
 
         /// <summary>
@@ -43,7 +44,7 @@ namespace GrabSkeletonData.DTW
         /// </summary>
         /// <param name="index">The index we wish to retrieve</param>
         /// <returns>The point at the sent index</returns>
-        public Point GetPoint(int index)
+        public Vector3D GetPoint(int index)
         {
             return _points[index];
         }
@@ -54,13 +55,13 @@ namespace GrabSkeletonData.DTW
         /// <returns>The coordinates of our _points</returns>
         internal double[] GetCoords()
         {
-            var tmp = new double[_points.Length * 2];
+            var tmp = new double[_points.Length * 3];
             for (int i = 0; i < _points.Length; i++)
             {
                 tmp[2 * i] = _points[i].X;
                 tmp[(2 * i) + 1] = _points[i].Y;
+                tmp[(2 * i) + 2] = _points[i].Z;
             }
-
             return tmp;
         }
     }
