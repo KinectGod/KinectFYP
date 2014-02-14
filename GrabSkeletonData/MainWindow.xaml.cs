@@ -47,25 +47,15 @@
         private const int Ignore = 2;
 
         /// <summary>
-        /// How many skeleton frames to store in the _video buffer
-        /// </summary>
-        private const int BufferSize = 32; // here should be the limitation of recording time, just try to enlarge it
-
-        /// <summary>
         /// The minumum number of frames in the _video buffer before we attempt to start matching gestures
         /// </summary>
-        private const int MinimumFrames = 24; //ToDo: need to adjust later 
-
-        /// <summary>
-        /// The minumum number of frames in the _video buffer before we attempt to start matching gestures
-        /// </summary>
-        private const int CaptureCountdownSeconds = 3;
+        private const int CaptureCountdownSeconds = 5;
 
         /// <summary>
         /// Where we will save our gestures to. The app will append a data/time and .txt to this string
         /// </summary>
 
-        private const string GestureSaveFileLocation = @".\\Records";
+        private string GestureSaveFileLocation = "";
 
         /// <summary>
         /// Where we will save our gestures to. The app will append a data/time and .txt to this string
@@ -103,10 +93,12 @@
             {JointType.FootRight, new SolidColorBrush(Color.FromRgb(77, 109, 243))}
         };
 
+        /* DEPTH
         /// <summary>
         /// The depth frame byte array. Only supports 320 * 240 at this time
         /// </summary>
         private readonly short[] _depthFrame32 = new short[320 * 240 * 4];
+         * */
 
         /// <summary>
         /// Flag to show whether or not the gesture recogniser is capturing a new pose
@@ -137,7 +129,6 @@
         /// Total number of framed that have occurred. Used for calculating frames per second
         /// </summary>
         private int _totalFrames;
-        private Stream test;
 
         /// <summary>
         /// Switch used to ignore certain skeleton frames
@@ -159,14 +150,10 @@
         private KinectReplay _replay;
         private KinectReplay _colorreplay;
 
-        /// <summary>
-        /// ArrayList of coordinates which are recorded in sequence to define one gesture
-        /// </summary>
+        /// 
         private DateTime _captureCountdown = DateTime.Now;
 
-        /// <summary>
-        /// ArrayList of coordinates which are recorded in sequence to define one gesture
-        /// </summary>
+        /// 
         private Timer _captureCountdownTimer;
 
         /// <summary>
@@ -244,13 +231,14 @@
                 
                 foreach (Skeleton data in skeletons)
                 {
-                    Skeleton2DDataExtract.ProcessData(data);
+                    Skeleton3DDataExtract.ProcessData(data);
                 }
 
                 //maker for record
             }
         }
 
+        /* DEPTH
         /// <summary>
         /// Converts a 16-bit grayscale depth frame which includes player indexes into a 32-bit frame that displays different players in different colors
         /// </summary>
@@ -315,6 +303,7 @@
 
             return _depthFrame32;
         }
+         * */
 
         /// <summary>
         /// Called when each depth frame is ready
@@ -431,6 +420,7 @@
                 if (SkeletonTrackingState.Tracked == data.TrackingState)
                 {
                     // Draw bones
+                    //REMARK. change bone color here
                     Brush brush = brushes[iSkeleton % brushes.Length];
                     skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.Spine, JointType.ShoulderCenter, JointType.Head));
                     skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft));
@@ -499,7 +489,9 @@
 
             try
             {
+                /* DEPTH
                 _nui.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
+                 * */
                 _nui.SkeletonStream.Enable();
                 _nui.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
                 _nui.Start();
@@ -525,7 +517,7 @@
             // If you want to see the RGB stream then include this
             _nui.ColorFrameReady += NuiColorFrameReady;
 
-            Skeleton2DDataExtract.Skeleton2DdataCoordReady += NuiSkeleton2DdataCoordReady;
+            Skeleton3DDataExtract.Skeleton3DdataCoordReady += NuiSkeleton3DdataCoordReady;
 
             // Update the debug window with Sequences information
             dtwTextOutput.Text = _dtw.RetrieveText();
@@ -553,7 +545,7 @@
         /// <param name="a">Skeleton 2Ddata Coord Event Args</param>
         // DEBUG : whether this function relates to the limitation of recording frames
         
-        private void NuiSkeleton2DdataCoordReady(object sender, Skeleton2DdataCoordEventArgs a)
+        private void NuiSkeleton3DdataCoordReady(object sender, Skeleton3DdataCoordEventArgs a)
         {
             currentBufferFrame.Text = _video.Count.ToString();
 
@@ -595,6 +587,7 @@
             // Decide which skeleton frames to capture. Only do so if the frames actually returned a number. 
             // For some reason my Kinect/PC setup didn't always return a double in range (i.e. infinity) even when standing completely within the frame.
             // TODO Weird. Need to investigate this
+            // REMARK. INFINIY PROBLEM
             if (!double.IsNaN(a.GetPoint(0).X))
             {
                 // Optionally register only 1 frame out of every n
@@ -688,12 +681,17 @@
             // Clear the _video buffer and start from the beginning
             _video = new ArrayList();
             string path = ".\\Records\\" + gestureList.Text + "\\";
-            Directory.CreateDirectory(path);
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            GestureSaveFileLocation = path;
             recordstream = File.Create(@path + "skeleton");
             recordcolorstream = File.Create(@path + "colorStream");
             _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, recordstream);
             _colorrecorder = new KinectRecorder(KinectRecordOptions.Color, recordcolorstream);
         }
+       
 
 
         /// <summary>
@@ -712,7 +710,7 @@
             _capturing = false;
 
             string fileName = GestureSaveFileNamePrefix + ".txt";
-            System.IO.File.WriteAllText(GestureSaveFileLocation + fileName, _dtw.RetrieveText());
+            System.IO.File.WriteAllText(@GestureSaveFileLocation + fileName, _dtw.RetrieveText());
             status.Text = "Remembering " + gestureList.Text;
             // Add the current video buffer to the dtw sequences list
             _dtw.AddOrUpdate(_video, gestureList.Text);
@@ -763,7 +761,8 @@
             // 32-bit per pixel, RGBA image
             var image = e.ColorImageFrame;
             if (image == null) return; // sometimes frame image comes null, so skip it.
-            videoImage2.Source = image.test.ToBitmapSource();
+            //videoImage2.Source = GetImage(, System.Windows.Media.PixelFormats.Rgb24);
+            
         }
 
         void replay_SkeletonFrameReady(object sender, ReplaySkeletonFrameReadyEventArgs e)
@@ -820,6 +819,7 @@
             dtwStopReplay.IsEnabled = false;
             dtwStartRegcon.IsEnabled = true;
             _replay.Stop();
+            _colorreplay.Stop();
         }
 
         private void DtwStartRecogn(object sender, RoutedEventArgs e)
@@ -837,6 +837,22 @@
             _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, recordstream);
         }
 
+
+        private ImageSource GetImage(byte[] imageData, System.Windows.Media.PixelFormat format, int width = 640, int height = 480)
+        {
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Interlace = PngInterlaceOption.On;
+                encoder.Frames.Add(BitmapFrame.Create(BitmapSource.Create(width, height, 96, 96, format, null, imageData, width * format.BitsPerPixel / 8)));
+                encoder.Save(memoryStream);
+                BitmapImage imageSource = new BitmapImage();
+                imageSource.BeginInit();
+                imageSource.StreamSource = memoryStream;
+                imageSource.EndInit();
+                return imageSource;
+            }
+        }
         /// <summary>
         /// Stores our gesture to the DTW sequences list
         /// </summary>

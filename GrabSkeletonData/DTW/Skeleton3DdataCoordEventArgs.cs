@@ -23,7 +23,7 @@ namespace GrabSkeletonData.DTW
     /// <summary>
     /// Takes Kinect SDK Skeletal Frame coordinates and converts them intoo a format useful to th DTW
     /// </summary>
-    internal class Skeleton2DdataCoordEventArgs
+    internal class Skeleton3DdataCoordEventArgs
     {
         /// <summary>
         /// Positions of the elbows, the wrists and the hands (placed from left to right)
@@ -34,7 +34,7 @@ namespace GrabSkeletonData.DTW
         /// Initializes a new instance of the Skeleton2DdataCoordEventArgs class
         /// </summary>
         /// <param name="points">The points we need to handle in this class</param>
-        public Skeleton2DdataCoordEventArgs(Vector3D[] points)
+        public Skeleton3DdataCoordEventArgs(Vector3D[] points)
         {
             _points = (Vector3D[])points.Clone();
         }

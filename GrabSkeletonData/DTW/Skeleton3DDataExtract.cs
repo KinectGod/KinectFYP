@@ -25,19 +25,19 @@ namespace GrabSkeletonData.DTW
     /// <summary>
     /// This class is used to transform the data of the skeleton
     /// </summary>
-    internal class Skeleton2DDataExtract
+    internal class Skeleton3DDataExtract
     {
         /// <summary>
         /// Skeleton2DdataCoordEventHandler delegate
         /// </summary>
         /// <param name="sender">The sender object</param>
         /// <param name="a">Skeleton 2Ddata Coord Event Args</param>
-        public delegate void Skeleton2DdataCoordEventHandler(object sender, Skeleton2DdataCoordEventArgs a);
+        public delegate void Skeleton3DdataCoordEventHandler(object sender, Skeleton3DdataCoordEventArgs a);
 
         /// <summary>
         /// The Skeleton 2Ddata Coord Ready event
         /// </summary>
-        public static event Skeleton2DdataCoordEventHandler Skeleton2DdataCoordReady;
+        public static event Skeleton3DdataCoordEventHandler Skeleton3DdataCoordReady;
 
         /// <summary>
         /// Crunches Kinect SDK's Skeleton Data and spits out a format more useful for DTW
@@ -102,7 +102,7 @@ namespace GrabSkeletonData.DTW
 
 
             // Launch the event!
-            Skeleton2DdataCoordReady(null, new Skeleton2DdataCoordEventArgs(p));
+            Skeleton3DdataCoordReady(null, new Skeleton3DdataCoordEventArgs(p));
         }
     }
 }
