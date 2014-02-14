@@ -25,11 +25,12 @@
             <Label Height="20" Content="Video1" FontSize="8" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Width="680" FontStretch="SemiExpanded" FontStyle="Normal" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontFamily="Segoe UI"></Label>
         </StackPanel>
         <StackPanel Grid.Column="0" Grid.Row="2">
-            <Button x:Name="dtwCapture" Content="Capture" Click="DtwCaptureClick" Width="200 "/>
-            <Button x:Name="dtwStore" Content="Store" IsEnabled="False" Click="DtwStoreClick" Width="200" />
+            <Button x:Name="dtwCapture" Content="Record" Click="DtwCaptureClick" Width="200 "/>
+            <Button x:Name="dtwStore" Content="Stop and Store" IsEnabled="False" Click="DtwStoreClick" Width="200" />
             <Button x:Name="dtwReplay" Content="Replay" Click="DtwReplayClick" Width="200" IsEnabled="True" Margin="0,0,1,0" />
             <Button x:Name="dtwStopReplay" Content="Stop Replay" Click="DtwStopReplayClick" Width="200" IsEnabled="False" Margin="0,0,1,0" />
             <Button x:Name="dtwStartRegcon" Content="Start Learning" Click="DtwStartRecogn" Width="200" IsEnabled="True" Margin="0,0,1,0" />
+            <Button x:Name="dtwStopRegcon" Content="Stop Learning" Click="DtwStopRecogn" Width="200" IsEnabled="True" Margin="0,0,1,0" />
         </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Width="400">
             <ComboBox Name="gestureList" Width="400">

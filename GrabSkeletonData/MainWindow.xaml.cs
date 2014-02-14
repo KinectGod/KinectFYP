@@ -55,7 +55,7 @@
         /// Where we will save our gestures to. The app will append a data/time and .txt to this string
         /// </summary>
 
-        private string GestureSaveFileLocation = "";
+        private string MasterMovesSaveFileLocation = "";
 
         /// <summary>
         /// Where we will save our gestures to. The app will append a data/time and .txt to this string
@@ -101,9 +101,14 @@
          * */
 
         /// <summary>
-        /// Flag to show whether or not the gesture recogniser is capturing a new pose
+        /// Flag to show whether or not the Tai Chi learning system is capturing a new pose
         /// </summary>
-        private bool _capturing;
+        private bool _capturing = false;
+
+        /// <summary>
+        /// Flag to show whether or not the the system is in Learning Mode
+        /// </summary>
+        private bool _learning = false;
 
         /// <summary>
         /// Dynamic Time Warping object
@@ -162,80 +167,6 @@
         public MainWindow()
         {
             InitializeComponent();
-        }
-
-        /// <summary>
-        /// Opens the sent text file and creates a _dtw recorded gesture sequence
-        /// Currently not very flexible and totally intolerant of errors.
-        /// </summary>
-        /// <param name="fileLocation">Full path to the gesture file</param>
-        public void LoadGesturesFromFile(string fileLocation)
-        {
-            int itemCount = 0;
-            string line;
-            string gestureName = String.Empty;
-
-            // TODO I'm defaulting this to 12 here for now as it meets my current need but I need to cater for variable lengths in the future
-            ArrayList frames = new ArrayList();
-            double[] items = new double[dimension * 3];
-
-            // Read the file and display it line by line.
-            System.IO.StreamReader file = new System.IO.StreamReader(fileLocation);
-            while ((line = file.ReadLine()) != null)
-            {
-                if (line.StartsWith("@"))
-                {
-                    gestureName = line;
-                    continue;
-                }
-
-                if (line.StartsWith("~"))
-                {
-                    frames.Add(items);
-                    itemCount = 0;
-                    items = new double[dimension * 3];
-                    continue;
-                }
-
-                if (!line.StartsWith("----"))
-                {
-                    items[itemCount] = Double.Parse(line);
-                }
-
-                itemCount++;
-
-                if (line.StartsWith("----"))
-                {
-                    _dtw.AddOrUpdate(frames, gestureName);
-                    frames = new ArrayList();
-                    gestureName = String.Empty;
-                    itemCount = 0;
-                }
-            }
-
-            file.Close();
-        }
-
-        /// <summary>
-        /// Called each time a skeleton frame is ready. Passes skeletal data to the DTW processor
-        /// </summary>
-        /// <param name="sender">The sender object</param>
-        /// <param name="e">Skeleton Frame Ready Event Args</param>
-        private static void SkeletonExtractSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
-        {
-            using (var skeletonFrame = e.OpenSkeletonFrame())
-            {
-                if (skeletonFrame == null) return; // sometimes frame image comes null, so skip it.
-                var skeletons = new Skeleton[skeletonFrame.SkeletonArrayLength];
-                skeletonFrame.CopySkeletonDataTo(skeletons);
-                
-                foreach (Skeleton data in skeletons)
-                {
-                    Skeleton3DDataExtract.ProcessData(data);
-                }
-
-                //maker for record
-            }
         }
 
         /* DEPTH
@@ -304,6 +235,23 @@
             return _depthFrame32;
         }
          * */
+
+        private static void SkeletonExtractSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
+        {
+            using (var skeletonFrame = e.OpenSkeletonFrame())
+            {
+                if (skeletonFrame == null) return; // sometimes frame image comes null, so skip it.
+                var skeletons = new Skeleton[skeletonFrame.SkeletonArrayLength];
+                skeletonFrame.CopySkeletonDataTo(skeletons);
+
+                foreach (Skeleton data in skeletons)
+                {
+                    Skeleton3DDataExtract.ProcessData(data);
+                }
+
+                //maker for record
+            }
+        }
 
         /// <summary>
         /// Called when each depth frame is ready
@@ -395,7 +343,7 @@
                 frame.CopySkeletonDataTo(skeletons);
             }
 
-            if (_capturing == true)
+            if (_capturing == true || _learning == true)
             {
                 using (var sframe = e.OpenSkeletonFrame())
                 {
@@ -441,7 +389,6 @@
                         skeletonCanvas.Children.Add(jointLine);
                     }
                 }
-
                 iSkeleton++;
             } // for each skeleton
         }
@@ -462,7 +409,7 @@
                 videoImage.Source = image.ToBitmapSource();
             }
 
-            if (_capturing == true)
+            if (_capturing == true || _learning == true)
             {
                 using (var scolorImage = e.OpenColorImageFrame())
                 {
@@ -685,7 +632,7 @@
             {
                 Directory.CreateDirectory(path);
             }
-            GestureSaveFileLocation = path;
+            MasterMovesSaveFileLocation = path;
             recordstream = File.Create(@path + "skeleton");
             recordcolorstream = File.Create(@path + "colorStream");
             _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, recordstream);
@@ -710,7 +657,7 @@
             _capturing = false;
 
             string fileName = GestureSaveFileNamePrefix + ".txt";
-            System.IO.File.WriteAllText(@GestureSaveFileLocation + fileName, _dtw.RetrieveText());
+            System.IO.File.WriteAllText(@MasterMovesSaveFileLocation + fileName, _dtw.RetrieveText());
             status.Text = "Remembering " + gestureList.Text;
             // Add the current video buffer to the dtw sequences list
             _dtw.AddOrUpdate(_video, gestureList.Text);
@@ -824,16 +771,34 @@
 
         private void DtwStartRecogn(object sender, RoutedEventArgs e)
         {
-            _capturing = true;
+            _learning = true;
+            _capturing = false;
 
+            dtwCapture.IsEnabled = false;
+            dtwStartRegcon.IsEnabled = false;
+            string path = ".\\Records\\" + gestureList.Text + "\\";
+
+            Stream recordStream = File.OpenRead(@path + "skeleton");
+            _replay = new KinectReplay(recordStream);
+            _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
+            _replay.Start();
+
+            Stream recordColorStream = File.OpenRead(@path + "colorStream");
+            _colorreplay = new KinectReplay(recordColorStream);
+            _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
+            _colorreplay.Start();
             ////_captureCountdownTimer.Dispose();
 
             status.Text = "Learning " + gestureList.Text;
 
             // Clear the _video buffer and start from the beginning
             _video = new ArrayList();
-            string path = ".\\Learnings\\" + gestureList.Text;
-            recordstream = File.Create(@path);
+            path = ".\\Learnings\\" + gestureList.Text + "\\";
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            recordstream = File.Create(@path + "skeleton");
             _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, recordstream);
         }
 
@@ -853,6 +818,11 @@
                 return imageSource;
             }
         }
+
+        private void DtwStopRecogn(object sender, RoutedEventArgs e)
+        {
+
+        }
         /// <summary>
         /// Stores our gesture to the DTW sequences list
         /// </summary>
@@ -862,7 +832,7 @@
         private void DtwSaveToFile(object sender, RoutedEventArgs e)
         {
             string fileName = GestureSaveFileNamePrefix + ".txt";
-            System.IO.File.WriteAllText(GestureSaveFileLocation + fileName, _dtw.RetrieveText());
+            System.IO.File.WriteAllText(MasterMovesSaveFileLocation + fileName, _dtw.RetrieveText());
             status.Text = "Saved to " + fileName;
         }
         */
@@ -881,7 +851,7 @@
             dlg.DefaultExt = ".txt";
             dlg.Filter = "Text documents (.txt)|*.txt";
 
-            dlg.InitialDirectory = GestureSaveFileLocation;
+            dlg.InitialDirectory = MasterMovesSaveFileLocation;
 
             // Display OpenFileDialog by calling ShowDialog method
             Nullable<bool> result = dlg.ShowDialog();
