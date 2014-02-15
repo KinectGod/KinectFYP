@@ -249,7 +249,7 @@
 
                 foreach (Skeleton data in skeletons)
                 {
-                    Skeleton3DDataExtract.ProcessData(data,false);
+                    Skeleton3DDataExtract.ProcessData(data, false);
                 }
 
                 //maker for record
@@ -411,9 +411,9 @@
 
             try
             {
-                /* DEPTH
+                
                 _nui.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
-                 * */
+                
                 _nui.SkeletonStream.Enable();
                 _nui.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
                 _nui.Start();
@@ -637,12 +637,14 @@
             {
                 foreach (var data in RecogSkeletons)
                 {
-                    LearnerAngle = Skeleton3DDataExtract.OutputData(data);
+                    Skeleton3DDataExtract.ProcessData(data, true);
+                    LearnerAngle = Skeleton3DDataExtract.OutputData;
                 }
 
                 foreach (var data in skeletons)
                 {
-                    MasterAngle = Skeleton3DDataExtract.OutputData(data);
+                    Skeleton3DDataExtract.ProcessData(data, true);
+                    MasterAngle = Skeleton3DDataExtract.OutputData;
                 }
 
 
@@ -741,7 +743,63 @@
                 }
                 iSkeleton++;
             } // for each skeleton
+
+
         }
+
+        /// <summary>
+        /// Opens the sent text file and creates a _dtw recorded gesture sequence
+        /// Currently not very flexible and totally intolerant of errors.
+        /// </summary>
+        /// <param name="fileLocation">Full path to the gesture file</param>
+        /*
+        public void LoadGesturesFromFile(string fileLocation, int dimension, DtwGestureRecognizer _dtw)
+        {
+            int itemCount = 0;
+            string line;
+            string gestureName = String.Empty;
+
+            // TODO I'm defaulting this to 12 here for now as it meets my current need but I need to cater for variable lengths in the future
+            ArrayList frames = new ArrayList();
+            double[] items = new double[dimension * 3];
+
+            // Read the file and display it line by line.
+            System.IO.StreamReader file = new System.IO.StreamReader(fileLocation);
+            while ((line = file.ReadLine()) != null)
+            {
+                if (line.StartsWith("@"))
+                {
+                    gestureName = line;
+                    continue;
+                }
+
+                if (line.StartsWith("~"))
+                {
+                    frames.Add(items);
+                    itemCount = 0;
+                    items = new double[dimension * 3];
+                    continue;
+                }
+
+                if (!line.StartsWith("----"))
+                {
+                    items[itemCount] = Double.Parse(line);
+                }
+
+                itemCount++;
+
+                if (line.StartsWith("----"))
+                {
+                    _dtw.AddOrUpdate(frames, gestureName);
+                    frames = new ArrayList();
+                    gestureName = String.Empty;
+                    itemCount = 0;
+                }
+            }
+
+            file.Close();
+        }
+        */
         /// <summary>
         /// Stores our gesture to the DTW sequences list
         /// </summary>

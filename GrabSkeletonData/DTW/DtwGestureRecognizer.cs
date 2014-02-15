@@ -20,8 +20,9 @@ using System.Diagnostics;
 namespace GrabSkeletonData.DTW
 {
     using System;
-    using System.Collections;
-    using System.Windows.Media.Media3D;
+using System.Collections;
+using System.Drawing;
+using System.Windows.Media.Media3D;
 
     /// <summary>
     /// Dynamic Time Warping nearest neighbour sequence comparison class.
@@ -353,9 +354,13 @@ namespace GrabSkeletonData.DTW
             else
                 return 0;
             //return Math.Sqrt(d);
-             
-        
+        }
 
+        private double RealtimeMarker(Point[] a1, Point[] a2) 
+        { 
+            double score = 0.0;
+
+            return score;
         }
     }
 }
