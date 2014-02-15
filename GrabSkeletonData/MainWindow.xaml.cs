@@ -353,44 +353,8 @@
                 }
             }
 
-            int iSkeleton = 0;
-            var brushes = new Brush[6];
-            brushes[0] = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-            brushes[1] = new SolidColorBrush(Color.FromRgb(0, 255, 0));
-            brushes[2] = new SolidColorBrush(Color.FromRgb(64, 255, 255));
-            brushes[3] = new SolidColorBrush(Color.FromRgb(255, 255, 64));
-            brushes[4] = new SolidColorBrush(Color.FromRgb(255, 64, 255));
-            brushes[5] = new SolidColorBrush(Color.FromRgb(128, 128, 255));
+            DrawSkeleton(skeletons, skeletonCanvas);
 
-            skeletonCanvas.Children.Clear();
-            foreach (var data in skeletons)
-            {
-                if (SkeletonTrackingState.Tracked == data.TrackingState)
-                {
-                    // Draw bones
-                    //REMARK. change bone color here
-                    Brush brush = brushes[iSkeleton % brushes.Length];
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.Spine, JointType.ShoulderCenter, JointType.Head));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
-                    
-                    // Draw joints
-                    foreach (Joint joint in data.Joints)
-                    {
-                        Point jointPos = GetDisplayPosition(joint);
-                        var jointLine = new Line();
-                        jointLine.X1 = jointPos.X - 3;
-                        jointLine.X2 = jointLine.X1 + 6;
-                        jointLine.Y1 = jointLine.Y2 = jointPos.Y;
-                        jointLine.Stroke = _jointColors[joint.JointType];
-                        jointLine.StrokeThickness = 6;
-                        skeletonCanvas.Children.Add(jointLine);
-                    }
-                }
-                iSkeleton++;
-            } // for each skeleton
         }
 
         /// <summary>
@@ -719,44 +683,7 @@
             if (frame == null) return;
             skeletons = frame.Skeletons;
 
-            int iSkeleton = 0;
-            var brushes = new Brush[6];
-            brushes[0] = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-            brushes[1] = new SolidColorBrush(Color.FromRgb(0, 255, 0));
-            brushes[2] = new SolidColorBrush(Color.FromRgb(64, 255, 255));
-            brushes[3] = new SolidColorBrush(Color.FromRgb(255, 255, 64));
-            brushes[4] = new SolidColorBrush(Color.FromRgb(255, 64, 255));
-            brushes[5] = new SolidColorBrush(Color.FromRgb(128, 128, 255));
-
-            skeletonCanvas2.Children.Clear();
-            foreach (var data in skeletons)
-            {
-                if (SkeletonTrackingState.Tracked == data.TrackingState)
-                {
-                    // Draw bones
-                    Brush brush = brushes[iSkeleton % brushes.Length];
-                    skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.Spine, JointType.ShoulderCenter, JointType.Head));
-                    skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft));
-                    skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
-                    skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
-                    skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
-
-                    // Draw joints
-                    foreach (Joint joint in data.Joints)
-                    {
-                        Point jointPos = GetDisplayPosition(joint);
-                        var jointLine = new Line();
-                        jointLine.X1 = jointPos.X - 3;
-                        jointLine.X2 = jointLine.X1 + 6;
-                        jointLine.Y1 = jointLine.Y2 = jointPos.Y;
-                        jointLine.Stroke = _jointColors[joint.JointType];
-                        jointLine.StrokeThickness = 6;
-                        skeletonCanvas2.Children.Add(jointLine);
-                    }
-                }
-
-                iSkeleton++;
-            } // for each skeleton
+            DrawSkeleton(skeletons, skeletonCanvas2);
         }
 
 
@@ -803,25 +730,54 @@
         }
 
 
-        private ImageSource GetImage(byte[] imageData, System.Windows.Media.PixelFormat format, int width = 640, int height = 480)
-        {
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                PngBitmapEncoder encoder = new PngBitmapEncoder();
-                encoder.Interlace = PngInterlaceOption.On;
-                encoder.Frames.Add(BitmapFrame.Create(BitmapSource.Create(width, height, 96, 96, format, null, imageData, width * format.BitsPerPixel / 8)));
-                encoder.Save(memoryStream);
-                BitmapImage imageSource = new BitmapImage();
-                imageSource.BeginInit();
-                imageSource.StreamSource = memoryStream;
-                imageSource.EndInit();
-                return imageSource;
-            }
-        }
+        
 
         private void DtwStopRecogn(object sender, RoutedEventArgs e)
         {
 
+        }
+
+
+        private void DrawSkeleton(Skeleton[] skeletons, System.Windows.Controls.Canvas skeletonCanvas) 
+        {
+            int iSkeleton = 0;
+            var brushes = new Brush[6];
+            brushes[0] = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+            brushes[1] = new SolidColorBrush(Color.FromRgb(0, 255, 0));
+            brushes[2] = new SolidColorBrush(Color.FromRgb(64, 255, 255));
+            brushes[3] = new SolidColorBrush(Color.FromRgb(255, 255, 64));
+            brushes[4] = new SolidColorBrush(Color.FromRgb(255, 64, 255));
+            brushes[5] = new SolidColorBrush(Color.FromRgb(128, 128, 255));
+
+            skeletonCanvas.Children.Clear();
+            foreach (var data in skeletons)
+            {
+                if (SkeletonTrackingState.Tracked == data.TrackingState)
+                {
+                    // Draw bones
+                    //REMARK. change bone color here
+                    Brush brush = brushes[iSkeleton % brushes.Length];
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.Spine, JointType.ShoulderCenter, JointType.Head));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
+
+                    // Draw joints
+                    foreach (Joint joint in data.Joints)
+                    {
+                        Point jointPos = GetDisplayPosition(joint);
+                        var jointLine = new Line();
+                        jointLine.X1 = jointPos.X - 3;
+                        jointLine.X2 = jointLine.X1 + 6;
+                        jointLine.Y1 = jointLine.Y2 = jointPos.Y;
+                        jointLine.Stroke = _jointColors[joint.JointType];
+                        jointLine.StrokeThickness = 6;
+                        skeletonCanvas.Children.Add(jointLine);
+                    }
+                }
+                iSkeleton++;
+            } // for each skeleton
         }
         /// <summary>
         /// Stores our gesture to the DTW sequences list
