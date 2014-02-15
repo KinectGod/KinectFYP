@@ -161,6 +161,9 @@
         /// 
         private Timer _captureCountdownTimer;
 
+        ///REMARK
+        private Skeleton[] RecogSkeletons;
+
         /// <summary>
         /// Initializes a new instance of the MainWindow class
         /// </summary>
@@ -336,20 +339,28 @@
         private void NuiSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
             Skeleton[] skeletons;
+            int length;
             using (var frame = e.OpenSkeletonFrame())
             {
                 if (frame == null) return;
                 skeletons = new Skeleton[frame.SkeletonArrayLength];
+                length = frame.SkeletonArrayLength;
                 frame.CopySkeletonDataTo(skeletons);
             }
 
-            if (_capturing == true || _learning == true)
+            if (_capturing == true)
             {
                 using (var sframe = e.OpenSkeletonFrame())
                 {
                     if (sframe == null)
                         return;
                     _recorder.Record(sframe);
+                    //REMARK
+                    if (_learning == true) 
+                    {
+                        RecogSkeletons = new Skeleton[length];
+                        RecogSkeletons = skeletons;
+                    }
                 }
             }
 
@@ -460,41 +471,6 @@
         {
             currentBufferFrame.Text = _video.Count.ToString();
 
-            /*
-            // We need a sensible number of frames before we start attempting to match gestures against remembered sequences
-            if (_video.Count > MinimumFrames && _capturing == false &&  _recogn == true)
-            {
-                ////Debug.WriteLine("Reading and video.Count=" + video.Count);
-                //string s = _dtw.Recognize(_video);
-                //results.Text = "Recognised as: " + s;
-
-                double score = _dtw.Recognize(_video);
-                results.Text = "Score : " + score;
-                //if (!s.Contains("__UNKNOWN"))
-                //{
-                    // There was no match so reset the buffer
-                //    _video = new ArrayList();
-                //}
-            }
-
-            
-            // Ensures that we remember only the last x frames
-            
-            if (_video.Count > BufferSize)
-            {
-                // If we are currently capturing and we reach the maximum buffer size then automatically store
-                if (_capturing)
-                {
-                    DtwStoreClick(null, null);
-                }
-                else
-                {
-                    // Remove the first frame in the buffer
-                    _video.RemoveAt(0);
-                }
-            
-            }
-             * */
             // Decide which skeleton frames to capture. Only do so if the frames actually returned a number. 
             // For some reason my Kinect/PC setup didn't always return a double in range (i.e. infinity) even when standing completely within the frame.
             // TODO Weird. Need to investigate this
@@ -514,27 +490,6 @@
             // Update the debug window with Sequences information
             //dtwTextOutput.Text = _dtw.RetrieveText();
         }
-        /// <summary>
-        /// Read mode. Sets our control variables and button enabled states
-        /// </summary>
-        /// <param name="sender">The sender object</param>
-        /// <param name="e">Routed Event Args</param>
-        /// DEBUG : we don't need it anymore
-        /*
-        private void DtwReadClick(object sender, RoutedEventArgs e)
-        {
-            // Set the buttons enabled state
-            dtwRead.IsEnabled = false;
-            dtwCapture.IsEnabled = true;
-            dtwStore.IsEnabled = false;
-
-            // Set the capturing? flag
-            _capturing = false;
-
-            // Update the status display
-            status.Text = "Reading";
-        }
-        */
         /// <summary>
         /// Starts a countdown timer to enable the player to get in position to record gestures
         /// </summary>
@@ -636,17 +591,6 @@
             // DtwReadClick(null, null);
         }
 
-        public static void CopyStream(Stream input, Stream output)
-        {
-            byte[] buffer = new byte[8 * 1024];
-            int len;
-            while ( (len = input.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                output.Write(buffer, 0, len);
-            }    
-        }
-
-
         //Replay the saved skeleton
         private void DtwReplayClick (object sender, RoutedEventArgs e) 
         {
@@ -673,7 +617,6 @@
             var image = e.ColorImageFrame;
             if (image == null) return; // sometimes frame image comes null, so skip it.
             //videoImage2.Source = GetImage(, System.Windows.Media.PixelFormats.Rgb24);
-            
         }
 
         void replay_SkeletonFrameReady(object sender, ReplaySkeletonFrameReadyEventArgs e)
@@ -684,6 +627,15 @@
             skeletons = frame.Skeletons;
 
             DrawSkeleton(skeletons, skeletonCanvas2);
+
+            if (_learning == true) 
+            {
+                foreach (var data in RecogSkeletons)
+                {
+
+                }
+ 
+            }
         }
 
 
@@ -736,7 +688,6 @@
         {
 
         }
-
 
         private void DrawSkeleton(Skeleton[] skeletons, System.Windows.Controls.Canvas skeletonCanvas) 
         {
