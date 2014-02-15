@@ -481,7 +481,7 @@
                 _flipFlop = (_flipFlop + 1) % Ignore;
                 if (_flipFlop == 0)
                 {
-                    _video.Add(a.GetCoords());
+                    _video.Add(a.GetAngle());
                     //marker
                     
                 }

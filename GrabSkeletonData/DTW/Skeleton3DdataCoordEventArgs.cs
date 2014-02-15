@@ -28,15 +28,15 @@ namespace GrabSkeletonData.DTW
         /// <summary>
         /// Positions of the elbows, the wrists and the hands (placed from left to right)
         /// </summary>
-        private readonly Vector3D[] _points;
+        private readonly Point[] _points;
 
         /// <summary>
-        /// Initializes a new instance of the Skeleton2DdataCoordEventArgs class
+        /// Initializes a new instance of the Skeleton3DdataCoordEventArgs class
         /// </summary>
         /// <param name="points">The points we need to handle in this class</param>
-        public Skeleton3DdataCoordEventArgs(Vector3D[] points)
+        public Skeleton3DdataCoordEventArgs(Point[] points)
         {
-            _points = (Vector3D[])points.Clone();
+            _points = (Point[])points.Clone();
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace GrabSkeletonData.DTW
         /// </summary>
         /// <param name="index">The index we wish to retrieve</param>
         /// <returns>The point at the sent index</returns>
-        public Vector3D GetPoint(int index)
+        public Point GetPoint(int index)
         {
             return _points[index];
         }
@@ -53,14 +53,13 @@ namespace GrabSkeletonData.DTW
         /// Gets the coordinates of our _points
         /// </summary>
         /// <returns>The coordinates of our _points</returns>
-        internal double[] GetCoords()
+        internal double[] GetAngle()
         {
-            var tmp = new double[_points.Length * 3];
+            var tmp = new double[_points.Length * 2];
             for (int i = 0; i < _points.Length; i++)
             {
                 tmp[2 * i] = _points[i].X;
                 tmp[(2 * i) + 1] = _points[i].Y;
-                tmp[(2 * i) + 2] = _points[i].Z;
             }
             return tmp;
         }

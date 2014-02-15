@@ -39,14 +39,16 @@ namespace GrabSkeletonData.DTW
         /// </summary>
         public static event Skeleton3DdataCoordEventHandler Skeleton3DdataCoordReady;
 
+        public static Point[] OutputData;
         /// <summary>
         /// Crunches Kinect SDK's Skeleton Data and spits out a format more useful for DTW
         /// </summary>
         /// <param name="data">Kinect SDK's Skeleton Data</param>
-        public static void ProcessData(Skeleton data)
+        public static void ProcessData(Skeleton data)//add 
         {
             // Extract the coordinates of the points.
             var p = new Vector3D[8];
+            // Record the angles of the joints,  a.x = xy-plane  a.y = yz-plane
             var a = new Point[7];
 
             foreach (Joint j in data.Joints)
@@ -62,20 +64,50 @@ namespace GrabSkeletonData.DTW
                     case JointType.ElbowLeft:
                         p[2] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
-                    case JointType.ElbowRight:
+                    case JointType.ShoulderLeft:
                         p[3] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
-                    case JointType.WristRight:
+                    case JointType.ShoulderCenter:
                         p[4] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
-                    case JointType.HandRight:
+                    case JointType.ShoulderRight:
                         p[5] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
-                    case JointType.ShoulderLeft:
+                    case JointType.ElbowRight:
                         p[6] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
-                    case JointType.ShoulderRight:
+                    case JointType.WristRight:
                         p[7] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.HandRight:
+                        p[8] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.FootLeft:
+                        p[9] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.AnkleLeft:
+                        p[10] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.KneeLeft:
+                        p[11] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.HipLeft:
+                        p[12] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.HipCenter:
+                        p[13] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.HipRight:
+                        p[14] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.KneeRight:
+                        p[15] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.AnkleRight:
+                        p[16] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.FootRight:
+                        p[17] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
                 }
             }
@@ -85,10 +117,10 @@ namespace GrabSkeletonData.DTW
             Vector3D ProjectToXY = new Vector3D();
             Vector3D ProjectToZY = new Vector3D();
 
-            for (int i = 0; i < 7; i++)
+            for (int i = 4; i > 0; i--)
             {
                 // calculate vector joining two points
-                joint0to1 = Vector3D.Subtract(p[i], p[i + 1]);
+                joint0to1 = Vector3D.Subtract(p[i-1], p[i]);
                 ProjectToXY = new Vector3D(Math.Abs(joint0to1.X), Math.Abs(joint0to1.Y), 0);
                 ProjectToZY = new Vector3D(0, Math.Abs(joint0to1.Y), Math.Abs(joint0to1.Z));
 
@@ -96,70 +128,13 @@ namespace GrabSkeletonData.DTW
                 a[i].X = Vector3D.AngleBetween(joint0to1, ProjectToXY);
                 a[i].Y = Vector3D.AngleBetween(joint0to1, ProjectToZY);
             }
+            OutputData = new Point[a.Length];
 
             // Launch the event!
-            Skeleton3DdataCoordReady(null, new Skeleton3DdataCoordEventArgs(p));
+            Skeleton3DdataCoordReady(null, new Skeleton3DdataCoordEventArgs(a));
+
         }
 
-        /// <summary>
-        /// Crunches Kinect SDK's Skeleton Data and spits out a format more useful for DTW
-        /// </summary>
-        /// <param name="data">Kinect SDK's Skeleton Data</param>
-        public static Point[] OutputData(Skeleton data)
-        {
-            // Extract the coordinates of the points.
-            var p = new Vector3D[8];
-            var a = new Point[7];
-
-            foreach (Joint j in data.Joints)
-            {
-                switch (j.JointType)
-                {
-                    case JointType.HandLeft:
-                        p[0] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
-                        break;
-                    case JointType.WristLeft:
-                        p[1] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
-                        break;
-                    case JointType.ElbowLeft:
-                        p[2] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
-                        break;
-                    case JointType.ElbowRight:
-                        p[3] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
-                        break;
-                    case JointType.WristRight:
-                        p[4] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
-                        break;
-                    case JointType.HandRight:
-                        p[5] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
-                        break;
-                    case JointType.ShoulderLeft:
-                        p[6] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
-                        break;
-                    case JointType.ShoulderRight:
-                        p[7] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
-                        break;
-                }
-            }
-
-            Vector3D joint0to1;
-            // used to store the vector project to the planes
-            Vector3D ProjectToXY = new Vector3D();
-            Vector3D ProjectToZY = new Vector3D();
-
-            for (int i = 0; i < 7; i++)
-            {
-                // calculate vector joining two points
-                joint0to1 = Vector3D.Subtract(p[i], p[i + 1]);
-                ProjectToXY = new Vector3D(Math.Abs(joint0to1.X), Math.Abs(joint0to1.Y), 0);
-                ProjectToZY = new Vector3D(0, Math.Abs(joint0to1.Y), Math.Abs(joint0to1.Z));
-
-                // calculate angle between the vector and the plane
-                a[i].X = Vector3D.AngleBetween(joint0to1, ProjectToXY);
-                a[i].Y = Vector3D.AngleBetween(joint0to1, ProjectToZY);
-            }
-
-            return a;
-        }
+       
     }
 }
