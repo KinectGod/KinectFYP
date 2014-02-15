@@ -67,7 +67,7 @@
         /// Dictionary of all the joints Kinect SDK is capable of tracking. You might not want always to use them all but they are included here for thouroughness.
        
         /// number of joints that we need
-        private const int dimension = 8;
+        private const int dimension = 18;
 
         private readonly Dictionary<JointType, Brush> _jointColors = new Dictionary<JointType, Brush>
         { 
@@ -426,7 +426,7 @@
 
             _lastTime = DateTime.Now;
 
-            _dtw = new DtwGestureRecognizer( dimension * 3, 0.6, 2, 2, 10);
+            _dtw = new DtwGestureRecognizer( dimension * 3, 100, 2, 2, 10);
             _video = new ArrayList();
 
             // If you want to see the depth image and frames per second then include this
