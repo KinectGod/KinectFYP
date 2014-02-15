@@ -53,6 +53,7 @@ namespace Microsoft.Kinect
 			return BitmapSource.Create(width, height, 96, 96, format, null, pixels, width * format.BitsPerPixel / 8);
 		}
 
+        /*
         private ImageSource GetImage(byte[] imageData, System.Windows.Media.PixelFormat format, int width = 640, int height = 480)
         {
             using (MemoryStream memoryStream = new MemoryStream())
@@ -68,5 +69,6 @@ namespace Microsoft.Kinect
                 return imageSource;
             }
         }
+         * */
 	}
 }
