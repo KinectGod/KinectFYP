@@ -44,10 +44,10 @@ namespace GrabSkeletonData.DTW
         /// Crunches Kinect SDK's Skeleton Data and spits out a format more useful for DTW
         /// </summary>
         /// <param name="data">Kinect SDK's Skeleton Data</param>
-        public static void ProcessData(Skeleton data)//add 
+        public static void ProcessData(Skeleton data, Boolean learning)
         {
             // Extract the coordinates of the points.
-            var p = new Vector3D[8];
+            var p = new Vector3D[18];
             // Record the angles of the joints,  a.x = xy-plane  a.y = yz-plane
             var a = new Point[7];
 
@@ -128,10 +128,15 @@ namespace GrabSkeletonData.DTW
                 a[i].X = Vector3D.AngleBetween(joint0to1, ProjectToXY);
                 a[i].Y = Vector3D.AngleBetween(joint0to1, ProjectToZY);
             }
-            OutputData = new Point[a.Length];
-
+            if (learning == true)
+            {
+                OutputData = new Point[a.Length];
+            }
             // Launch the event!
-            Skeleton3DdataCoordReady(null, new Skeleton3DdataCoordEventArgs(a));
+            else
+            {
+                Skeleton3DdataCoordReady(null, new Skeleton3DdataCoordEventArgs(a));
+            }
 
         }
 

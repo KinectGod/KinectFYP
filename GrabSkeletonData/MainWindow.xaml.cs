@@ -249,7 +249,7 @@
 
                 foreach (Skeleton data in skeletons)
                 {
-                    Skeleton3DDataExtract.ProcessData(data);
+                    Skeleton3DDataExtract.ProcessData(data,false);
                 }
 
                 //maker for record
