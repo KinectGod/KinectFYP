@@ -47,6 +47,7 @@ namespace GrabSkeletonData.DTW
         {
             // Extract the coordinates of the points.
             var p = new Vector3D[8];
+            var a = new Point[7];
 
             foreach (Joint j in data.Joints)
             {
@@ -79,30 +80,86 @@ namespace GrabSkeletonData.DTW
                 }
             }
 
-            /*
-            // Centre the data
-            var center = new Point((shoulderLeft.X + shoulderRight.X) / 2, (shoulderLeft.Y + shoulderRight.Y) / 2);
-            for (int i = 0; i < 6; i++)
+            Vector3D joint0to1;
+            // used to store the vector project to the planes
+            Vector3D ProjectToXY = new Vector3D();
+            Vector3D ProjectToZY = new Vector3D();
+
+            for (int i = 0; i < 7; i++)
             {
-                p[i].X -= center.X;
-                p[i].Y -= center.Y;
+                // calculate vector joining two points
+                joint0to1 = Vector3D.Subtract(p[i], p[i + 1]);
+                ProjectToXY = new Vector3D(Math.Abs(joint0to1.X), Math.Abs(joint0to1.Y), 0);
+                ProjectToZY = new Vector3D(0, Math.Abs(joint0to1.Y), Math.Abs(joint0to1.Z));
+
+                // calculate angle between the vector and the plane
+                a[i].X = Vector3D.AngleBetween(joint0to1, ProjectToXY);
+                a[i].Y = Vector3D.AngleBetween(joint0to1, ProjectToZY);
             }
-
-            // Normalization of the coordinates
-            double shoulderDist =
-                Math.Sqrt(Math.Pow((shoulderLeft.X - shoulderRight.X), 2) +
-                          Math.Pow((shoulderLeft.Y - shoulderRight.Y), 2));
-            for (int i = 0; i < 6; i++)
-            {
-                p[i].X /= shoulderDist;
-                p[i].Y /= shoulderDist;
-            }
-            */
-
-
 
             // Launch the event!
             Skeleton3DdataCoordReady(null, new Skeleton3DdataCoordEventArgs(p));
+        }
+
+        /// <summary>
+        /// Crunches Kinect SDK's Skeleton Data and spits out a format more useful for DTW
+        /// </summary>
+        /// <param name="data">Kinect SDK's Skeleton Data</param>
+        public static Point[] OutputData(Skeleton data)
+        {
+            // Extract the coordinates of the points.
+            var p = new Vector3D[8];
+            var a = new Point[7];
+
+            foreach (Joint j in data.Joints)
+            {
+                switch (j.JointType)
+                {
+                    case JointType.HandLeft:
+                        p[0] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.WristLeft:
+                        p[1] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.ElbowLeft:
+                        p[2] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.ElbowRight:
+                        p[3] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.WristRight:
+                        p[4] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.HandRight:
+                        p[5] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.ShoulderLeft:
+                        p[6] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                    case JointType.ShoulderRight:
+                        p[7] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
+                }
+            }
+
+            Vector3D joint0to1;
+            // used to store the vector project to the planes
+            Vector3D ProjectToXY = new Vector3D();
+            Vector3D ProjectToZY = new Vector3D();
+
+            for (int i = 0; i < 7; i++)
+            {
+                // calculate vector joining two points
+                joint0to1 = Vector3D.Subtract(p[i], p[i + 1]);
+                ProjectToXY = new Vector3D(Math.Abs(joint0to1.X), Math.Abs(joint0to1.Y), 0);
+                ProjectToZY = new Vector3D(0, Math.Abs(joint0to1.Y), Math.Abs(joint0to1.Z));
+
+                // calculate angle between the vector and the plane
+                a[i].X = Vector3D.AngleBetween(joint0to1, ProjectToXY);
+                a[i].Y = Vector3D.AngleBetween(joint0to1, ProjectToZY);
+            }
+
+            return a;
         }
     }
 }

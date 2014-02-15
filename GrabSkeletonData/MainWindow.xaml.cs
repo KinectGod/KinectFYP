@@ -626,14 +626,26 @@
             if (frame == null) return;
             skeletons = frame.Skeletons;
 
+            var MasterAngle = new Point[dimension];
+            var LearnerAngle = new Point[dimension];
+
             DrawSkeleton(skeletons, skeletonCanvas2);
 
+            /// get the joint angle data of both master and learner
+            /// then make comparison
             if (_learning == true) 
             {
                 foreach (var data in RecogSkeletons)
                 {
-
+                    LearnerAngle = Skeleton3DDataExtract.OutputData(data);
                 }
+
+                foreach (var data in skeletons)
+                {
+                    MasterAngle = Skeleton3DDataExtract.OutputData(data);
+                }
+
+
  
             }
         }
