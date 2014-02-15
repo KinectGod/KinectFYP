@@ -635,6 +635,8 @@
             /// then make comparison
             if (_learning == true) 
             {
+                int [] detection = new int [dimension - 2];
+
                 foreach (var data in RecogSkeletons)
                 {
                     Skeleton3DDataExtract.ProcessData(data, true);
@@ -647,8 +649,14 @@
                     MasterAngle = Skeleton3DDataExtract.OutputData;
                 }
 
-
- 
+                detection = MotionDetection(MasterAngle, LearnerAngle, 30);
+                for (int i = 0; i < dimension - 1; i++)
+                {
+                    if (detection[i] == 1)
+                    {
+                        /// REMARK : 16 cases
+                    }
+                }
             }
         }
 
@@ -745,6 +753,23 @@
             } // for each skeleton
 
 
+        }
+
+        private int[] MotionDetection(Point[] a1, Point[] a2, double threshold) 
+        {
+            int[] Detect = new int [a1.Length];
+            for (int i = 0; i < a1.Length + 1; i++)
+            {
+                if (Math.Abs(a1[i].X - a2[i].X) > threshold || Math.Abs(a1[i].Y - a2[i].Y) > threshold)
+                {
+                    Detect[i] = 1;
+                }
+                else
+                {
+                    Detect[i] = 0;
+                }
+            }
+                return Detect;
         }
 
         /// <summary>
