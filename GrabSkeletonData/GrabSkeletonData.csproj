@@ -36,7 +36,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Kinect, Version=1.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Kinect, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -60,14 +60,20 @@
     </ApplicationDefinition>
     <Compile Include="BitmapSourceExtensions.cs" />
     <Compile Include="DTW\DtwGestureRecognizer.cs" />
-    <Compile Include="DTW\Skeleton2DdataCoordEventArgs.cs" />
-    <Compile Include="DTW\Skeleton2DDataExtract.cs" />
+    <Compile Include="DTW\DtwPathNode.cs" />
+    <Compile Include="DTW\Skeleton3DdataCoordEventArgs.cs" />
+    <Compile Include="DTW\Skeleton3DDataExtract.cs" />
     <Compile Include="ImageFrameCommonExtensions.cs" />
     <Compile Include="ImageFrameExtensions.cs" />
     <Compile Include="Math\MathHelper.cs" />
     <Compile Include="Math\Vector2.cs" />
     <Compile Include="Math\Vector3.cs" />
-    <Compile Include="Tools.cs" />
+    <Compile Include="Recorder\ColorRecorder.cs" />
+    <Compile Include="Replay\ReplayColorImageFrame.cs" />
+    <Compile Include="Replay\ReplayColorImageFrameReadyEventArgs.cs" />
+    <Compile Include="Tools.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

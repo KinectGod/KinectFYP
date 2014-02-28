@@ -43,7 +43,7 @@ using System.Windows.Media.Media3D;
         /// Size of obeservations vectors.
         /// </summary>
         private readonly int _dimension;
-        
+
         /// <summary>
         /// Maximum distance between the last observations of each sequence.
         /// </summary>
@@ -340,21 +340,6 @@ using System.Windows.Media.Media3D;
         /// <param name="a">Point a (double)</param>
         /// <param name="b">Point b (double)</param>
         /// <returns>Euclidian distance between the two points</returns>
-        /*
-        private double Marker(double[] a, double[] b)
-        {
-            
-            double d = 0;
-            for (int i = 0; i < _dimension; i++)
-            {
-                if(Math.Abs(a[i] - b[i]) > _globalThreshold)
-                    d++;
-            }
-            return d / _dimension;
-            //return Math.Sqrt(d);
-        }
-        */
-
         private double Marker(double[] a, double[] b)
         {
             
@@ -364,7 +349,7 @@ using System.Windows.Media.Media3D;
                 d += Math.Pow(a[i] - b[i], 2);
             }
             Math.Sqrt(d);
-            if (d > _globalThreshold)
+            if (d <= 0.1)
                 return 1;
             else
                 return 0;

@@ -67,7 +67,7 @@
         /// Dictionary of all the joints Kinect SDK is capable of tracking. You might not want always to use them all but they are included here for thouroughness.
        
         /// number of joints that we need
-        private const int dimension = 18;
+        private const int dimension = 8;
 
         private readonly Dictionary<JointType, Brush> _jointColors = new Dictionary<JointType, Brush>
         { 
@@ -426,7 +426,7 @@
 
             _lastTime = DateTime.Now;
 
-            _dtw = new DtwGestureRecognizer( dimension * 3, 100, 2, 2, 10);
+            _dtw = new DtwGestureRecognizer( dimension * 3, 0.6, 2, 2, 10);
             _video = new ArrayList();
 
             // If you want to see the depth image and frames per second then include this
@@ -729,12 +729,15 @@
                 {
                     // Draw bones
                     //REMARK. change bone color here
-                    Brush brush = brushes[iSkeleton % brushes.Length];
+                    Brush brush = brushes[2];
                     skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.Spine, JointType.ShoulderCenter, JointType.Head));
                     skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft));
                     skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
                     skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
                     skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
+
 
                     // Draw joints
                     foreach (Joint joint in data.Joints)
