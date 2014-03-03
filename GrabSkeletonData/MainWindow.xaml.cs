@@ -67,7 +67,7 @@
         /// Dictionary of all the joints Kinect SDK is capable of tracking. You might not want always to use them all but they are included here for thouroughness.
        
         /// number of joints that we need
-        private const int dimension = 18;
+        private const int dimension = 8;
 
         private readonly Dictionary<JointType, Brush> _jointColors = new Dictionary<JointType, Brush>
         { 
@@ -164,6 +164,8 @@
         ///REMARK
         private Skeleton[] RecogSkeletons;
 
+        private Point[] LearnerAngle = new Point[16];
+
         /// <summary>
         /// Initializes a new instance of the MainWindow class
         /// </summary>
@@ -171,73 +173,6 @@
         {
             InitializeComponent();
         }
-
-        /* DEPTH
-        /// <summary>
-        /// Converts a 16-bit grayscale depth frame which includes player indexes into a 32-bit frame that displays different players in different colors
-        /// </summary>
-        /// <param name="depthFrame16">The depth frame byte array</param>
-        /// <returns>A depth frame byte array containing a player image</returns>
-        private short[] ConvertDepthFrame(short[] depthFrame16)
-        {
-            for (int i16 = 0, i32 = 0; i16 < depthFrame16.Length && i32 < _depthFrame32.Length; i16 += 2, i32 += 4)
-            {
-                int player = depthFrame16[i16] & 0x07;
-                int realDepth = (depthFrame16[i16 + 1] << 5) | (depthFrame16[i16] >> 3);
-                
-                // transform 13-bit depth information into an 8-bit intensity appropriate
-                // for display (we disregard information in most significant bit)
-                var intensity = (short)(255 - (255 * realDepth / 0x0fff));
-
-                _depthFrame32[i32 + RedIdx] = 0;
-                _depthFrame32[i32 + GreenIdx] = 0;
-                _depthFrame32[i32 + BlueIdx] = 0;
-
-                // choose different display colors based on player
-                switch (player)
-                {
-                    case 0:
-                        _depthFrame32[i32 + RedIdx] = (byte)(intensity / 2);
-                        _depthFrame32[i32 + GreenIdx] = (byte)(intensity / 2);
-                        _depthFrame32[i32 + BlueIdx] = (byte)(intensity / 2);
-                        break;
-                    case 1:
-                        _depthFrame32[i32 + RedIdx] = intensity;
-                        break;
-                    case 2:
-                        _depthFrame32[i32 + GreenIdx] = intensity;
-                        break;
-                    case 3:
-                        _depthFrame32[i32 + RedIdx] = (byte)(intensity / 4);
-                        _depthFrame32[i32 + GreenIdx] = intensity;
-                        _depthFrame32[i32 + BlueIdx] = intensity;
-                        break;
-                    case 4:
-                        _depthFrame32[i32 + RedIdx] = intensity;
-                        _depthFrame32[i32 + GreenIdx] = intensity;
-                        _depthFrame32[i32 + BlueIdx] = (byte)(intensity / 4);
-                        break;
-                    case 5:
-                        _depthFrame32[i32 + RedIdx] = intensity;
-                        _depthFrame32[i32 + GreenIdx] = (byte)(intensity / 4);
-                        _depthFrame32[i32 + BlueIdx] = intensity;
-                        break;
-                    case 6:
-                        _depthFrame32[i32 + RedIdx] = (byte)(intensity / 2);
-                        _depthFrame32[i32 + GreenIdx] = (byte)(intensity / 2);
-                        _depthFrame32[i32 + BlueIdx] = intensity;
-                        break;
-                    case 7:
-                        _depthFrame32[i32 + RedIdx] = (byte)(255 - intensity);
-                        _depthFrame32[i32 + GreenIdx] = (byte)(255 - intensity);
-                        _depthFrame32[i32 + BlueIdx] = (byte)(255 - intensity);
-                        break;
-                }
-            }
-
-            return _depthFrame32;
-        }
-         * */
 
         private static void SkeletonExtractSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
@@ -256,34 +191,6 @@
             }
         }
 
-        /// <summary>
-        /// Called when each depth frame is ready
-        /// </summary>
-        /// <param name="sender">The sender object</param>
-        /// <param name="e">Image Frame Ready Event Args</param>
-        /// 
-        /*
-        private void NuiDepthFrameReady(object sender, DepthImageFrameReadyEventArgs e)
-        {
-            //PlanarImage image = e.ImageFrame.Image;
-            using (var image = e.OpenDepthImageFrame())
-            {
-                if (image == null) return; // sometimes frame image comes null, so skip it.
-
-                depthImage.Source = image.ToBitmapSource();
-            }
-            ++_totalFrames;
-
-            DateTime cur = DateTime.Now;
-            if (cur.Subtract(_lastTime) > TimeSpan.FromSeconds(1))
-            {
-                int frameDiff = _totalFrames - _lastFrames;
-                _lastFrames = _totalFrames;
-                _lastTime = cur;
-                frameRate.Text = frameDiff + " fps";
-            }
-        }
-         */
 
         /// <summary>
         /// Gets the display position (i.e. where in the display image) of a Joint
@@ -348,6 +255,11 @@
                 frame.CopySkeletonDataTo(skeletons);
             }
 
+            foreach (var data in skeletons)
+            {
+                LearnerAngle = Skeleton3DDataExtract.ProcessDataTEST(data);
+            }
+
             if (_capturing == true)
             {
                 using (var sframe = e.OpenSkeletonFrame())
@@ -390,7 +302,7 @@
                 {
                     if (scolorImage == null)
                         return;
-                    _colorrecorder.Record(scolorImage);
+                    //_colorrecorder.Record(scolorImage);
                 }
             }
         }
@@ -426,7 +338,7 @@
 
             _lastTime = DateTime.Now;
 
-            _dtw = new DtwGestureRecognizer( dimension * 3, 100, 2, 2, 10);
+            _dtw = new DtwGestureRecognizer( dimension * 3, 0.6, 2, 2, 10);
             _video = new ArrayList();
 
             // If you want to see the depth image and frames per second then include this
@@ -626,8 +538,8 @@
             if (frame == null) return;
             skeletons = frame.Skeletons;
 
+            var brush = new SolidColorBrush(Color.FromRgb(255, 64, 255));
             var MasterAngle = new Point[dimension];
-            var LearnerAngle = new Point[dimension];
 
             DrawSkeleton(skeletons, skeletonCanvas2);
 
@@ -637,26 +549,72 @@
             {
                 int [] detection = new int [dimension - 2];
 
-                foreach (var data in RecogSkeletons)
-                {
-                    Skeleton3DDataExtract.ProcessData(data, true);
-                    LearnerAngle = Skeleton3DDataExtract.OutputData;
-                }
-
                 foreach (var data in skeletons)
                 {
-                    Skeleton3DDataExtract.ProcessData(data, true);
-                    MasterAngle = Skeleton3DDataExtract.OutputData;
-                }
+                    MasterAngle = Skeleton3DDataExtract.ProcessDataTEST(data);
 
                 detection = MotionDetection(MasterAngle, LearnerAngle, 30);
+
                 for (int i = 0; i < dimension - 1; i++)
                 {
                     if (detection[i] == 1)
                     {
                         /// REMARK : 16 cases
+                        switch (i) 
+                        {
+                            case 0 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderLeft));
+                                break;
+                            case 1 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderLeft, JointType.ElbowLeft));
+                                break;
+                            case 2 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristLeft, JointType.ElbowLeft));
+                                break;
+                            case 3 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristLeft, JointType.HandLeft));
+                                break;
+                            case 4 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderRight));
+                                break;
+                            case 5 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderRight, JointType.ElbowRight));
+                                break;
+                            case 6 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.ElbowRight, JointType.WristRight));
+                                break;
+                            case 7 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristRight, JointType.HandRight));
+                                break;
+                            case 8 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipLeft));
+                                break;
+                            case 9 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipLeft, JointType.KneeLeft));
+                                break;
+                            case 10 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.KneeLeft, JointType.AnkleLeft));
+                                break;
+                            case 11 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.AnkleLeft, JointType.FootLeft));
+                                break;
+                            case 12 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipRight));
+                                break;
+                            case 13 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipRight, JointType.KneeRight));
+                                break;
+                            case 14 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.KneeRight, JointType.AnkleRight));
+                                break;
+                            case 15 :
+                                skeletonCanvas2.Children.Add(GetBodySegment(data.Joints, brush, JointType.AnkleRight, JointType.FootRight));
+                                break;
+
+                        }
                     }
                 }
+            }
             }
         }
 
@@ -729,12 +687,14 @@
                 {
                     // Draw bones
                     //REMARK. change bone color here
-                    Brush brush = brushes[iSkeleton % brushes.Length];
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.Spine, JointType.ShoulderCenter, JointType.Head));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.HipCenter, JointType.Spine, JointType.ShoulderCenter, JointType.Head));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.ShoulderCenter, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
+
 
                     // Draw joints
                     foreach (Joint joint in data.Joints)
