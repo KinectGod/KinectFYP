@@ -49,7 +49,7 @@ namespace GrabSkeletonData.DTW
             // Extract the coordinates of the points.
             var p = new Vector3D[18];
             // Record the angles of the joints,  a.x = xy-plane  a.y = yz-plane
-            var a = new Point[7];
+            var a = new Point[17];
 
             foreach (Joint j in data.Joints)
             {
@@ -112,36 +112,22 @@ namespace GrabSkeletonData.DTW
                 }
             }
 
-            Vector3D joint0to1;
-            // used to store the vector project to the planes
-            Vector3D ProjectToXY = new Vector3D();
-            Vector3D ProjectToZY = new Vector3D();
+            Vector3D joint0to1 = new Vector3D();
             
             //left hand
             for (int i = 4; i > 0; i--)
             {
                 // calculate vector joining two points
                 joint0to1 = Vector3D.Subtract(p[i - 1], p[i]);
-                ProjectToXY = new Vector3D(joint0to1.X, joint0to1.Y, 0);
-                ProjectToZY = new Vector3D(0, joint0to1.Y, joint0to1.Z);
-
-                // calculate angle between the vector and the plane
-                a[4-i].X = Vector3D.AngleBetween(joint0to1, ProjectToXY);
-                if (joint0to1.X < 0 || (joint0to1.X == 0 && joint0to1.Y < 0 )) a[4 - i].X = 180 - a[4 - i].X;
-                a[4-i].Y = Vector3D.AngleBetween(joint0to1, ProjectToZY);
-                if (joint0to1.Y < 0 || (joint0to1.Y == 0 && joint0to1.Z < 0 )) a[4 - i].Y = 180 - a[4 - i].Y;
+                a[4 - i] = AngleDetection(joint0to1);
             }
 
             for (int i = 13; i > 9; i--)
             {
                 // calculate vector joining two points
                 joint0to1 = Vector3D.Subtract(p[i - 1], p[i]);
-                ProjectToXY = new Vector3D(Math.Abs(joint0to1.X), Math.Abs(joint0to1.Y), 0);
-                ProjectToZY = new Vector3D(0, Math.Abs(joint0to1.Y), Math.Abs(joint0to1.Z));
-
                 // calculate angle between the vector and the plane
-                a[21-i].X = Vector3D.AngleBetween(joint0to1, ProjectToXY);
-                a[21-i].Y = Vector3D.AngleBetween(joint0to1, ProjectToZY);
+                a[21 - i] = AngleDetection(joint0to1);
             }
 
             //right hand
@@ -149,23 +135,15 @@ namespace GrabSkeletonData.DTW
             {
                 // calculate vector joining two points
                 joint0to1 = Vector3D.Subtract(p[i + 1], p[i]);
-                ProjectToXY = new Vector3D(Math.Abs(joint0to1.X), Math.Abs(joint0to1.Y), 0);
-                ProjectToZY = new Vector3D(0, Math.Abs(joint0to1.Y), Math.Abs(joint0to1.Z));
-
                 // calculate angle between the vector and the plane
-                a[i].X = Vector3D.AngleBetween(joint0to1, ProjectToXY);
-                a[i].Y = Vector3D.AngleBetween(joint0to1, ProjectToZY);
+                a[i] = AngleDetection(joint0to1);
             } 
             for (int i = 13; i < 17; i++)
             {
                 // calculate vector joining two points
                 joint0to1 = Vector3D.Subtract(p[i + 1], p[i]);
-                ProjectToXY = new Vector3D(Math.Abs(joint0to1.X), Math.Abs(joint0to1.Y), 0);
-                ProjectToZY = new Vector3D(0, Math.Abs(joint0to1.Y), Math.Abs(joint0to1.Z));
-
                 // calculate angle between the vector and the plane
-                a[i-1].X = Vector3D.AngleBetween(joint0to1, ProjectToXY);
-                a[i-1].Y = Vector3D.AngleBetween(joint0to1, ProjectToZY);
+                a[i - 1] = AngleDetection(joint0to1);
             }
 
 
@@ -179,6 +157,51 @@ namespace GrabSkeletonData.DTW
                 Skeleton3DdataCoordReady(null, new Skeleton3DdataCoordEventArgs(a));
             }
 
+        }
+
+        private static Point AngleDetection(Vector3D angle)
+        {
+            Point temp = new Point();
+            Vector3D ProjectToXZ = new Vector3D(angle.X, 0, angle.Z);
+            Vector3D ProjectToZY = new Vector3D(0, angle.Y, angle.Z);
+            double tempX = Vector3D.AngleBetween(angle, ProjectToXZ);
+            double tempY = Vector3D.AngleBetween(angle, ProjectToZY);
+
+            if (angle.X >= 0 && angle.Y >= 0)
+            {
+                temp.X = tempX;
+            }
+            else if (angle.X >= 0 && angle.Y <= 0)
+            {
+                temp.X = 360 - tempX;
+            }
+            else if (angle.X <= 0 && angle.Y >= 0)
+            {
+                temp.X = 180 - tempX;
+            }
+            else if (angle.X <= 0 && angle.Y <= 0)
+            {
+                temp.X = 180 + tempX;
+            }
+
+            if (angle.Z >= 0 && angle.X >= 0)
+            {
+                temp.Y = tempY;
+            }
+            else if (angle.Z >= 0 && angle.X <= 0)
+            {
+                temp.Y = 360 - tempY;
+            }
+            else if (angle.Z <= 0 && angle.X >= 0)
+            {
+                temp.Y = 180 - tempY;
+            }
+            else if (angle.Z <= 0 && angle.X <= 0)
+            {
+                temp.Y = 180 + tempY;
+            }
+
+            return temp;
         }
 
        
