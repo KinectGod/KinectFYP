@@ -71,9 +71,7 @@
     <Compile Include="Recorder\ColorRecorder.cs" />
     <Compile Include="Replay\ReplayColorImageFrame.cs" />
     <Compile Include="Replay\ReplayColorImageFrameReadyEventArgs.cs" />
-    <Compile Include="Tools.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Tools.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

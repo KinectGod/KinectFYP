@@ -49,7 +49,7 @@ namespace GrabSkeletonData.DTW
             // Extract the coordinates of the points.
             var p = new Vector3D[18];
             // Record the angles of the joints,  a.x = xy-plane  a.y = yz-plane
-            var a = new Point[16];
+            var a = new Point[7];
 
             foreach (Joint j in data.Joints)
             {
@@ -122,12 +122,14 @@ namespace GrabSkeletonData.DTW
             {
                 // calculate vector joining two points
                 joint0to1 = Vector3D.Subtract(p[i - 1], p[i]);
-                ProjectToXY = new Vector3D(Math.Abs(joint0to1.X), Math.Abs(joint0to1.Y), 0);
-                ProjectToZY = new Vector3D(0, Math.Abs(joint0to1.Y), Math.Abs(joint0to1.Z));
+                ProjectToXY = new Vector3D(joint0to1.X, joint0to1.Y, 0);
+                ProjectToZY = new Vector3D(0, joint0to1.Y, joint0to1.Z);
 
                 // calculate angle between the vector and the plane
                 a[4-i].X = Vector3D.AngleBetween(joint0to1, ProjectToXY);
+                if (joint0to1.X < 0 || (joint0to1.X == 0 && joint0to1.Y < 0 )) a[4 - i].X = 180 - a[4 - i].X;
                 a[4-i].Y = Vector3D.AngleBetween(joint0to1, ProjectToZY);
+                if (joint0to1.Y < 0 || (joint0to1.Y == 0 && joint0to1.Z < 0 )) a[4 - i].Y = 180 - a[4 - i].Y;
             }
 
             for (int i = 13; i > 9; i--)
