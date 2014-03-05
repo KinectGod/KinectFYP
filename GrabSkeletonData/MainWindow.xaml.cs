@@ -336,6 +336,7 @@
                 }
             }
 
+            /* For Gesture purpose
             if (_capturing == true)
             {
                 using (var sframe = e.OpenSkeletonFrame())
@@ -346,7 +347,7 @@
                     //REMARK
                 }
             }
-
+            */
             
 
         }
@@ -452,7 +453,8 @@
         
         private void NuiSkeleton3DdataCoordReady(object sender, Skeleton3DdataCoordEventArgs a)
         {
-            currentBufferFrame.Text = _video.Count.ToString();
+            /// display the current frame number
+            //currentBufferFrame.Text = _video.Count.ToString();
 
             // Decide which skeleton frames to capture. Only do so if the frames actually returned a number. 
             // For some reason my Kinect/PC setup didn't always return a double in range (i.e. infinity) even when standing completely within the frame.
@@ -565,18 +567,18 @@
 
             // Set the capturing? flag
             _capturing = true;
-
             ////_captureCountdownTimer.Dispose();
-
-            status.Text = "Recording gesture " + gestureList.Text;
+            status.Text = "Recording motion " + gestureList.Text;
 
             // Clear the _video buffer and start from the beginning
             _video = new ArrayList();
             string path = ".\\Records\\" + gestureList.Text + "\\";
+
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
             }
+
             MasterMovesSaveFileLocation = path;
             recordstream = File.Create(@path + "skeleton");
             recordcolorstream = File.Create(@path + "colorStream");
@@ -766,6 +768,9 @@
                     Detect[i] = 0;
                 }
             }
+
+            /// 
+
                 return Detect;
         }
 
