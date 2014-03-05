@@ -14,6 +14,7 @@ namespace GrabSkeletonData.Replay
         public Tuple<float, float, float, float> FloorClipPlane { get; private set; }
         public Skeleton[] Skeletons { get; private set; }
         public SkeletonTrackingMode TrackingMode { get; set; }
+        public int ArrayLength { get; private set; }
 
         public ReplaySkeletonFrame(SkeletonFrame frame)
         {
@@ -22,6 +23,7 @@ namespace GrabSkeletonData.Replay
             TimeStamp = frame.Timestamp;
             Skeletons = frame.GetSkeletons();
             TrackingMode = frame.TrackingMode;
+            ArrayLength = frame.SkeletonArrayLength;
         }
 
         public ReplaySkeletonFrame()

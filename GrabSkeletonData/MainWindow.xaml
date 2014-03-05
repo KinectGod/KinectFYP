@@ -19,10 +19,10 @@
             <Label Height="40" Content="TaiChi Happy Learning" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Width="600" FontStretch="Expanded" FontStyle="Normal" HorizontalContentAlignment="Center" VerticalContentAlignment="Top" FontFamily="Segoe UI"></Label>
         </StackPanel>
         <StackPanel Grid.Column="3" Grid.Row="3" Grid.ColumnSpan="3">
-            <Label Height="20" Content="Video2" FontSize="8" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Width="680" FontStretch="Expanded" FontStyle="Normal" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontFamily="Segoe UI"></Label>
+            <Label Height="20" Content="Master" FontSize="8" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Width="680" FontStretch="Expanded" FontStyle="Normal" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontFamily="Segoe UI"></Label>
         </StackPanel>
         <StackPanel Grid.Column="3" Grid.Row="1" Grid.ColumnSpan="1">
-            <Label Height="20" Content="Video1" FontSize="8" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Width="680" FontStretch="SemiExpanded" FontStyle="Normal" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontFamily="Segoe UI"></Label>
+            <Label Height="20" Content="Learner" FontSize="8" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Width="680" FontStretch="SemiExpanded" FontStyle="Normal" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontFamily="Segoe UI"></Label>
         </StackPanel>
         <StackPanel Grid.Column="0" Grid.Row="2">
             <Button x:Name="dtwCapture" Content="Record" Click="DtwCaptureClick" Width="200 "/>

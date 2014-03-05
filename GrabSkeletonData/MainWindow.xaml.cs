@@ -164,9 +164,13 @@
         private System.Windows.Forms.Timer _captureCountdownTimer;
 
         ///REMARK
-        private static Skeleton[] RecogSkeletons;
+        private static Skeleton[] _RecogSkeletons;
 
-        private static Point[] MasterAngle = new Point [dimension];
+        private static Point[] _MasterAngle;
+
+        private static Point[] _LearnerAngle;
+
+        private static int[] _detection = new int [dimension];
 
         /// <summary>
         /// Initializes a new instance of the MainWindow class
@@ -256,79 +260,76 @@
                 length = frame.SkeletonArrayLength;
                 frame.CopySkeletonDataTo(skeletons);
             }
-            /*
-            foreach (var data in skeletons)
-            {
-                LearnerAngle = Skeleton3DDataExtract.ProcessDataTEST(data);
-            }*/
 
             DrawSkeleton(skeletons, skeletonCanvas);
 
             if (_learning == true)
             {
-                var brush = new SolidColorBrush(Color.FromRgb(255, 64, 255));
-                var LearnerAngle = new Point[dimension];
-                int[] detection = new int[dimension];
+                var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+                int[] DetectionTemp = new int[dimension];
+                DetectionTemp = _detection;
 
                 foreach (var data in skeletons)
                 {
-                    LearnerAngle = Skeleton3DDataExtract.ProcessDataTEST(data);
-                    detection = MotionDetection(MasterAngle, LearnerAngle, 30);
-                    for (int i = 0; i < dimension ; i++)
+                    _LearnerAngle = Skeleton3DDataExtract.ProcessDataTEST(data);
+                    if (_detection != null)
                     {
-                        if (detection[i] == 1)
+                        for (int i = 0; i < dimension; i++)
                         {
-                            /// REMARK : 16 cases
-                            switch (i)
+                            if (DetectionTemp[i] == 1)
                             {
-                                case 0:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderLeft));
-                                    break;
-                                case 1:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderLeft, JointType.ElbowLeft));
-                                    break;
-                                case 2:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristLeft, JointType.ElbowLeft));
-                                    break;
-                                case 3:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristLeft, JointType.HandLeft));
-                                    break;
-                                case 4:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderRight));
-                                    break;
-                                case 5:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderRight, JointType.ElbowRight));
-                                    break;
-                                case 6:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ElbowRight, JointType.WristRight));
-                                    break;
-                                case 7:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristRight, JointType.HandRight));
-                                    break;
-                                case 8:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipLeft));
-                                    break;
-                                case 9:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipLeft, JointType.KneeLeft));
-                                    break;
-                                case 10:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.KneeLeft, JointType.AnkleLeft));
-                                    break;
-                                case 11:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.AnkleLeft, JointType.FootLeft));
-                                    break;
-                                case 12:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipRight));
-                                    break;
-                                case 13:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipRight, JointType.KneeRight));
-                                    break;
-                                case 14:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.KneeRight, JointType.AnkleRight));
-                                    break;
-                                case 15:
-                                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.AnkleRight, JointType.FootRight));
-                                    break;
+                                /// REMARK : 16 cases
+                                switch (i)
+                                {
+                                    case 0:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderLeft));
+                                        break;
+                                    case 1:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderLeft, JointType.ElbowLeft));
+                                        break;
+                                    case 2:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristLeft, JointType.ElbowLeft));
+                                        break;
+                                    case 3:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristLeft, JointType.HandLeft));
+                                        break;
+                                    case 4:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderRight));
+                                        break;
+                                    case 5:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderRight, JointType.ElbowRight));
+                                        break;
+                                    case 6:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ElbowRight, JointType.WristRight));
+                                        break;
+                                    case 7:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristRight, JointType.HandRight));
+                                        break;
+                                    case 8:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipLeft));
+                                        break;
+                                    case 9:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipLeft, JointType.KneeLeft));
+                                        break;
+                                    case 10:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.KneeLeft, JointType.AnkleLeft));
+                                        break;
+                                    case 11:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.AnkleLeft, JointType.FootLeft));
+                                        break;
+                                    case 12:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipRight));
+                                        break;
+                                    case 13:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipRight, JointType.KneeRight));
+                                        break;
+                                    case 14:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.KneeRight, JointType.AnkleRight));
+                                        break;
+                                    case 15:
+                                        skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.AnkleRight, JointType.FootRight));
+                                        break;
+                                }
                             }
                         }
                     }
@@ -503,10 +504,53 @@
                 else
                 {
                     _captureCountdownTimer.Stop();
-                    status.Text = "Recording gesture";
-                    StartCapture();
+                    
+                    if (_learning)
+                    {
+                        status.Text = "Recognizing motion";
+                        DtwStartRecogn();
+                    }
+                    else
+                    {
+                        status.Text = "Recording motion";
+                        StartCapture();
+                    }
                 }
             }
+        }
+
+        private void DtwStartRecogn()
+        {
+            _learning = true;
+            _capturing = false;
+
+            dtwCapture.IsEnabled = false;
+            dtwStartRegcon.IsEnabled = false;
+            string path = ".\\Records\\" + gestureList.Text + "\\";
+
+            Stream recordStream = File.OpenRead(@path + "skeleton");
+            _replay = new KinectReplay(recordStream);
+            _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
+            _replay.Start();
+
+            Stream recordColorStream = File.OpenRead(@path + "colorStream");
+            _colorreplay = new KinectReplay(recordColorStream);
+            _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
+            _colorreplay.Start();
+            _captureCountdownTimer.Dispose();
+
+            status.Text = "Learning " + gestureList.Text;
+
+            // Clear the _video buffer and start from the beginning
+            _video = new ArrayList();
+            path = ".\\Learnings\\" + gestureList.Text + "\\";
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            recordstream = File.Create(@path + "skeleton");
+            _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, recordstream);
+            //throw new NotImplementedException();
         } 
 
         /// <summary>
@@ -606,25 +650,25 @@
             Skeleton[] skeletons;
             var frame = e.SkeletonFrame;
             if (frame == null) return;
+            skeletons = new Skeleton[frame.ArrayLength]; 
             skeletons = frame.Skeletons;
 
             DrawSkeleton(skeletons, skeletonCanvas2);
 
-            /// get the joint angle data of both master and learner
+            /// get the joint angle data of master
             /// then make comparison
             if (_learning) 
             {
                 foreach (var data in skeletons)
                 {
-                    MasterAngle = Skeleton3DDataExtract.ProcessDataTEST(data);
-                    
-                    Console.WriteLine("masterangle"+MasterAngle[1]);
+                    _MasterAngle = Skeleton3DDataExtract.ProcessDataTEST(data);
+                    if (_LearnerAngle != null)
+                    {
+                        _detection = MotionDetection(_LearnerAngle, _MasterAngle, 30);
+                    }
                 }
-
-                
             }
         }
-
 
         private void DtwStopReplayClick(object sender, RoutedEventArgs e)
         {
@@ -637,43 +681,21 @@
 
         private void DtwStartRecogn(object sender, RoutedEventArgs e)
         {
-            _learning = true;
-            _capturing = false;
+            _captureCountdown = DateTime.Now.AddSeconds(CaptureCountdownSeconds);
 
-            dtwCapture.IsEnabled = false;
-            dtwStartRegcon.IsEnabled = false;
-            string path = ".\\Records\\" + gestureList.Text + "\\";
-
-            Stream recordStream = File.OpenRead(@path + "skeleton");
-            _replay = new KinectReplay(recordStream);
-            _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
-            _replay.Start();
-
-            Stream recordColorStream = File.OpenRead(@path + "colorStream");
-            _colorreplay = new KinectReplay(recordColorStream);
-            _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
-            _colorreplay.Start();
-            ////_captureCountdownTimer.Dispose();
-
-            status.Text = "Learning " + gestureList.Text;
-
-            // Clear the _video buffer and start from the beginning
-            _video = new ArrayList();
-            path = ".\\Learnings\\" + gestureList.Text + "\\";
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-            recordstream = File.Create(@path + "skeleton");
-            _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, recordstream);
+            _captureCountdownTimer = new System.Windows.Forms.Timer();
+            _captureCountdownTimer.Interval = 50;
+            _captureCountdownTimer.Start();
+            _captureCountdownTimer.Tick += CaptureCountdown;
         }
-
-
-        
 
         private void DtwStopRecogn(object sender, RoutedEventArgs e)
         {
-
+            dtwCapture.IsEnabled = true;
+            dtwStopReplay.IsEnabled = false;
+            dtwStartRegcon.IsEnabled = true;
+            _replay.Stop();
+            _colorreplay.Stop();
         }
 
         private void DrawSkeleton(Skeleton[] skeletons, System.Windows.Controls.Canvas skeletonCanvas) 
@@ -694,13 +716,13 @@
                 {
                     // Draw bones
                     //REMARK. change bone color here
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.HipCenter, JointType.Spine, JointType.ShoulderCenter, JointType.Head));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.ShoulderCenter, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[0], JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[1], JointType.HipCenter, JointType.Spine, JointType.ShoulderCenter, JointType.Head));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[1], JointType.ShoulderCenter, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[1], JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[1], JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[1], JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[1], JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
+                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[1], JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
                     
 
                     // Draw joints
