@@ -10,7 +10,7 @@ namespace GrabSkeletonData.DTW
     {
         private readonly int TimeI; //specify which frame in seq1
         private readonly int TimeJ; //specify which frame in seq2
-        private readonly double Score; //specify the score between seq1[timeI] and seq2[timeJ]
+        public readonly double Score; //specify the score between seq1[timeI] and seq2[timeJ]
         //private DtwPathNode Next;
 
         public DtwPathNode(int i, int j, double score)
@@ -41,5 +41,7 @@ namespace GrabSkeletonData.DTW
                 return this.TimeJ;
             }
         }
+
+    
     }
 }

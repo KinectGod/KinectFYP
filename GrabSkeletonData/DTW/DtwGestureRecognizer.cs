@@ -291,6 +291,7 @@ using System.Windows.Media.Media3D;
 
             //Reconstruct the best matched path
             if (bestMatchI < 1) return -1; //error checking 
+            _path.Clear();
             _path = new ArrayList();
             int currentI = bestMatchI;
             int currentJ = seq2R.Count;
@@ -314,7 +315,9 @@ using System.Windows.Media.Media3D;
                 }
             }
 
-            return bestMatch;
+
+
+                return bestMatch;
         }
 
         /// <summary>
@@ -377,5 +380,18 @@ using System.Windows.Media.Media3D;
 
             return score;
         }
+
+        public DtwPathNode MostWrongNode()
+        {
+            int index = 0;
+            int highScore = 0;
+            for (int i = 0; i < _path.Count; i++)
+            {
+                if (((DtwPathNode)_path[i]).Score > highScore)
+                    index = i;
+            }
+                return (DtwPathNode)_path[index];
+        }
+        
     }
 }
