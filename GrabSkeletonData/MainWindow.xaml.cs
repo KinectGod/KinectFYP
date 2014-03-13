@@ -767,12 +767,23 @@
             });
             dispatcherTimer.Start();
              * */
+            private int[] MotionDetection(Point[] a1, Point[] a2, double threshold) 
+        {
+            /*
+            DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+            dispatcherTimer.Tick += new EventHandler (delegate(object s,EventArgs e){
+            Console.WriteLine("a1"+a1[1]);            
+            });
+            dispatcherTimer.Start();
+             * */
             int[] Detect = new int [a1.Length];
             for (int i = 0; i < dimension; i++)
             {
+                //a.x = xy-plane  a.y = yz-plane
                 if (Math.Abs(a1[i].X - a2[i].X) > threshold || Math.Abs(a1[i].Y - a2[i].Y) > threshold)
                 {
-                    Detect[i] = 1;
+                    Detect[i] = textInstruction(a1[i],a2[i]);
                 }
                 else
                 {
@@ -781,9 +792,124 @@
             }
 
             /// 
-
+            
                 return Detect;
         }
+
+        /// <summary>
+        /// To generate the movement instrcution by interger.
+        /// The hundreds place and a.X represent ProjectToXZ;
+        /// 200=down ;300=up; 400=forward; 500=backward.
+        /// The tens place and a.Y represent ProjectToZY.  
+        /// (_LearnerAngle, _MasterAngle)
+        /// </summary>
+
+        private int textInstruction(Point a1, Point a2)
+        {
+            int instructXZ = 1;
+            if (a1.X >= 0 && a1.X < 90)
+            {
+                if (a2.X >= 0 && a2.X <= 90)
+                    if (a1.X - a2.X > 0)
+                        instructXZ = 200;
+                    else
+                        instructXZ = 300;
+                if (a2.X >= 90 && a2.X <= 270)
+                    instructXZ = 400;
+                else
+                    instructXZ = 300;
+            }
+            else if (a1.X >= 90 && a1.X < 180)
+            {
+                if (a2.X >= 90 && a2.X <= 180)
+                    if (a1.X - a2.X > 0)
+                        instructXZ = 300;
+                    else
+                        instructXZ = 200;
+                if (a2.X >= 180 && a2.X <= 270)
+                    instructXZ = 300;
+                else
+                    instructXZ = 500;
+            }
+            else if (a1.X >= 180 && a1.X < 270)
+            {
+                if (a2.X >= 180 && a2.X <= 270)
+                    if (a1.X - a2.X > 0)
+                        instructXZ = 300;
+                    else
+                        instructXZ = 200;
+                if (a2.X >= 90 && a2.X <= 180)
+                    instructXZ = 200;
+                else
+                    instructXZ = 500;
+            }
+            else
+            {
+                if (a2.X >= 270 && a2.X <= 360)
+                    if (a1.X - a2.X > 0)
+                        instructXZ = 200;
+                    else
+                        instructXZ = 300;
+                if (a2.X >= 0 && a2.X <= 90)
+                    instructXZ = 200;
+                else
+                    instructXZ = 400;
+            }; 
+            /*
+            int instructYZ = 1;
+            // 20=Right; 40=Left;
+            if (a1.X >= 0 && a1.X < 90)
+            {
+                if (a2.X >= 0 && a2.X <= 90)
+                    if (a1.X - a2.X > 0)
+                        instructYZ = 20;
+                    else
+                        instructYZ = 40;
+                if (a2.X >= 90 && a2.X <= 270)
+                    instructYZ = 400;
+                else
+                    instructXZ = 300;
+            }
+            else if (a1.X >= 90 && a1.X < 180)
+            {
+                if (a2.X >= 90 && a2.X <= 180)
+                    if (a1.X - a2.X > 0)
+                        instructYZ = 20;
+                    else
+                        instructYZ = 40;
+                if (a2.X >= 180 && a2.X <= 270)
+                    instructXZ = 300;
+                else
+                    instructXZ = 500;
+            }
+            else if (a1.X >= 180 && a1.X < 270)
+            {
+                if (a2.X >= 180 && a2.X <= 270)
+                    if (a1.X - a2.X > 0)
+                        instructYZ = 20;
+                    else
+                        instructYZ = 40;
+                if (a2.X >= 90 && a2.X <= 180)
+                    instructXZ = 200;
+                else
+                    instructXZ = 500;
+            }
+            else
+            {
+                if (a2.X >= 270 && a2.X <= 360)
+                    if (a1.X - a2.X > 0)
+                        instructYZ = 40;
+                    else
+                        instructYZ = 20;
+                if (a2.X >= 0 && a2.X <= 90)
+                    instructXZ = 200;
+                else
+                    instructXZ = 400;
+            };
+             */
+            return instructXZ;
+        }
+        
 
         private void PlayBack(object sender, RoutedEventArgs e)
         {
