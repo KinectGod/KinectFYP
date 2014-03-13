@@ -783,6 +783,7 @@
                 //a.x = xy-plane  a.y = yz-plane
                 if (Math.Abs(a1[i].X - a2[i].X) > threshold || Math.Abs(a1[i].Y - a2[i].Y) > threshold)
                 {
+
                     Detect[i] = textInstruction(a1[i],a2[i]);
                 }
                 else
@@ -795,121 +796,188 @@
             
                 return Detect;
         }
-
+                      
         /// <summary>
         /// To generate the movement instrcution by interger.
         /// The hundreds place and a.X represent ProjectToXZ;
         /// 200=down ;300=up; 400=forward; 500=backward.
-        /// The tens place and a.Y represent ProjectToZY.  
+        /// The tens place and a.Y represent ProjectToZY.
+        /// 20=right  40=left
         /// (_LearnerAngle, _MasterAngle)
         /// </summary>
-
         private int textInstruction(Point a1, Point a2)
         {
             int instructXZ = 1;
-            if (a1.X >= 0 && a1.X < 90)
-            {
-                if (a2.X >= 0 && a2.X <= 90)
-                    if (a1.X - a2.X > 0)
-                        instructXZ = 200;
-                    else
-                        instructXZ = 300;
-                if (a2.X >= 90 && a2.X <= 270)
-                    instructXZ = 400;
-                else
-                    instructXZ = 300;
-            }
-            else if (a1.X >= 90 && a1.X < 180)
-            {
-                if (a2.X >= 90 && a2.X <= 180)
-                    if (a1.X - a2.X > 0)
-                        instructXZ = 300;
-                    else
-                        instructXZ = 200;
-                if (a2.X >= 180 && a2.X <= 270)
-                    instructXZ = 300;
-                else
-                    instructXZ = 500;
-            }
-            else if (a1.X >= 180 && a1.X < 270)
-            {
-                if (a2.X >= 180 && a2.X <= 270)
-                    if (a1.X - a2.X > 0)
-                        instructXZ = 300;
-                    else
-                        instructXZ = 200;
-                if (a2.X >= 90 && a2.X <= 180)
-                    instructXZ = 200;
-                else
-                    instructXZ = 500;
-            }
-            else
-            {
-                if (a2.X >= 270 && a2.X <= 360)
-                    if (a1.X - a2.X > 0)
-                        instructXZ = 200;
-                    else
-                        instructXZ = 300;
-                if (a2.X >= 0 && a2.X <= 90)
-                    instructXZ = 200;
-                else
-                    instructXZ = 400;
-            }; 
-            /*
+            instructXZ = textInstructionX(a1,a2);
             int instructYZ = 1;
-            // 20=Right; 40=Left;
-            if (a1.X >= 0 && a1.X < 90)
-            {
-                if (a2.X >= 0 && a2.X <= 90)
-                    if (a1.X - a2.X > 0)
-                        instructYZ = 20;
-                    else
-                        instructYZ = 40;
-                if (a2.X >= 90 && a2.X <= 270)
-                    instructYZ = 400;
-                else
-                    instructXZ = 300;
-            }
-            else if (a1.X >= 90 && a1.X < 180)
-            {
-                if (a2.X >= 90 && a2.X <= 180)
-                    if (a1.X - a2.X > 0)
-                        instructYZ = 20;
-                    else
-                        instructYZ = 40;
-                if (a2.X >= 180 && a2.X <= 270)
-                    instructXZ = 300;
-                else
-                    instructXZ = 500;
-            }
-            else if (a1.X >= 180 && a1.X < 270)
-            {
-                if (a2.X >= 180 && a2.X <= 270)
-                    if (a1.X - a2.X > 0)
-                        instructYZ = 20;
-                    else
-                        instructYZ = 40;
-                if (a2.X >= 90 && a2.X <= 180)
-                    instructXZ = 200;
-                else
-                    instructXZ = 500;
-            }
-            else
-            {
-                if (a2.X >= 270 && a2.X <= 360)
-                    if (a1.X - a2.X > 0)
-                        instructYZ = 40;
-                    else
-                        instructYZ = 20;
-                if (a2.X >= 0 && a2.X <= 90)
-                    instructXZ = 200;
-                else
-                    instructXZ = 400;
-            };
-             */
             return instructXZ;
         }
+        /// <summary>
+        /// To generate the movement instrcution by interger.
+        /// The hundreds place and a.X represent ProjectToXZ;
+        /// 200=down ;300=up; 400=forward; 500=backward.
+        /// (_LearnerAngle, _MasterAngle)
+        /// </summary>
+        private int textInstructionX(Point a1, Point a2)
+        {
+            if (a1.X >= 0 && a1.X < 90)
+            {
+                if (a2.X >= 0 && a2.X <= 90)
+                    if (a1.X - a2.X > 0)
+                        return 200;
+                    else
+                        return 300;
+                if (a2.X >= 90 && a2.X <= 270)
+                    return 400;
+                else
+                    return 300;
+            }
+            else if (a1.X >= 90 && a1.X < 180)
+            {
+                if (a2.X >= 90 && a2.X <= 180)
+                    if (a1.X - a2.X > 0)
+                        return 300;
+                    else
+                        return 200;
+                if (a2.X >= 180 && a2.X <= 270)
+                    return 300;
+                else
+                    return 500;
+            }
+            else if (a1.X >= 180 && a1.X < 270)
+            {
+                if (a2.X >= 180 && a2.X <= 270)
+                    if (a1.X - a2.X > 0)
+                        return 300;
+                    else
+                        return 200;
+                if (a2.X >= 90 && a2.X <= 180)
+                    return 200;
+                else
+                    return 500;
+            }
+            else
+            {
+                if (a2.X >= 270 && a2.X <= 360)
+                    if (a1.X - a2.X > 0)
+                        return 200;
+                    else
+                        return 300;
+                if (a2.X >= 0 && a2.X <= 90)
+                    return 200;
+                else
+                    return 400;
+            }        
+        }
+
         
+        /// <summary>
+        /// To generate the movement instrcution by interger.
+        /// The tens place and a.Y represent ProjectToZY.  
+        /// 20 = right 40 = left
+        /// (_LearnerAngle, _MasterAngle)
+        /// </summary>
+        private int textInstructionYL(Point a1, Point a2)
+        {
+            if (a1.X >= 0 && a1.X < 90)
+            {
+                if (a2.X >= 0 && a2.X <= 90)
+                    if (a1.X - a2.X > 0)
+                        return 20;
+                    else
+                        return 40;
+                else
+                    return 20;
+            }
+            else if (a1.X >= 90 && a1.X < 180)
+            {
+                if (a2.X >= 90 && a2.X <= 180)
+                    if (a1.X - a2.X > 0)
+                        return 20;
+                    else
+                        return 40;
+                if (a2.X >= 0 && a2.X <= 90)
+                    return 40;
+                else
+                    return 20;
+            }
+            else if (a1.X >= 180 && a1.X < 270)
+            {
+                if (a2.X >= 180 && a2.X <= 270)
+                    if (a1.X - a2.X > 0)
+                        return 20;
+                    else
+                        return 40;
+                if (a2.X >= 0 && a2.X <= 180)
+                    return 40;
+                else
+                    return 20;
+            }
+            else
+            {
+                if (a2.X >= 270 && a2.X <= 360)
+                    if (a1.X - a2.X > 0)
+                        return 20;
+                    else
+                        return 40;
+                else
+                    return 40;
+            }        
+        }
+
+        /// <summary>
+        /// To generate the movement instrcution by interger.
+        /// The tens place and a.Y represent ProjectToZY.  
+        /// 20 = right 40 = left
+        /// (_LearnerAngle, _MasterAngle)
+        /// </summary>
+        private int textInstructionYR(Point a1, Point a2)
+        {
+            if (a1.X >= 0 && a1.X < 90)
+            {
+                if (a2.X >= 0 && a2.X <= 90)
+                    if (a1.X - a2.X > 0)
+                        return 20;
+                    else
+                        return 40;
+                if (a2.X >= 90 && a2.X <= 180)
+                    return 20;
+                else
+                    return 40;
+            }
+            else if (a1.X >= 90 && a1.X < 180)
+            {
+                if (a2.X >= 90 && a2.X <= 180)
+                    if (a1.X - a2.X > 0)
+                        return 20;
+                    else
+                        return 40;
+                else
+                    return 40;
+            }
+            else if (a1.X >= 180 && a1.X < 270)
+            {
+                if (a2.X >= 180 && a2.X <= 270)
+                    if (a1.X - a2.X > 0)
+                        return 20;
+                    else
+                        return 40;
+                else
+                    return 20;
+            }
+            else
+            {
+                if (a2.X >= 270 && a2.X <= 360)
+                    if (a1.X - a2.X > 0)
+                        return 20;
+                    else
+                        return 40;
+                if (a2.X >= 0 && a2.X <= 180)
+                    return 20;
+                else
+                    return 40;
+            }        
+        }
 
         private void PlayBack(object sender, RoutedEventArgs e)
         {
