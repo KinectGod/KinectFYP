@@ -482,6 +482,7 @@
         /// <param name="e">Routed Event Args</param>
         private void DtwCaptureClick(object sender, RoutedEventArgs e)
         {
+            _learning = false;
             _captureCountdown = DateTime.Now.AddSeconds(CaptureCountdownSeconds);
 
             _captureCountdownTimer = new System.Windows.Forms.Timer();
@@ -511,6 +512,7 @@
                     {
                         status.Text = "Recognizing motion";
                         DtwStartRecogn();
+                        StartCapture();
                     }
                     else
                     {
@@ -572,7 +574,15 @@
 
             // Clear the _video buffer and start from the beginning
             _video = new ArrayList();
-            string path = ".\\Records\\" + gestureList.Text + "\\";
+            string path;
+            if (_learning)
+            {
+                path = ".\\Learning\\" + gestureList.Text + "\\";
+            }
+            else
+            {
+                path = ".\\Records\\" + gestureList.Text + "\\";
+            }
 
             if (!Directory.Exists(path))
             {
@@ -601,6 +611,7 @@
             dtwStore.IsEnabled = false;
 
             // Set the capturing? flag
+            _learning = false;
             _capturing = false;
 
             string fileName = GestureSaveFileNamePrefix + ".txt";
@@ -622,6 +633,7 @@
         //Replay the saved skeleton
         private void DtwReplayClick (object sender, RoutedEventArgs e) 
         {
+            _learning = false;
             dtwCapture.IsEnabled = false;
             dtwStartRegcon.IsEnabled = false;
             string path = ".\\Records\\" + gestureList.Text + "\\";
@@ -696,6 +708,8 @@
             dtwCapture.IsEnabled = true;
             dtwStopReplay.IsEnabled = false;
             dtwStartRegcon.IsEnabled = true;
+            _learning = false;
+            _capturing = false;
             _replay.Stop();
             _colorreplay.Stop();
         }
@@ -772,6 +786,11 @@
             /// 
 
                 return Detect;
+        }
+
+        private void PlayBack(object sender, RoutedEventArgs e)
+        {
+
         }
 
         /// <summary>

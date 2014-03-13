@@ -31,6 +31,7 @@
             <Button x:Name="dtwStopReplay" Content="Stop Replay" Click="DtwStopReplayClick" Width="200" IsEnabled="False" Margin="0,0,1,0" />
             <Button x:Name="dtwStartRegcon" Content="Start Learning" Click="DtwStartRecogn" Width="200" IsEnabled="True" Margin="0,0,1,0" />
             <Button x:Name="dtwStopRegcon" Content="Stop Learning" Click="DtwStopRecogn" Width="200" IsEnabled="True" Margin="0,0,1,0" />
+            <Button x:Name="PlayBack" Content="Play Back" Click="PlayBack" Width="200" IsEnabled="True" Margin="0,0,1,0" />
         </StackPanel>
         <StackPanel Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Width="400">
             <ComboBox Name="gestureList" Width="400">

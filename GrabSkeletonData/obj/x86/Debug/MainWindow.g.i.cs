@@ -88,7 +88,15 @@ namespace GrabSkeletonData {
         #line hidden
         
         
-        #line 36 "..\..\..\MainWindow.xaml"
+        #line 34 "..\..\..\MainWindow.xaml"
+        [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
+        internal System.Windows.Controls.Button PlayBack;
+        
+        #line default
+        #line hidden
+        
+        
+        #line 37 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.ComboBox gestureList;
         
@@ -96,7 +104,7 @@ namespace GrabSkeletonData {
         #line hidden
         
         
-        #line 42 "..\..\..\MainWindow.xaml"
+        #line 43 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.TextBox results;
         
@@ -104,7 +112,7 @@ namespace GrabSkeletonData {
         #line hidden
         
         
-        #line 43 "..\..\..\MainWindow.xaml"
+        #line 44 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.TextBox status;
         
@@ -112,7 +120,7 @@ namespace GrabSkeletonData {
         #line hidden
         
         
-        #line 44 "..\..\..\MainWindow.xaml"
+        #line 45 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.TextBox status2;
         
@@ -120,7 +128,7 @@ namespace GrabSkeletonData {
         #line hidden
         
         
-        #line 45 "..\..\..\MainWindow.xaml"
+        #line 46 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.TextBox currentBufferFrame;
         
@@ -128,7 +136,7 @@ namespace GrabSkeletonData {
         #line hidden
         
         
-        #line 46 "..\..\..\MainWindow.xaml"
+        #line 47 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.TextBox frameRate;
         
@@ -136,7 +144,7 @@ namespace GrabSkeletonData {
         #line hidden
         
         
-        #line 47 "..\..\..\MainWindow.xaml"
+        #line 48 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.TextBox feedback;
         
@@ -144,7 +152,7 @@ namespace GrabSkeletonData {
         #line hidden
         
         
-        #line 50 "..\..\..\MainWindow.xaml"
+        #line 51 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.Canvas skeletonCanvas;
         
@@ -152,7 +160,7 @@ namespace GrabSkeletonData {
         #line hidden
         
         
-        #line 51 "..\..\..\MainWindow.xaml"
+        #line 52 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.Image videoImage3;
         
@@ -160,7 +168,7 @@ namespace GrabSkeletonData {
         #line hidden
         
         
-        #line 54 "..\..\..\MainWindow.xaml"
+        #line 55 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.Canvas skeletonCanvas2;
         
@@ -168,7 +176,7 @@ namespace GrabSkeletonData {
         #line hidden
         
         
-        #line 57 "..\..\..\MainWindow.xaml"
+        #line 58 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.Image videoImage;
         
@@ -176,7 +184,7 @@ namespace GrabSkeletonData {
         #line hidden
         
         
-        #line 58 "..\..\..\MainWindow.xaml"
+        #line 59 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.Image videoImage2;
         
@@ -184,7 +192,7 @@ namespace GrabSkeletonData {
         #line hidden
         
         
-        #line 61 "..\..\..\MainWindow.xaml"
+        #line 62 "..\..\..\MainWindow.xaml"
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1823:AvoidUnusedPrivateFields")]
         internal System.Windows.Controls.TextBox dtwTextOutput;
         
@@ -290,48 +298,57 @@ namespace GrabSkeletonData {
             #line hidden
             return;
             case 8:
-            this.gestureList = ((System.Windows.Controls.ComboBox)(target));
+            this.PlayBack = ((System.Windows.Controls.Button)(target));
+            
+            #line 34 "..\..\..\MainWindow.xaml"
+            this.PlayBack.Click += new System.Windows.RoutedEventHandler(this.PlayBack);
+            
+            #line default
+            #line hidden
             return;
             case 9:
-            this.results = ((System.Windows.Controls.TextBox)(target));
+            this.gestureList = ((System.Windows.Controls.ComboBox)(target));
             return;
             case 10:
-            this.status = ((System.Windows.Controls.TextBox)(target));
+            this.results = ((System.Windows.Controls.TextBox)(target));
             return;
             case 11:
-            this.status2 = ((System.Windows.Controls.TextBox)(target));
+            this.status = ((System.Windows.Controls.TextBox)(target));
             return;
             case 12:
+            this.status2 = ((System.Windows.Controls.TextBox)(target));
+            return;
+            case 13:
             this.currentBufferFrame = ((System.Windows.Controls.TextBox)(target));
             
-            #line 45 "..\..\..\MainWindow.xaml"
+            #line 46 "..\..\..\MainWindow.xaml"
             this.currentBufferFrame.TextChanged += new System.Windows.Controls.TextChangedEventHandler(this.currentBufferFrame_TextChanged);
             
             #line default
             #line hidden
             return;
-            case 13:
+            case 14:
             this.frameRate = ((System.Windows.Controls.TextBox)(target));
             return;
-            case 14:
+            case 15:
             this.feedback = ((System.Windows.Controls.TextBox)(target));
             return;
-            case 15:
+            case 16:
             this.skeletonCanvas = ((System.Windows.Controls.Canvas)(target));
             return;
-            case 16:
+            case 17:
             this.videoImage3 = ((System.Windows.Controls.Image)(target));
             return;
-            case 17:
+            case 18:
             this.skeletonCanvas2 = ((System.Windows.Controls.Canvas)(target));
             return;
-            case 18:
+            case 19:
             this.videoImage = ((System.Windows.Controls.Image)(target));
             return;
-            case 19:
+            case 20:
             this.videoImage2 = ((System.Windows.Controls.Image)(target));
             return;
-            case 20:
+            case 21:
             this.dtwTextOutput = ((System.Windows.Controls.TextBox)(target));
             return;
             }
