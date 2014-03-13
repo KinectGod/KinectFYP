@@ -57,14 +57,8 @@
         /// Where we will save our gestures to. The app will append a data/time and .txt to this string
         /// </summary>
 
-        private string MasterMovesSaveFileLocation = "";
+        private static string _MasterMovesSaveFileLocation = "";
 
-        /// <summary>
-        /// Where we will save our gestures to. The app will append a data/time and .txt to this string
-        /// </summary>
-        private const string GestureSaveFileNamePrefix = @"RecordedMotion";
-
-        private const string SkeletonSaveFileNamePrefix = @"RecordedSkeleton";
         /// <summary>
         /// Dictionary of all the joints Kinect SDK is capable of tracking. You might not want always to use them all but they are included here for thouroughness.
        
@@ -589,7 +583,7 @@
                 Directory.CreateDirectory(path);
             }
 
-            MasterMovesSaveFileLocation = path;
+            _MasterMovesSaveFileLocation = path;
             recordstream = File.Create(@path + "skeleton");
             recordcolorstream = File.Create(@path + "colorStream");
             _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, recordstream);
@@ -614,12 +608,15 @@
             _learning = false;
             _capturing = false;
 
-            string fileName = GestureSaveFileNamePrefix + ".txt";
-            System.IO.File.WriteAllText(@MasterMovesSaveFileLocation + fileName, _dtw.RetrieveText());
-            status.Text = "Remembering " + gestureList.Text;
+            
             // Add the current video buffer to the dtw sequences list
             _dtw.AddOrUpdate(_video, gestureList.Text);
-            results.Text = "Motion " + gestureList.Text + " added";
+
+            string fileName = "AnglesData.txt";
+            System.IO.File.WriteAllText(@_MasterMovesSaveFileLocation + fileName, _dtw.RetrieveText());
+            status.Text = "Remembering " + gestureList.Text;
+
+            results.Text = gestureList.Text + " added";
             status.Text = "";
             recordstream.Close();
             recordcolorstream.Close();
