@@ -65,6 +65,8 @@
         /// number of joints that we need
         private const int dimension = 16;
 
+        private static int counttime = 0;
+
         private readonly Dictionary<JointType, Brush> _jointColors = new Dictionary<JointType, Brush>
         { 
             {JointType.HipCenter, new SolidColorBrush(Color.FromRgb(169, 176, 155))},
@@ -263,6 +265,7 @@
                 var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
                 int[] DetectionTemp = new int[dimension];
                 DetectionTemp = _detection;
+                string temp = "";
 
                 foreach (var data in skeletons)
                 {
@@ -270,66 +273,128 @@
                     if (temppt[4].X >= 0)
                         _LearnerAngle = temppt;
                     if (_LearnerAngle != null)
-                        {
+                    {
+                        counttime++;
                             for (int i = 0; i < dimension; i++)
                             {
                                 if (DetectionTemp[i] > 0)
                                 {
                                     /// REMARK : 16 cases
                                     //Console.WriteLine("k");
+                                    //generate the instruction
+                                    /// The hundreds place and a.X represent ProjectToXZ;
+                                    /// 200=down ;300=up; 400=forward; 500=backward.
+                                    /// The tens place and a.Y represent ProjectToZY.
+                                    /// 20=right  40=left
+                                    
+
+                                    int XZ =  DetectionTemp[i]/100;
+                                    string instructionX = "";
+                                    switch(XZ)
+                                    {
+                                        case 2:
+                                            instructionX = "down ";
+                                            break;
+                                        case 3:
+                                            instructionX = "up ";
+                                            break;
+                                        case 4:
+                                            instructionX = "forward ";
+                                            break;
+                                        case 5:
+                                            instructionX = "backward ";
+                                            break;
+                                    }
+                                    int YZ = DetectionTemp[i] % 100;
+                                    string instructionY = "";
+                                    switch (YZ)
+                                    {
+                                        case 20:
+                                            instructionY = "right ";
+                                            break;
+                                        case 40:
+                                            instructionY = "left ";
+                                            break;
+                                    }
+
+                                    DateTime now = DateTime.Now;
+                                    temp  = "[" + now + "] ";
+
                                     switch (i)
                                     {
                                         case 0:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderLeft));
+                                            temp += "Left Shoulder ";
+                                            //feedback.Text += "Left Shoulder ";
+                                            
                                             break;
                                         case 1:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderLeft, JointType.ElbowLeft));
+                                            temp += "Left Elbow ";
                                             break;
                                         case 2:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristLeft, JointType.ElbowLeft));
+                                            temp += "Left Wrist ";
                                             break;
                                         case 3:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristLeft, JointType.HandLeft));
+                                            temp += "Left Hand ";
                                             break;
                                         case 4:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderRight));
+                                            temp += "Right Shoulder ";
                                             break;
                                         case 5:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderRight, JointType.ElbowRight));
+                                            temp += "Right Elbow ";
                                             break;
                                         case 6:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ElbowRight, JointType.WristRight));
+                                            temp += "Right Wrist ";
                                             break;
                                         case 7:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristRight, JointType.HandRight));
+                                            temp += "Right Hand ";
                                             break;
                                         case 8:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipLeft));
+                                            temp += "Left Hip";
                                             break;
                                         case 9:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipLeft, JointType.KneeLeft));
+                                            temp += "Left Knee ";
                                             break;
                                         case 10:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.KneeLeft, JointType.AnkleLeft));
+                                            temp += "Left Ankle ";
                                             break;
                                         case 11:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.AnkleLeft, JointType.FootLeft));
+                                            temp += "Left Foot ";
                                             break;
                                         case 12:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipRight));
+                                            temp += "Right Hip";
                                             break;
                                         case 13:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipRight, JointType.KneeRight));
+                                            temp += "Right Knee ";
                                             break;
                                         case 14:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.KneeRight, JointType.AnkleRight));
+                                            temp += "Right Ankle ";
                                             break;
                                         case 15:
                                             LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.AnkleRight, JointType.FootRight));
+                                            temp += "Right Foot ";
                                             break;
                                     }
+                                    temp += instructionX + instructionY +"\r\n";
                                 }
                             }
+
+                            if (counttime % 180 == 0)
+                                feedback.Text += temp;
                         }
                 }
             }
@@ -509,7 +574,7 @@
                     {
                         status.Text = "Recognizing motion";
                         DtwStartRecogn();
-                        //StartCapture();
+                        StartCapture();
                     }
                     else
                     {
@@ -684,7 +749,7 @@
                     if (_LearnerAngle != null && _MasterAngle != null)
                     {
 
-                        MotionDetection(_LearnerAngle, _MasterAngle, 30);
+                        MotionDetection(_LearnerAngle, _MasterAngle, 100);
                     }
                 }
             }
@@ -697,6 +762,8 @@
             dtwStartRegcon.IsEnabled = true;
             _replay.Stop();
             _colorreplay.Stop();
+
+            MasterSkeletonCanvas.Children.Clear();
         }
 
         private void DtwStartRecogn(object sender, RoutedEventArgs e)
@@ -721,6 +788,11 @@
             _capturing = false;
             _replay.Stop();
             _colorreplay.Stop();
+            recordstream.Close();
+            recordcolorstream.Close();
+
+            MasterSkeletonCanvas.Children.Clear();
+            LearnerSkeletonCanvas.Children.Clear();
         }
 
         private void DrawSkeleton(Skeleton[] skeletons, System.Windows.Controls.Canvas skeletonCanvas) 
@@ -778,15 +850,17 @@
             });
             dispatcherTimer.Start();
              * */
-            int[] Detect = new int[a1.Length];
+            //int[] Detect = new int[a1.Length];
             for (int i = 0; i < dimension; i++)
             {
                 //a.x = xy-plane  a.y = yz-plane
                 if (Math.Abs(a1[i].X - a2[i].X) > threshold || Math.Abs(a1[i].Y - a2[i].Y) > threshold)
                 {
-
-                    _detection[i] = 1;
-
+                    
+                    if (i < 4 || i > 11)
+                        _detection[i] = textInstructionX(a1[i], a2[i]) + textInstructionYL(a1[i], a2[i]);   //left
+                    else
+                       _detection[i] = textInstructionX(a1[i], a2[i]) + textInstructionYR(a1[i], a2[i]);  //right
                 }
                 else
                 {
@@ -807,13 +881,7 @@
         /// 20=right  40=left
         /// (_LearnerAngle, _MasterAngle)
         /// </summary>
-        private int textInstruction(Point a1, Point a2)
-        {
-            int instructXZ = 1;
-            instructXZ = textInstructionX(a1, a2);
-            int instructYZ = 1;
-            return instructXZ;
-        }
+        
         /// <summary>
         /// To generate the movement instrcution by interger.
         /// The hundreds place and a.X represent ProjectToXZ;
@@ -981,36 +1049,9 @@
             }
         }
 
-        /*
-        private int[] MotionDetection(Point[] a1, Point[] a2, double threshold) 
-        {
-            /*
-            DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
-            dispatcherTimer.Tick += new EventHandler (delegate(object s,EventArgs e){
-            Console.WriteLine("a1"+a1[1]);            
-            });
-            dispatcherTimer.Start();
-             
-            int[] Detect = new int [a1.Length];
-            for (int i = 0; i < dimension; i++)
-            {
-                if (Math.Abs(a1[i].X - a2[i].X) > threshold || Math.Abs(a1[i].Y - a2[i].Y) > threshold)
-                {
-                    Detect[i] = 1;
-                }
-                else
-                {
-                    Detect[i] = 0;
-                }
-            }
+       
 
-            /// 
-
-                return Detect;
-        }
-
-        * */private void PlayBack(object sender, RoutedEventArgs e)
+        private void PlayBack(object sender, RoutedEventArgs e)
         {
 
         }
