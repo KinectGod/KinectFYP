@@ -64,6 +64,7 @@
     <Compile Include="BitmapSourceExtensions.cs" />
     <Compile Include="DTW\DtwGestureRecognizer.cs" />
     <Compile Include="DTW\DtwPathNode.cs" />
+    <Compile Include="DTW\MotionDetection.cs" />
     <Compile Include="DTW\Skeleton3DdataCoordEventArgs.cs" />
     <Compile Include="DTW\Skeleton3DDataExtract.cs" />
     <Compile Include="ImageFrameCommonExtensions.cs" />
