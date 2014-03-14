@@ -28,7 +28,7 @@ namespace GrabSkeletonData.Replay
             frames.Add(frame);
         }
 
-        public void Start()
+        public void Start(double rateinmsec)
         {
             Stop();
 
@@ -42,7 +42,7 @@ namespace GrabSkeletonData.Replay
             {
                 foreach (T frame in frames)
                 {
-                    Thread.Sleep(TimeSpan.FromMilliseconds(frame.TimeStamp));
+                    Thread.Sleep(TimeSpan.FromMilliseconds(rateinmsec));
 
                     if (token.IsCancellationRequested)
                         break;

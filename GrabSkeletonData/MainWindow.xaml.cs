@@ -65,6 +65,9 @@
         /// number of joints that we need
         private const int dimension = 16;
 
+        /// <summary>
+        /// To avoid feedback too much
+        /// </summary>
         private static int counttime = 0;
 
         private readonly Dictionary<JointType, Brush> _jointColors = new Dictionary<JointType, Brush>
@@ -102,6 +105,16 @@
         /// Flag to show whether or not the Tai Chi learning system is capturing a new pose
         /// </summary>
         private bool _capturing = false;
+
+        /// <summary>
+        /// Flag to show whether the mode is training mode or challenge mode
+        /// </summary>
+        private static bool _training = true;
+
+        /// <summary>
+        /// flag to show whether it is playing back or not
+        /// </summary>
+        private static bool _playback = false;
 
         /// <summary>
         /// Flag to show whether or not the the system is in Learning Mode
@@ -167,6 +180,16 @@
         private static Point[] _LearnerAngle;
 
         public static int[] detection = new int [dimension];
+
+        ///Difficulty
+        private static double threshold = 100.0;
+
+        /// <summary>
+        /// The replay rate 
+        /// </summary>
+        private static int SelectedFPS = 30;
+        private static double rateinmsec = 1000.0/SelectedFPS;
+
 
         /// <summary>
         /// Initializes a new instance of the MainWindow class
@@ -260,7 +283,7 @@
 
             DrawSkeleton(skeletons, LearnerSkeletonCanvas);
 
-            if (_learning == true)
+            if (_learning && _training || _playback)
             {
                 var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
                 int[] DetectionTemp = new int[dimension];
@@ -599,13 +622,13 @@
             _replay = new KinectReplay(recordStream);
             recordStream.Close();
             _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
-            _replay.Start();
+            _replay.Start(rateinmsec);
 
             Stream recordColorStream = File.OpenRead(@path + "colorStream");
             _colorreplay = new KinectReplay(recordColorStream);
             recordColorStream.Close();
             _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
-            _colorreplay.Start();
+            _colorreplay.Start(rateinmsec);
             _captureCountdownTimer.Dispose();
 
             status.Text = "Learning " + gestureList.Text;
@@ -706,19 +729,20 @@
             _learning = false;
             dtwCapture.IsEnabled = false;
             dtwStartRegcon.IsEnabled = false;
+            status.Text = "Replaying master motion " + gestureList.Text;
             string path = ".\\Records\\" + gestureList.Text + "\\";
 
             Stream recordStream = File.OpenRead(@path+"skeleton");
             _replay = new KinectReplay(recordStream);
             recordStream.Close();
             _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
-            _replay.Start();
+            _replay.Start(rateinmsec);
 
             Stream recordColorStream = File.OpenRead(@path + "colorStream");
             _colorreplay = new KinectReplay(recordColorStream);
             recordColorStream.Close();
             _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
-            _colorreplay.Start();
+            _colorreplay.Start(rateinmsec);
 
             dtwStopReplay.IsEnabled = true;
         }
@@ -754,8 +778,7 @@
                     //Console.WriteLine(_MasterAngle[4].X);
                     if (_LearnerAngle != null && _MasterAngle != null)
                     {
-
-                        MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension, 100, detection);
+                        MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension, threshold, detection);
                     }
                 }
             }
@@ -763,6 +786,7 @@
 
         private void DtwStopReplayClick(object sender, RoutedEventArgs e)
         {
+            status.Text = "Stopped replay";
             dtwCapture.IsEnabled = true;
             dtwStopReplay.IsEnabled = false;
             dtwStartRegcon.IsEnabled = true;
@@ -786,6 +810,7 @@
 
         private void DtwStopRecogn(object sender, RoutedEventArgs e)
         {
+            status.Text = "Stopped learaning";
             dtwCapture.IsEnabled = true;
             dtwStopReplay.IsEnabled = false;
             dtwStartRegcon.IsEnabled = true;
@@ -846,116 +871,9 @@
 
         }
 
-        
-
-       
-
         private void PlayBack(object sender, RoutedEventArgs e)
         {
 
         }
-
-        /// <summary>
-        /// Opens the sent text file and creates a _dtw recorded gesture sequence
-        /// Currently not very flexible and totally intolerant of errors.
-        /// </summary>
-        /// <param name="fileLocation">Full path to the gesture file</param>
-        /*
-        public void LoadGesturesFromFile(string fileLocation, int dimension, DtwGestureRecognizer _dtw)
-        {
-            int itemCount = 0;
-            string line;
-            string gestureName = String.Empty;
-
-            // TODO I'm defaulting this to 12 here for now as it meets my current need but I need to cater for variable lengths in the future
-            ArrayList frames = new ArrayList();
-            double[] items = new double[dimension * 3];
-
-            // Read the file and display it line by line.
-            System.IO.StreamReader file = new System.IO.StreamReader(fileLocation);
-            while ((line = file.ReadLine()) != null)
-            {
-                if (line.StartsWith("@"))
-                {
-                    gestureName = line;
-                    continue;
-                }
-
-                if (line.StartsWith("~"))
-                {
-                    frames.Add(items);
-                    itemCount = 0;
-                    items = new double[dimension * 3];
-                    continue;
-                }
-
-                if (!line.StartsWith("----"))
-                {
-                    items[itemCount] = Double.Parse(line);
-                }
-
-                itemCount++;
-
-                if (line.StartsWith("----"))
-                {
-                    _dtw.AddOrUpdate(frames, gestureName);
-                    frames = new ArrayList();
-                    gestureName = String.Empty;
-                    itemCount = 0;
-                }
-            }
-
-            file.Close();
-        }
-        */
-        /// <summary>
-        /// Stores our gesture to the DTW sequences list
-        /// </summary>
-        /// <param name="sender">The sender object</param>
-        /// <param name="e">Routed Event Args</param>
-        /*
-        private void DtwSaveToFile(object sender, RoutedEventArgs e)
-        {
-            string fileName = GestureSaveFileNamePrefix + ".txt";
-            System.IO.File.WriteAllText(MasterMovesSaveFileLocation + fileName, _dtw.RetrieveText());
-            status.Text = "Saved to " + fileName;
-        }
-        */
-        /// <summary>
-        /// Loads the user's selected gesture file
-        /// </summary>
-        /// <param name="sender">The sender object</param>
-        /// <param name="e">Routed Event Args</param>
-        /*
-        private void DtwLoadFile(object sender, RoutedEventArgs e)
-        {
-            // Create OpenFileDialog
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-
-            // Set filter for file extension and default file extension
-            dlg.DefaultExt = ".txt";
-            dlg.Filter = "Text documents (.txt)|*.txt";
-
-            dlg.InitialDirectory = MasterMovesSaveFileLocation;
-
-            // Display OpenFileDialog by calling ShowDialog method
-            Nullable<bool> result = dlg.ShowDialog();
-
-            // Get the selected file name and display in a TextBox
-            if (result == true)
-            {
-                // Open document
-                LoadGesturesFromFile(dlg.FileName);
-                dtwTextOutput.Text = _dtw.RetrieveText();
-                status.Text = "Gestures loaded!";
-            } 
-        }
-         * */
-
-        /// <summary>
-        /// Stores our gesture to the DTW sequences list
-        /// </summary>
-        /// <param name="sender">The sender object</param>
-        /// <param name="e">Routed Event Args</param>
     }
 }

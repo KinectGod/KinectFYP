@@ -88,7 +88,7 @@ namespace GrabSkeletonData.Replay
             }
         }
 
-        public void Start()
+        public void Start(double rateinmsec)
         {
             if (Started)
                 throw new Exception("KinectReplay already started");
@@ -97,7 +97,7 @@ namespace GrabSkeletonData.Replay
            
             if (colorReplay != null)
             {
-                colorReplay.Start();
+                colorReplay.Start(rateinmsec);
                 colorReplay.FrameReady += frame => synchronizationContext.Send(state =>
                 {
                     if (ColorImageFrameReady != null)
@@ -119,7 +119,7 @@ namespace GrabSkeletonData.Replay
 
             if (skeletonReplay != null)
             {
-                skeletonReplay.Start();
+                skeletonReplay.Start(rateinmsec);
                 skeletonReplay.FrameReady += frame => synchronizationContext.Send(state =>
                 {
                     if (SkeletonFrameReady != null)
