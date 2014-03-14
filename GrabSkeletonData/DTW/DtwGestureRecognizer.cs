@@ -220,6 +220,47 @@ using System.Windows.Media.Media3D;
             return retStr;
         }
 
+        public string ReadText()
+        {
+            string retStr = String.Empty;
+
+            if (_sequences != null)
+            {
+                // Iterate through each gesture
+                for (int gestureNum = 0; gestureNum < _sequences.Count; gestureNum++)
+                {
+                    // Echo the label
+                    retStr += _labels[gestureNum] + "\r\n";
+
+                    int frameNum = 0;
+
+                    //Iterate through each frame of this gesture
+                    foreach (double[] frame in ((ArrayList)_sequences[gestureNum]))
+                    {
+                        // Extract each double
+                        foreach (double dub in (double[])frame)
+                        {
+                            retStr += dub + "\r\n";
+                        }
+
+                        // Signifies end of this double
+                        retStr += "~\r\n";
+
+                        frameNum++;
+                    }
+
+                    // Signifies end of this gesture
+                    retStr += "----";
+                    if (gestureNum < _sequences.Count - 1)
+                    {
+                        retStr += "\r\n";
+                    }
+                }
+            }
+
+            return retStr;
+        }
+
         /// <summary>
         /// Compute the min DTW distance between seq2 and all possible endings of seq1.
         /// </summary>

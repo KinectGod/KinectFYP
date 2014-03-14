@@ -165,7 +165,7 @@ namespace GrabSkeletonData.DTW
             // Extract the coordinates of the points.
             var p = new Vector3D[18];
             // Record the angles of the joints,  a.x = xy-plane  a.y = yz-plane
-            var a = new Point[17];
+            var a = new Point[16];
 
             foreach (Joint j in data.Joints)
             {
