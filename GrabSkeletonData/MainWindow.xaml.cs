@@ -32,6 +32,8 @@
         /// </summary>
         readonly ColorStreamManager RealTimeColorManager = new ColorStreamManager();
         readonly ColorStreamManager ReplayColorManager = new ColorStreamManager();
+        SkeletonDrawManager RealTimeSkeleton;
+        SkeletonDrawManager ReplaySkeleton;
 
         /// <summary>
         /// The red index
@@ -75,30 +77,6 @@
         /// To avoid feedback too much
         /// </summary>
         private static int counttime = 0;
-
-        private readonly Dictionary<JointType, Brush> _jointColors = new Dictionary<JointType, Brush>
-        { 
-            {JointType.HipCenter, new SolidColorBrush(Color.FromRgb(169, 176, 155))},
-            {JointType.Spine, new SolidColorBrush(Color.FromRgb(169, 176, 155))},
-            {JointType.ShoulderCenter, new SolidColorBrush(Color.FromRgb(168, 230, 29))},
-            {JointType.Head, new SolidColorBrush(Color.FromRgb(200, 0, 0))},
-            {JointType.ShoulderLeft, new SolidColorBrush(Color.FromRgb(79, 84, 33))},
-            {JointType.ElbowLeft, new SolidColorBrush(Color.FromRgb(84, 33, 42))},
-            {JointType.WristLeft, new SolidColorBrush(Color.FromRgb(255, 126, 0))},
-            {JointType.HandLeft, new SolidColorBrush(Color.FromRgb(215, 86, 0))},
-            {JointType.ShoulderRight, new SolidColorBrush(Color.FromRgb(33, 79,  84))},
-            {JointType.ElbowRight, new SolidColorBrush(Color.FromRgb(33, 33, 84))},
-            {JointType.WristRight, new SolidColorBrush(Color.FromRgb(77, 109, 243))},
-            {JointType.HandRight, new SolidColorBrush(Color.FromRgb(37,  69, 243))},
-            {JointType.HipLeft, new SolidColorBrush(Color.FromRgb(77, 109, 243))},
-            {JointType.KneeLeft, new SolidColorBrush(Color.FromRgb(69, 33, 84))},
-            {JointType.AnkleLeft, new SolidColorBrush(Color.FromRgb(229, 170, 122))},
-            {JointType.FootLeft, new SolidColorBrush(Color.FromRgb(255, 126, 0))},
-            {JointType.HipRight, new SolidColorBrush(Color.FromRgb(181, 165, 213))},
-            {JointType.KneeRight, new SolidColorBrush(Color.FromRgb(71, 222, 76))},
-            {JointType.AnkleRight, new SolidColorBrush(Color.FromRgb(245, 228, 156))},
-            {JointType.FootRight, new SolidColorBrush(Color.FromRgb(77, 109, 243))}
-        };
 
         /* DEPTH
         /// <summary>
@@ -219,6 +197,9 @@
 
             _video = new ArrayList();
 
+            RealTimeSkeleton = new SkeletonDrawManager(LearnerSkeletonCanvas, _nui);
+            ReplaySkeleton = new SkeletonDrawManager(MasterSkeletonCanvas, _nui);
+
             _dtw = new DtwGestureRecognizer(dimension *2, 0.6, 2, 2, 10);
             // If you want to see the RGB stream then include this
             _nui.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
@@ -335,52 +316,6 @@
 
 
         /// <summary>
-        /// Gets the display position (i.e. where in the display image) of a Joint
-        /// </summary>
-        /// <param name="joint">Kinect NUI Joint</param>
-        /// <returns>Point mapped location of sent joint</returns>
-        private Point GetDisplayPosition(Joint joint)
-        {
-            float depthX, depthY;
-            var pos = _nui.MapSkeletonPointToDepth(joint.Position, DepthImageFormat.Resolution320x240Fps30);
-
-            depthX = pos.X;
-            depthY = pos.Y;
-
-            int colorX, colorY;
-
-            // Only ImageResolution.Resolution640x480 is supported at this point
-            var pos2 = _nui.MapSkeletonPointToColor(joint.Position, ColorImageFormat.RgbResolution640x480Fps30);
-            colorX = pos2.X;
-            colorY = pos2.Y;
-
-            // Map back to skeleton.Width & skeleton.Height
-            return new Point((int)(LearnerSkeletonCanvas.Width * colorX / 640.0), (int)(LearnerSkeletonCanvas.Height * colorY / 480));
-        }
-
-        /// <summary>
-        /// Works out how to draw a line ('bone') for sent Joints
-        /// </summary>
-        /// <param name="joints">Kinect NUI Joints</param>
-        /// <param name="brush">The brush we'll use to colour the joints</param>
-        /// <param name="ids">The JointsIDs we're interested in</param>
-        /// <returns>A line or lines</returns>
-        private Polyline GetBodySegment(JointCollection joints, Brush brush, params JointType[] ids)
-        {
-            var points = new PointCollection(ids.Length);
-            foreach (JointType t in ids)
-            {
-                points.Add(GetDisplayPosition(joints[t]));
-            }
-
-            var polyline = new Polyline();
-            polyline.Points = points;
-            polyline.Stroke = brush;
-            polyline.StrokeThickness = 5;
-            return polyline;
-        }
-
-        /// <summary>
         /// Runds every time a skeleton frame is ready. Updates the skeleton canvas with new joint and polyline locations.
         /// </summary>
         /// <param name="sender">The sender object</param>
@@ -398,7 +333,8 @@
                 frame.CopySkeletonDataTo(skeletons);
             }
 
-            DrawSkeleton(skeletons, LearnerSkeletonCanvas);
+            //DrawSkeleton(skeletons, LearnerSkeletonCanvas);
+            RealTimeSkeleton.DrawSkeleton(skeletons);
 
             if (_learning && _training || _playback)
             {
@@ -460,75 +396,8 @@
                                     DateTime now = DateTime.Now;
                                     temp  = "[" + now + "] ";
 
-                                    switch (i)
-                                    {
-                                        case 0:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderLeft));
-                                            temp += "Left Shoulder ";
-                                            //feedback.Text += "Left Shoulder ";
-                                            
-                                            break;
-                                        case 1:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderLeft, JointType.ElbowLeft));
-                                            temp += "Left Elbow ";
-                                            break;
-                                        case 2:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristLeft, JointType.ElbowLeft));
-                                            temp += "Left Wrist ";
-                                            break;
-                                        case 3:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristLeft, JointType.HandLeft));
-                                            temp += "Left Hand ";
-                                            break;
-                                        case 4:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderRight));
-                                            temp += "Right Shoulder ";
-                                            break;
-                                        case 5:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderRight, JointType.ElbowRight));
-                                            temp += "Right Elbow ";
-                                            break;
-                                        case 6:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ElbowRight, JointType.WristRight));
-                                            temp += "Right Wrist ";
-                                            break;
-                                        case 7:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristRight, JointType.HandRight));
-                                            temp += "Right Hand ";
-                                            break;
-                                        case 8:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipLeft));
-                                            temp += "Left Hip";
-                                            break;
-                                        case 9:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipLeft, JointType.KneeLeft));
-                                            temp += "Left Knee ";
-                                            break;
-                                        case 10:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.KneeLeft, JointType.AnkleLeft));
-                                            temp += "Left Ankle ";
-                                            break;
-                                        case 11:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.AnkleLeft, JointType.FootLeft));
-                                            temp += "Left Foot ";
-                                            break;
-                                        case 12:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipRight));
-                                            temp += "Right Hip";
-                                            break;
-                                        case 13:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipRight, JointType.KneeRight));
-                                            temp += "Right Knee ";
-                                            break;
-                                        case 14:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.KneeRight, JointType.AnkleRight));
-                                            temp += "Right Ankle ";
-                                            break;
-                                        case 15:
-                                            LearnerSkeletonCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.AnkleRight, JointType.FootRight));
-                                            temp += "Right Foot ";
-                                            break;
-                                    }
+                                    RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], i);
+                                    
                                     temp += instructionX + instructionY +"\r\n";
                                 }
                             }
@@ -600,7 +469,8 @@
             skeletons = frame.Skeletons;
             Point[] temppt = new Point[dimension];
 
-            DrawSkeleton(skeletons, MasterSkeletonCanvas);
+            //DrawSkeleton(skeletons, MasterSkeletonCanvas);
+            ReplaySkeleton.DrawSkeleton(skeletons);
 
             /// get the joint angle data of master
             /// then make comparison
@@ -952,6 +822,8 @@
             LearnerSkeletonCanvas.Children.Clear();
         }
 
+
+        /*
         private void DrawSkeleton(Skeleton[] skeletons, System.Windows.Controls.Canvas skeletonCanvas) 
         {
             int iSkeleton = 0;
@@ -996,6 +868,7 @@
             } // for each skeleton
 
         }
+         * */
 
         private void PlayBack(object sender, RoutedEventArgs e)
         {

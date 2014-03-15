@@ -76,6 +76,7 @@
     <Compile Include="Recorder\CompressImage.cs" />
     <Compile Include="Replay\ReplayColorImageFrame.cs" />
     <Compile Include="Replay\ReplayColorImageFrameReadyEventArgs.cs" />
+    <Compile Include="Resources\SkeletonDrawManager.cs" />
     <Compile Include="Resources\ColorStreamManager.cs" />
     <Compile Include="Resources\IStreamManager.cs" />
     <Compile Include="Resources\Notifier.cs" />
