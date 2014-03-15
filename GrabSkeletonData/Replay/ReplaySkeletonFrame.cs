@@ -28,7 +28,6 @@ namespace GrabSkeletonData.Replay
 
         public ReplaySkeletonFrame()
         {
-            
         }
 
         internal override void CreateFromReader(BinaryReader reader)

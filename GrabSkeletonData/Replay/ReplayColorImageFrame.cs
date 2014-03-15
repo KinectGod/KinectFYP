@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using Microsoft.Kinect;
+using System;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace GrabSkeletonData.Replay
 {
@@ -9,7 +11,7 @@ namespace GrabSkeletonData.Replay
         long streamPosition;
         Stream stream;
 
-        public ColorImageFrame test { get; set; }
+        public ColorImageFrame test { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }
         public int BytesPerPixel { get; private set; }
@@ -27,7 +29,6 @@ namespace GrabSkeletonData.Replay
 
             PixelDataLength = frame.PixelDataLength;
             internalFrame = frame;
-            test = frame;
         }
 
         public ReplayColorImageFrame()

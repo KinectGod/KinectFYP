@@ -73,8 +73,12 @@
     <Compile Include="Math\Vector2.cs" />
     <Compile Include="Math\Vector3.cs" />
     <Compile Include="Recorder\ColorRecorder.cs" />
+    <Compile Include="Recorder\CompressImage.cs" />
     <Compile Include="Replay\ReplayColorImageFrame.cs" />
     <Compile Include="Replay\ReplayColorImageFrameReadyEventArgs.cs" />
+    <Compile Include="Resources\ColorStreamManager.cs" />
+    <Compile Include="Resources\IStreamManager.cs" />
+    <Compile Include="Resources\Notifier.cs" />
     <Compile Include="Tools.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

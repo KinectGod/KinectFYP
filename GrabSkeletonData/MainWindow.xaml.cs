@@ -28,6 +28,12 @@
         // these, to be updated whenever we receive and process a 16-bit frame.
 
         /// <summary>
+        /// Handle the color stream
+        /// </summary>
+        readonly ColorStreamManager RealTimeColorManager = new ColorStreamManager();
+        readonly ColorStreamManager ReplayColorManager = new ColorStreamManager();
+
+        /// <summary>
         /// The red index
         /// </summary>
         private const int RedIdx = 2;
@@ -160,8 +166,10 @@
         private static KinectRecorder _recorder;
         private static KinectRecorder _colorrecorder;
 
-        private static Stream _recordstream;
+        private static Stream _recordskeletonstream;
         private static Stream _recordcolorstream;
+        private static Stream _learningskeletonstream;
+        private static Stream _learningcolorstream;
 
         private KinectReplay _replay;
         private KinectReplay _colorreplay;
@@ -197,6 +205,115 @@
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Initialize()
+        {
+            if (_nui == null)
+                return;
+            /* voice control
+            audioManager = new AudioStreamManager(kinectSensor.AudioSource);
+            audioBeamAngle.DataContext = audioManager;
+             * */
+            _lastTime = DateTime.Now;
+
+            _video = new ArrayList();
+
+            _dtw = new DtwGestureRecognizer(dimension *2, 0.6, 2, 2, 10);
+            // If you want to see the RGB stream then include this
+            _nui.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
+            _nui.ColorFrameReady += NuiColorFrameReady;
+
+            Skeleton3DDataExtract.Skeleton3DdataCoordReady += NuiSkeleton3DdataCoordReady;
+            _nui.SkeletonStream.Enable(new TransformSmoothParameters
+            {
+                Smoothing = 0.5f,
+                Correction = 0.5f,
+                Prediction = 0.5f,
+                JitterRadius = 0.05f,
+                MaxDeviationRadius = 0.04f
+            });
+            _nui.SkeletonFrameReady += NuiSkeletonFrameReady;
+            _nui.SkeletonFrameReady += SkeletonExtractSkeletonFrameReady;
+            /* Voice Control
+            voiceCommander = new VoiceCommander("record", "stop");
+            voiceCommander.OrderDetected += voiceCommander_OrderDetected;
+
+            StartVoiceCommander();
+            */
+            RealTimeImage.DataContext = RealTimeColorManager;
+            ReplayImage.DataContext = ReplayColorManager;
+
+            _nui.Start();
+        }
+
+        void Kinects_StatusChanged(object sender, StatusChangedEventArgs e)
+        {
+            switch (e.Status)
+            {
+                case KinectStatus.Connected:
+                    if (_nui == null)
+                    {
+                        _nui = e.Sensor;
+                        Initialize();
+                    }
+                    break;
+                case KinectStatus.Disconnected:
+                    if (_nui == e.Sensor)
+                    {
+                        Clean();
+                        System.Windows.MessageBox.Show("Kinect was disconnected");
+                    }
+                    break;
+                case KinectStatus.NotReady:
+                    break;
+                case KinectStatus.NotPowered:
+                    if (_nui == e.Sensor)
+                    {
+                        Clean();
+                        System.Windows.MessageBox.Show("Kinect is no more powered");
+                    }
+                    break;
+                default:
+                    System.Windows.MessageBox.Show("Unhandled Status: " + e.Status);
+                    break;
+            }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Clean();
+        }
+
+        private void Clean()
+        {
+            /* voice control
+            if (audioManager != null)
+            {
+                audioManager.Dispose();
+                audioManager = null;
+            }
+
+            if (voiceCommander != null)
+            {
+                voiceCommander.OrderDetected -= voiceCommander_OrderDetected;
+                voiceCommander.Stop();
+                voiceCommander = null;
+            }
+            */
+
+            if (_nui != null)
+            {
+                _nui.SkeletonFrameReady -= NuiSkeletonFrameReady;
+                _nui.ColorFrameReady -= NuiColorFrameReady;
+                _nui.Stop();
+                _nui = null;
+            }
+
+            if (_recordcolorstream != null)
+                _recordcolorstream.Close();
+            if (_recordskeletonstream != null)
+                _recordskeletonstream.Close();
         }
 
         private static void SkeletonExtractSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
@@ -450,7 +567,7 @@
             {
                 if (image == null) return; // sometimes frame image comes null, so skip it.
 
-                videoImage.Source = image.ToBitmapSource();
+                RealTimeColorManager.Update(image);
             }
 
             if (_capturing == true || _learning == true)
@@ -459,7 +576,46 @@
                 {
                     if (scolorImage == null)
                         return;
-                    //_colorrecorder.Record(scolorImage);
+                    if(!_learning)
+                    _colorrecorder.Record(scolorImage);
+                }
+            }
+        }
+
+        void replay_ColorImageFrameReady(object sender, ReplayColorImageFrameReadyEventArgs e)
+        {
+            // 32-bit per pixel, RGBA image
+            var image = e.ColorImageFrame;
+
+            if (image == null) return; // sometimes frame image comes null, so skip it.
+            ReplayColorManager.Update(image);
+        }
+
+        void replay_SkeletonFrameReady(object sender, ReplaySkeletonFrameReadyEventArgs e)
+        {
+            Skeleton[] skeletons;
+            var frame = e.SkeletonFrame;
+            if (frame == null) return;
+            skeletons = new Skeleton[frame.ArrayLength];
+            skeletons = frame.Skeletons;
+            Point[] temppt = new Point[dimension];
+
+            DrawSkeleton(skeletons, MasterSkeletonCanvas);
+
+            /// get the joint angle data of master
+            /// then make comparison
+            if (_learning)
+            {
+                foreach (var data in skeletons)
+                {
+                    temppt = Skeleton3DDataExtract.ProcessDataTEST(data);
+                    if (temppt[4].X >= 0)
+                        _MasterAngle = temppt;
+                    //Console.WriteLine(_MasterAngle[4].X);
+                    if (_LearnerAngle != null && _MasterAngle != null)
+                    {
+                        MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension, threshold, detection);
+                    }
                 }
             }
         }
@@ -471,49 +627,31 @@
         /// <param name="e">Routed Event Args</param>
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
-            _nui = (from i in KinectSensor.KinectSensors
-                    where i.Status == KinectStatus.Connected
-                    select i).FirstOrDefault();
-
-            if (_nui == null)
-                throw new NotSupportedException("No kinectes connected!");
-
             try
             {
-                
-                _nui.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
-                
-                _nui.SkeletonStream.Enable();
-                _nui.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
-                _nui.Start();
+                //listen to any status change for Kinects
+                KinectSensor.KinectSensors.StatusChanged += Kinects_StatusChanged;
+
+                //loop through all the Kinects attached to this PC, and start the first that is connected without an error.
+                foreach (KinectSensor kinect in KinectSensor.KinectSensors)
+                {
+                    if (kinect.Status == KinectStatus.Connected)
+                    {
+                        _nui = kinect;
+                        break;
+                    }
+                }
+
+                if (KinectSensor.KinectSensors.Count == 0)
+                    System.Windows.MessageBox.Show("No Kinect found");
+                else
+                    Initialize();
+
             }
-            catch (InvalidOperationException)
+            catch (Exception ex)
             {
-                System.Windows.MessageBox.Show("Runtime initialization failed. Please make sure Kinect device is plugged in.");
-                return;
+                System.Windows.MessageBox.Show(ex.Message);
             }
-
-            _lastTime = DateTime.Now;
-
-            _dtw = new DtwGestureRecognizer( dimension * 3, 0.6, 2, 2, 10);
-            _video = new ArrayList();
-
-            // If you want to see the depth image and frames per second then include this
-            // I'mma turn this off 'cos my 'puter is proper slow
-            //_nui.DepthFrameReady += NuiDepthFrameReady;
-
-            _nui.SkeletonFrameReady += NuiSkeletonFrameReady;
-            _nui.SkeletonFrameReady += SkeletonExtractSkeletonFrameReady;
-
-            // If you want to see the RGB stream then include this
-            _nui.ColorFrameReady += NuiColorFrameReady;
-
-            Skeleton3DDataExtract.Skeleton3DdataCoordReady += NuiSkeleton3DdataCoordReady;
-
-            // Update the debug window with Sequences information
-            dtwTextOutput.Text = _dtw.RetrieveText();
-
-            Debug.WriteLine("Finished Window Loading");
         }
 
         /// <summary>
@@ -618,17 +756,20 @@
             dtwStopRegcon.IsEnabled = true;
             string path = ".\\Records\\" + gestureList.Text + "\\";
 
-            Stream recordStream = File.OpenRead(@path + "skeleton");
-            _replay = new KinectReplay(recordStream);
-            recordStream.Close();
+            if (_recordskeletonstream != null)
+                _recordskeletonstream.Close();
+            _recordskeletonstream = File.OpenRead(@path + "skeleton");
+            _replay = new KinectReplay(_recordskeletonstream);
             _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
             _replay.Start(rateinmsec);
 
-            Stream recordColorStream = File.OpenRead(@path + "colorStream");
-            _colorreplay = new KinectReplay(recordColorStream);
-            recordColorStream.Close();
+            if (_recordcolorstream != null)
+                _recordcolorstream.Close();
+            _recordcolorstream = File.OpenRead(@path + "colorStream");
+            _colorreplay = new KinectReplay(_recordcolorstream);
             _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
             _colorreplay.Start(rateinmsec);
+
             _captureCountdownTimer.Dispose();
 
             status.Text = "Learning " + gestureList.Text;
@@ -668,22 +809,41 @@
             if (_learning)
             {
                 path = ".\\Learning\\" + gestureList.Text + "\\";
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+
+                if (_learningcolorstream != null)
+                    _learningcolorstream.Close();
+                if (_learningskeletonstream != null)
+                    _learningskeletonstream.Close();
+                _MasterMovesSaveFileLocation = path;
+                _learningskeletonstream = File.Create(@path + "skeleton");
+                _learningcolorstream = File.Create(@path + "colorStream");
+                _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, _learningskeletonstream);
+                _colorrecorder = new KinectRecorder(KinectRecordOptions.Color, _learningcolorstream);
             }
             else
             {
                 path = ".\\Records\\" + gestureList.Text + "\\";
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+
+                if (_recordcolorstream != null)
+                    _recordcolorstream.Close();
+                if (_recordskeletonstream != null)
+                    _recordskeletonstream.Close();
+                _MasterMovesSaveFileLocation = path;
+                _recordskeletonstream = File.Create(@path + "skeleton");
+                _recordcolorstream = File.Create(@path + "colorStream");
+                _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, _recordskeletonstream);
+                _colorrecorder = new KinectRecorder(KinectRecordOptions.Color, _recordcolorstream);
             }
 
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-
-            _MasterMovesSaveFileLocation = path;
-            _recordstream = File.Create(@path + "skeleton");
-            _recordcolorstream = File.Create(@path + "colorStream");
-            _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, _recordstream);
-            _colorrecorder = new KinectRecorder(KinectRecordOptions.Color, _recordcolorstream);
+            
         }
        
 
@@ -714,7 +874,7 @@
 
             results.Text = gestureList.Text + " added";
             status.Text = "";
-            _recordstream.Close();
+            _recordskeletonstream.Close();
             _recordcolorstream.Close();
             // Scratch the _video buffer
             _video = new ArrayList();
@@ -732,56 +892,22 @@
             status.Text = "Replaying master motion " + gestureList.Text;
             string path = ".\\Records\\" + gestureList.Text + "\\";
 
-            Stream recordStream = File.OpenRead(@path+"skeleton");
-            _replay = new KinectReplay(recordStream);
-            recordStream.Close();
+            if (_recordskeletonstream != null)
+                _recordskeletonstream.Close();
+            _recordskeletonstream = File.OpenRead(@path+"skeleton");
+            _replay = new KinectReplay(_recordskeletonstream);
             _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
             _replay.Start(rateinmsec);
 
-            Stream recordColorStream = File.OpenRead(@path + "colorStream");
-            _colorreplay = new KinectReplay(recordColorStream);
-            recordColorStream.Close();
+            if (_recordcolorstream != null)
+                _recordcolorstream.Close();
+            _recordcolorstream = File.OpenRead(@path + "colorStream");
+            _colorreplay = new KinectReplay(_recordcolorstream);
+            //recordColorStream.Close();
             _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
             _colorreplay.Start(rateinmsec);
 
             dtwStopReplay.IsEnabled = true;
-        }
-
-        void replay_ColorImageFrameReady(object sender, ReplayColorImageFrameReadyEventArgs e)
-        {
-            // 32-bit per pixel, RGBA image
-            var image = e.ColorImageFrame;
-            if (image == null) return; // sometimes frame image comes null, so skip it.
-            //videoImage2.Source = GetImage(, System.Windows.Media.PixelFormats.Rgb24);
-        }
-
-        void replay_SkeletonFrameReady(object sender, ReplaySkeletonFrameReadyEventArgs e)
-        {
-            Skeleton[] skeletons;
-            var frame = e.SkeletonFrame;
-            if (frame == null) return;
-            skeletons = new Skeleton[frame.ArrayLength]; 
-            skeletons = frame.Skeletons;
-            Point[] temppt = new Point[dimension];
-
-            DrawSkeleton(skeletons, MasterSkeletonCanvas);
-
-            /// get the joint angle data of master
-            /// then make comparison
-            if (_learning) 
-            {
-                foreach (var data in skeletons)
-                {
-                    temppt = Skeleton3DDataExtract.ProcessDataTEST(data);
-                    if (temppt[4].X >= 0)
-                        _MasterAngle = temppt;
-                    //Console.WriteLine(_MasterAngle[4].X);
-                    if (_LearnerAngle != null && _MasterAngle != null)
-                    {
-                        MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension, threshold, detection);
-                    }
-                }
-            }
         }
 
         private void DtwStopReplayClick(object sender, RoutedEventArgs e)
@@ -819,7 +945,7 @@
             _capturing = false;
             _replay.Stop();
             _colorreplay.Stop();
-            _recordstream.Close();
+            _recordskeletonstream.Close();
             _recordcolorstream.Close();
 
             MasterSkeletonCanvas.Children.Clear();

@@ -42,7 +42,8 @@ namespace GrabSkeletonData.Recorder
             // Save the Frame Pixel Data
             frame.CopyPixelDataTo(bytes);
             writer.Write(bytes);
-             
         }
     }
+
+
 }
