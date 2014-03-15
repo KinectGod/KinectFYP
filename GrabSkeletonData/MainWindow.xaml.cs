@@ -6,9 +6,6 @@
     using System.Diagnostics;
     using System.Windows;
     using System.Windows.Forms;
-    using System.Windows.Media;
-    using System.Windows.Media.Imaging;
-    using System.Windows.Shapes;
     using System.Linq;
     using Microsoft.Kinect;
     using GrabSkeletonData.DTW;
@@ -17,6 +14,7 @@
     using System.IO;
     using System.Threading;
     using System.Windows.Threading;
+    using System.Windows.Media;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -821,54 +819,6 @@
             MasterSkeletonCanvas.Children.Clear();
             LearnerSkeletonCanvas.Children.Clear();
         }
-
-
-        /*
-        private void DrawSkeleton(Skeleton[] skeletons, System.Windows.Controls.Canvas skeletonCanvas) 
-        {
-            int iSkeleton = 0;
-            var brushes = new Brush[6];
-            brushes[0] = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-            brushes[1] = new SolidColorBrush(Color.FromRgb(0, 255, 0));
-            brushes[2] = new SolidColorBrush(Color.FromRgb(64, 255, 255));
-            brushes[3] = new SolidColorBrush(Color.FromRgb(255, 255, 64));
-            brushes[4] = new SolidColorBrush(Color.FromRgb(255, 64, 255));
-            brushes[5] = new SolidColorBrush(Color.FromRgb(128, 128, 255));
-
-            skeletonCanvas.Children.Clear();
-            foreach (var data in skeletons)
-            {
-                if (SkeletonTrackingState.Tracked == data.TrackingState)
-                {
-                    // Draw bones
-                    //REMARK. change bone color here
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[1], JointType.HipCenter, JointType.Spine, JointType.ShoulderCenter, JointType.Head));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[1], JointType.ShoulderCenter, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[1], JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[1], JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[1], JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[1], JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
-                    skeletonCanvas.Children.Add(GetBodySegment(data.Joints, brushes[1], JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
-                    
-
-                    // Draw joints
-                    foreach (Joint joint in data.Joints)
-                    {
-                        Point jointPos = GetDisplayPosition(joint);
-                        var jointLine = new Line();
-                        jointLine.X1 = jointPos.X - 3;
-                        jointLine.X2 = jointLine.X1 + 6;
-                        jointLine.Y1 = jointLine.Y2 = jointPos.Y;
-                        jointLine.Stroke = _jointColors[joint.JointType];
-                        jointLine.StrokeThickness = 6;
-                        skeletonCanvas.Children.Add(jointLine);
-                    }
-                }
-                iSkeleton++;
-            } // for each skeleton
-
-        }
-         * */
 
         private void PlayBack(object sender, RoutedEventArgs e)
         {

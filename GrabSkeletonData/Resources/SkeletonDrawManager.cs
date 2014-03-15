@@ -14,6 +14,7 @@ namespace GrabSkeletonData
     {
         readonly Canvas rootCanvas;
         readonly KinectSensor nui;
+
         private readonly Dictionary<JointType, Brush> _jointColors = new Dictionary<JointType, Brush>
         { 
             {JointType.HipCenter, new SolidColorBrush(Color.FromRgb(169, 176, 155))},
