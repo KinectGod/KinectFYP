@@ -15,6 +15,8 @@
     using System.Threading;
     using System.Windows.Threading;
     using System.Windows.Media;
+    using System.Speech.Recognition;
+    using System.Speech.AudioFormat;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -123,6 +125,9 @@
         /// </summary>
         private KinectSensor  _nui;
 
+        //and the speech recognition engine (SRE)
+        private SpeechRecognitionEngine speechRecognizer;
+
         /// <summary>
         /// Total number of framed that have occurred. Used for calculating frames per second
         /// </summary>
@@ -175,6 +180,22 @@
         private static double rateinmsec = 1000.0/SelectedFPS;
 
 
+        //Get the speech recognizer (SR)
+        private static RecognizerInfo GetKinectRecognizer()
+        {
+            foreach (RecognizerInfo recognizer in SpeechRecognitionEngine.InstalledRecognizers())
+            {
+                string value;
+                recognizer.AdditionalInfo.TryGetValue("Kinect", out value);
+                if ("True".Equals(value, StringComparison.OrdinalIgnoreCase) && "en-US".Equals(recognizer.Culture.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return recognizer;
+                }
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Initializes a new instance of the MainWindow class
         /// </summary>
@@ -220,6 +241,24 @@
 
             StartVoiceCommander();
             */
+
+            //test voice
+            speechRecognizer = CreateSpeechRecognizer();
+            var audioSource = _nui.AudioSource;
+            //Set the beam angle mode - the direction the audio beam is pointing
+            //we want it to be set to adaptive
+            audioSource.BeamAngleMode = BeamAngleMode.Adaptive;
+            //start the audiosource 
+            var kinectStream = audioSource.Start();
+            //configure incoming audio stream
+            speechRecognizer.SetInputToAudioStream(
+                kinectStream, new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
+            //make sure the recognizer does not stop after completing     
+            speechRecognizer.RecognizeAsync(RecognizeMode.Multiple);
+            //reduce background and ambient noise for better accuracy
+            _nui.AudioSource.EchoCancellationMode = EchoCancellationMode.None;
+            _nui.AudioSource.AutomaticGainControlEnabled = false;
+
             RealTimeImage.DataContext = RealTimeColorManager;
             ReplayImage.DataContext = ReplayColorManager;
 
@@ -823,6 +862,93 @@
         private void PlayBack(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private SpeechRecognitionEngine CreateSpeechRecognizer()
+        {
+            //set recognizer info
+            RecognizerInfo ri = GetKinectRecognizer();
+            //create instance of SRE
+            SpeechRecognitionEngine sre;
+            sre = new SpeechRecognitionEngine(ri.Id);
+
+            //Now we need to add the words we want our program to recognise
+            var grammar = new Choices();
+            grammar.Add("Record");
+            grammar.Add("Store");
+            grammar.Add("Replay");
+            grammar.Add("Stop");
+            grammar.Add("Learn");
+            grammar.Add("Finish");
+
+
+
+            //set culture - language, country/region
+            var gb = new GrammarBuilder { Culture = ri.Culture };
+            gb.Append(grammar);
+
+            //set up the grammar builder
+            var g = new Grammar(gb);
+            sre.LoadGrammar(g);
+
+            //Set events for recognizing, hypothesising and rejecting speech
+            sre.SpeechRecognized += SreSpeechRecognized;
+            sre.SpeechHypothesized += SreSpeechHypothesized;
+            sre.SpeechRecognitionRejected += SreSpeechRecognitionRejected;
+            return sre;
+        }
+
+        //if speech is rejected
+        private void RejectSpeech(RecognitionResult result)
+        {
+            status.Text = "Speech is rejected!";
+        }
+
+        private void SreSpeechRecognitionRejected(object sender, SpeechRecognitionRejectedEventArgs e)
+        {
+            RejectSpeech(e.Result);
+        }
+
+        //hypothesized result
+        private void SreSpeechHypothesized(object sender, SpeechHypothesizedEventArgs e)
+        {
+            status.Text = "Hypothesized: " + e.Result.Text + " " + e.Result.Confidence;
+        }
+
+        //Speech is recognised
+        private void SreSpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        {
+            //Very important! - change this value to adjust accuracy - the higher the value
+            //the more accurate it will have to be, lower it if it is not recognizing you
+            if (e.Result.Confidence < .4)
+            {
+                RejectSpeech(e.Result);
+            }
+            //and finally, here we set what we want to happen when 
+            //the SRE recognizes a word
+            switch (e.Result.Text.ToUpperInvariant())
+            {
+                case "RECORD":
+                    status2.Text = "Record.";
+                    break;
+                case "STORE":
+                    status2.Text = "Store.";
+                    break;
+                case "REPLAY":
+                    status2.Text = "Replay.";
+                    break;
+                case "STOP":
+                    status2.Text = "Stop.";
+                    break;
+                case "LEARN":
+                    status2.Text = "Learn.";
+                    break;
+                case "FINISH":
+                    status2.Text = "finish.";
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

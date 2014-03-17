@@ -10,8 +10,8 @@ namespace GrabSkeletonData.SpeechRecognitionEngine
     using System.Windows.Documents;
     using System.Windows.Media;
     using Microsoft.Kinect;
-    using Microsoft.Speech.AudioFormat;
-    using Microsoft.Speech.Recognition;
+    using System.Speech.AudioFormat;
+    using System.Speech.Recognition;
 
 
     
