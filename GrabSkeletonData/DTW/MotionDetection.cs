@@ -8,7 +8,7 @@ namespace GrabSkeletonData.DTW
 {
     class MotionDetection
     {
-        public static void Detect(Point[] a1, Point[] a2, int dimension, double threshold, int [] _detection)
+        public static double [] Detect(Point[] a1, Point[] a2, int dimension, double threshold, int [] _detection)
         {
             /*
             DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
@@ -19,6 +19,7 @@ namespace GrabSkeletonData.DTW
             dispatcherTimer.Start();
              * */
             //int[] Detect = new int[a1.Length];
+            double[] angles = new double[dimension];
             for (int i = 0; i < dimension; i++)
             {
                 //a.x = xy-plane  a.y = yz-plane
@@ -29,15 +30,27 @@ namespace GrabSkeletonData.DTW
                         _detection[i] = textInstructionX(a1[i], a2[i]) + textInstructionYL(a1[i], a2[i]);   //left
                     else
                         _detection[i] = textInstructionX(a1[i], a2[i]) + textInstructionYR(a1[i], a2[i]);  //right
+
+                    if (Math.Abs(a1[i].X - a2[i].X) > 180) 
+                    {
+                        angles[i] = Math.Abs(a1[i].X - a2[i].X - 180;
+                    }
+
+                    else 
+                    {
+                        angles[i] = Math.Abs(a1[i].X - a2[i].X;
+                    }
                 }
                 else
                 {
                     _detection[i] = 0;
                 }
+
+                
             }
 
             /// 
-
+            return angles;
             // return Detect;
         }
 

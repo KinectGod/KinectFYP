@@ -170,6 +170,8 @@
 
         public static int[] detection = new int [dimension];
 
+        private static double[] angles = new double [dimension];
+
         ///Difficulty
         private static double threshold = 100.0;
 
@@ -433,7 +435,7 @@
                                     DateTime now = DateTime.Now;
                                     temp  = "[" + now + "] ";
 
-                                    RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], i);
+                                    RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], angles[i], i);
                                     
                                     temp += instructionX + instructionY +"\r\n";
                                 }
@@ -521,7 +523,7 @@
                     //Console.WriteLine(_MasterAngle[4].X);
                     if (_LearnerAngle != null && _MasterAngle != null)
                     {
-                        MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension, threshold, detection);
+                        angles = MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension, threshold, detection);
                     }
                 }
             }
