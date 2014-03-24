@@ -614,6 +614,10 @@
         /// <param name="e">Routed Event Args</param>
         private void DtwCaptureClick(object sender, RoutedEventArgs e)
         {
+            DtwCaptureClick();
+        }
+        private void DtwCaptureClick()
+        {
             _learning = false;
             _captureCountdown = DateTime.Now.AddSeconds(CaptureCountdownSeconds);
 
@@ -764,6 +768,10 @@
         /// <param name="e">Routed Event Args</param>
         private void DtwStoreClick(object sender, RoutedEventArgs e)
         {
+            DtwStoreClick();
+        }
+        private void DtwStoreClick()
+        {
             // Set the buttons enabled state
             //dtwRead.IsEnabled = false;
             //dtwCapture.IsEnabled = true;
@@ -773,7 +781,7 @@
             _learning = false;
             _capturing = false;
 
-            
+
             // Add the current video buffer to the dtw sequences list
             _dtw.AddOrUpdate(_video, gestureList.Text);
 
@@ -795,6 +803,10 @@
         //Replay the saved skeleton
         private void DtwReplayClick (object sender, RoutedEventArgs e) 
         {
+            DtwReplayClick();
+        }
+        private void DtwReplayClick()
+        {
             _learning = false;
             dtwCapture.IsEnabled = false;
             dtwStartRegcon.IsEnabled = false;
@@ -803,7 +815,7 @@
 
             if (_recordskeletonstream != null)
                 _recordskeletonstream.Close();
-            _recordskeletonstream = File.OpenRead(@path+"skeleton");
+            _recordskeletonstream = File.OpenRead(@path + "skeleton");
             _replay = new KinectReplay(_recordskeletonstream);
             _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
             _replay.Start(rateinmsec);
@@ -821,6 +833,10 @@
 
         private void DtwStopReplayClick(object sender, RoutedEventArgs e)
         {
+            DtwStopReplayClick();
+        }
+        private void DtwStopReplayClick()
+        {
             status.Text = "Stopped replay";
             dtwCapture.IsEnabled = true;
             dtwStopReplay.IsEnabled = false;
@@ -833,6 +849,10 @@
 
         private void DtwStartRecogn(object sender, RoutedEventArgs e)
         {
+            DtwStartRecognClick();
+        }
+        private void DtwStartRecognClick()
+        {
             _learning = true;
             _capturing = false;
             _captureCountdown = DateTime.Now.AddSeconds(CaptureCountdownSeconds);
@@ -844,6 +864,10 @@
         }
 
         private void DtwStopRecogn(object sender, RoutedEventArgs e)
+        {
+            DtwStopRecogn();
+        }
+        private void DtwStopRecogn()
         {
             status.Text = "Stopped learaning";
             dtwCapture.IsEnabled = true;
@@ -931,21 +955,27 @@
             switch (e.Result.Text.ToUpperInvariant())
             {
                 case "RECORD":
+                    DtwCaptureClick();
                     status2.Text = "Record.";
                     break;
                 case "STORE":
+                    DtwStoreClick();
                     status2.Text = "Store.";
                     break;
                 case "REPLAY":
+                    DtwReplayClick();
                     status2.Text = "Replay.";
                     break;
                 case "STOP":
+                    DtwStopReplayClick();
                     status2.Text = "Stop.";
                     break;
                 case "LEARN":
+                    DtwStartRecognClick();
                     status2.Text = "Learn.";
                     break;
                 case "FINISH":
+                    DtwStopRecogn();
                     status2.Text = "finish.";
                     break;
                 default:
