@@ -104,7 +104,7 @@ namespace GrabSkeletonData
             brushes[2] = new SolidColorBrush(Color.FromRgb(64, 255, 255));
             brushes[3] = new SolidColorBrush(Color.FromRgb(255, 255, 64));
             brushes[4] = new SolidColorBrush(Color.FromRgb(255, 64, 255));
-            brushes[5] = new SolidColorBrush(Color.FromRgb(119, 136, 153));
+            brushes[5] = new SolidColorBrush(Color.FromRgb(192, 192, 192));
 
             rootCanvas.Children.Clear();
             foreach (var data in skeletons)
@@ -149,41 +149,30 @@ namespace GrabSkeletonData
         public void DrawCorrection(Skeleton data, int indicator, double c_angles, int i)
         {
 
-            var brush = new SolidColorBrush(Color.FromRgb(255, 165, 0)); // orange
-            var corr = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+            var brush_warning = new SolidColorBrush(Color.FromRgb(255,  0, 0)); // red, when detect the realtime error
+            var corr_color = new SolidColorBrush(Color.FromRgb(255, 165, 0)); // orange, when draw the correction line
             int XZ = indicator / 100;
-            string instructionX = "";
-            double x_adjustment = 0.0;
-            double y_adjustment = 0.0;
-            int PorN = 1;
+            int PorN = 1; //indicate the correction line should be left or right
             //int PorN2 = 1;
-
 
             switch (XZ)
             {
                 case 2:
                     // down
-                    //y_adjustment += 15.0;
                     break;
                 case 3:
                     // up
-                    //y_adjustment -= 15.0;
                     break;
                 case 4:
                     // forward
-                    //x_adjustment -= 5.0;
-                    // y_adjustment += 20;
-                    brush = new SolidColorBrush(Color.FromRgb(128, 0, 128)); // purple
+                    corr_color = new SolidColorBrush(Color.FromRgb(128, 0, 128)); // purple line when need forward
                     break;
                 case 5:
                     // backward
-                    // x_adjustment += 5.0;
-                    //y_adjustment -= 20;
-                    brush = new SolidColorBrush(Color.FromRgb(128, 0, 128));
+                    corr_color = new SolidColorBrush(Color.FromRgb(128, 0, 128));
                     break;
             }
             int YZ = indicator % 100;
-            string instructionY = "";
             switch (YZ)
             {
                 case 20:
@@ -199,67 +188,67 @@ namespace GrabSkeletonData
             switch (i)
             {
                 case 0:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderLeft));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ShoulderCenter, JointType.ShoulderLeft));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
                     break;
                 case 1:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderLeft, JointType.ElbowLeft));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ShoulderLeft, JointType.ElbowLeft));
                     //DrawCorrection(data.Joints[JointType.ShoulderLeft], data.Joints[JointType.ElbowLeft], PorN, PorN * c_angles, brush);
                     break;
                 case 2:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristLeft, JointType.ElbowLeft));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.WristLeft, JointType.ElbowLeft));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
                     break;
                 case 3:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristLeft, JointType.HandLeft));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.WristLeft, JointType.HandLeft));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
                     break;
                 case 4:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderRight));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ShoulderCenter, JointType.ShoulderRight));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
                     break;
                 case 5:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ShoulderRight, JointType.ElbowRight));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ShoulderRight, JointType.ElbowRight));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
                     break;
                 case 6:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.ElbowRight, JointType.WristRight));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ElbowRight, JointType.WristRight));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
                     break;
                 case 7:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.WristRight, JointType.HandRight));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.WristRight, JointType.HandRight));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
                     break;
                 case 8:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipLeft));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.HipCenter, JointType.HipLeft));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
                     break;
                 case 9:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipLeft, JointType.KneeLeft));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.HipLeft, JointType.KneeLeft));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
                     break;
                 case 10:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.KneeLeft, JointType.AnkleLeft));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.KneeLeft, JointType.AnkleLeft));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
                     break;
                 case 11:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.AnkleLeft, JointType.FootLeft));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.AnkleLeft, JointType.FootLeft));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
                     break;
                 case 12:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipRight));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.HipCenter, JointType.HipRight));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
                     break;
                 case 13:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipRight, JointType.KneeRight));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.HipRight, JointType.KneeRight));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
                     break;
                 case 14:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.KneeRight, JointType.AnkleRight));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.KneeRight, JointType.AnkleRight));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
                     break;
                 case 15:
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.AnkleRight, JointType.FootRight));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.AnkleRight, JointType.FootRight));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
                     break;
             }

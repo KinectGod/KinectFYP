@@ -33,12 +33,12 @@ namespace GrabSkeletonData.DTW
 
                     if (Math.Abs(a1[i].X - a2[i].X) > 180) 
                     {
-                        angles[i] = Math.Abs(a1[i].X - a2[i].X - 180;
+                        angles[i] = Math.Abs(a1[i].X - a2[i].X) - 180;
                     }
 
                     else 
                     {
-                        angles[i] = Math.Abs(a1[i].X - a2[i].X;
+                        angles[i] = Math.Abs(a1[i].X - a2[i].X);
                     }
                 }
                 else

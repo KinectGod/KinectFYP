@@ -38,7 +38,7 @@ using System.Windows.Media.Media3D;
          */
 
         private ArrayList _path;
-        
+        private Point[] _matchFrame;
         /// <summary>
         /// Size of obeservations vectors.
         /// </summary>
@@ -432,6 +432,22 @@ using System.Windows.Media.Media3D;
                     index = i;
             }
                 return (DtwPathNode)_path[index];
+        }
+
+        /// <summary>
+        /// return the selected frame number.
+        /// </summary>
+        /// <returns></returns>
+        public Point[] DtwSelectedFrames()
+        {
+            _matchFrame = new Point [_path.Count];
+            int i = 0;
+            foreach (DtwPathNode data in _path) {
+                _matchFrame[i].X = data.I;
+                _matchFrame[i].Y = data.J;
+                i++;
+            }
+            return _matchFrame;
         }
         
     }

@@ -111,11 +111,6 @@
         private DtwGestureRecognizer _dtw;
 
         /// <summary>
-        /// How many frames occurred 'last time'. Used for calculating frames per second
-        /// </summary>
-        private int _lastFrames;
-
-        /// <summary>
         /// The 'last time' DateTime. Used for calculating frames per second
         /// </summary>
         private DateTime _lastTime = DateTime.MaxValue;
@@ -127,11 +122,6 @@
 
         //and the speech recognition engine (SRE)
         private SpeechRecognitionEngine speechRecognizer;
-
-        /// <summary>
-        /// Total number of framed that have occurred. Used for calculating frames per second
-        /// </summary>
-        private int _totalFrames;
 
         /// <summary>
         /// Switch used to ignore certain skeleton frames
@@ -984,6 +974,11 @@
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void dtwSpeedSlide_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
 
         }
