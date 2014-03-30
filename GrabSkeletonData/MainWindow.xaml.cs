@@ -164,7 +164,7 @@
         private static double[] angles = new double [dimension];
 
         ///Difficulty
-        private static double threshold = 100.0;
+        private static double threshold = 40.0;
 
         /// <summary>
         /// The replay rate 
@@ -929,13 +929,8 @@
                 //reduce background and ambient noise for better accuracy
                 _nui.AudioSource.EchoCancellationMode = EchoCancellationMode.None;
                 _nui.AudioSource.AutomaticGainControlEnabled = false;
-                this.status.Text = "11111";
+                this.status.Text = "Speech ready";
             }
-            else
-            {
-                this.status.Text = "656456456";
-            }
-
         }
 
         //if speech is rejected
@@ -960,12 +955,13 @@
         {
             //Very important! - change this value to adjust accuracy - the higher the value
             //the more accurate it will have to be, lower it if it is not recognizing you
-            if (e.Result.Confidence < .4)
+            if (e.Result.Confidence < 1)
             {
                 RejectSpeech(e.Result);
             }
             //and finally, here we set what we want to happen when 
             //the SRE recognizes a word
+            /*
             switch (e.Result.Text.ToUpperInvariant())
             {
                 case "RECORD":
@@ -995,6 +991,7 @@
                 default:
                     break;
             }
+            */
         }
 
         /*

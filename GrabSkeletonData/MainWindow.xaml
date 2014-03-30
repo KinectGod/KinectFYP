@@ -48,7 +48,7 @@
         <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="2" VerticalAlignment="Top" Height="300">
             <Image Width="480" Height="320" x:Name="ReplayImage" Margin="0,0" RenderTransformOrigin="0.475,0.5" Source="{Binding Bitmap}"/>
         </StackPanel>
-        <!--<StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="2" VerticalAlignment="Top" Height="300">-->
+        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="2" VerticalAlignment="Top" Height="300">
             <Canvas Width="480" Height="320" x:Name="LearnerSkeletonCanvas" ClipToBounds="True" Margin="0,0,0,0" RenderTransformOrigin="0.489,0.555">
                 <Canvas Background="transparent" IsHitTestVisible="true"/>
                     <!--<Canvas.Background>
