@@ -33,6 +33,7 @@
         /// </summary>
         readonly ColorStreamManager RealTimeColorManager = new ColorStreamManager();
         readonly ColorStreamManager ReplayColorManager = new ColorStreamManager();
+        SkeletonDrawManager LearningSkeleton;
         SkeletonDrawManager RealTimeSkeleton;
         SkeletonDrawManager ReplaySkeleton;
 
@@ -218,8 +219,9 @@
 
             _video = new ArrayList();
 
-            RealTimeSkeleton = new SkeletonDrawManager(LearnerSkeletonCanvas, _nui);
+            RealTimeSkeleton = new SkeletonDrawManager(RealTimeSkeletonCanvas, _nui);
             ReplaySkeleton = new SkeletonDrawManager(MasterSkeletonCanvas, _nui);
+            LearningSkeleton = new SkeletonDrawManager(LearningSkeletonCanvas, _nui);
 
             _dtw = new DtwGestureRecognizer(dimension *2, 0.6, 2, 2, 10);
             // If you want to see the RGB stream then include this
@@ -249,12 +251,6 @@
 
             _nui.Start();
             CreateSpeechRecognizer();
-
-            
-            
-            
-            
-            
         }
 
         void Kinects_StatusChanged(object sender, StatusChangedEventArgs e)
@@ -367,6 +363,7 @@
 
             if (_learning && _training || _playback)
             {
+                LearningSkeleton.DrawSkeleton(skeletons);
                 var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
                 int[] DetectionTemp = new int[dimension];
                 DetectionTemp = detection;
@@ -392,7 +389,7 @@
                                     /// The tens place and a.Y represent ProjectToZY.
                                     /// 20=right  40=left
                                     
-
+                                    /*
                                     int XZ =  DetectionTemp[i]/100;
                                     string instructionX = "";
                                     switch(XZ)
@@ -424,15 +421,13 @@
 
                                     DateTime now = DateTime.Now;
                                     temp  = "[" + now + "] ";
-
-                                    RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], angles[i], i);
+                                     * temp += instructionX + instructionY +"\r\n";
+                                    */
+                                    LearningSkeleton.DrawCorrection(data, DetectionTemp[i], angles[i], i);
                                     
-                                    temp += instructionX + instructionY +"\r\n";
+                                    
                                 }
                             }
-
-                            if (counttime % 180 == 0)
-                                feedback.Text += temp;
                         }
                 }
             }
@@ -444,6 +439,18 @@
                     if (sframe == null)
                         return;
                     _recorder.Record(sframe);
+
+                    String path = ".\\Records\\" + gestureList.Text + "\\";
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+
+                    FileStream fs = File.Create(@path + "frame_number");
+                    BinaryWriter sw = new BinaryWriter(fs);
+                    sw.Write(sframe.FrameNumber);
+                    sw.Close();
+                    fs.Close();
                     //REMARK
                 }
             }
@@ -517,6 +524,26 @@
                     }
                 }
             }
+
+            String path = ".\\Records\\" + gestureList.Text + "\\";
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            FileStream fs = File.OpenRead(path + "frame_number");
+            
+            BinaryReader reader = new BinaryReader(fs);
+
+            int intVal = reader.ReadInt32();
+
+            if (intVal <= frame.FrameNumber)
+            {
+                MasterSkeletonCanvas.Children.Clear();
+                LearningSkeletonCanvas.Children.Clear();
+                ReplayImage.Source = null;
+             }
+            
         }
 
         /// <summary>
@@ -779,7 +806,7 @@
             System.IO.File.WriteAllText(@_MasterMovesSaveFileLocation + fileName, _dtw.RetrieveText());
             status.Text = "Remembering " + gestureList.Text;
 
-            results.Text = gestureList.Text + " added";
+            status.Text = gestureList.Text + " added";
             status.Text = "";
             _recordskeletonstream.Close();
             _recordcolorstream.Close();
@@ -857,6 +884,7 @@
         {
             DtwStopRecogn();
         }
+
         private void DtwStopRecogn()
         {
             status.Text = "Stopped learaning";
@@ -872,12 +900,8 @@
             _recordcolorstream.Close();
 
             MasterSkeletonCanvas.Children.Clear();
-            LearnerSkeletonCanvas.Children.Clear();
-        }
-
-        private void PlayBack(object sender, RoutedEventArgs e)
-        {
-
+            LearningSkeletonCanvas.Children.Clear();
+            ReplayImage.Source = null;
         }
 
         private void CreateSpeechRecognizer()
@@ -992,6 +1016,26 @@
                     break;
             }
             */
+        }
+
+        private void CreateModeSelectionButtonClick(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void CreatedifficultyButtonClick(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void SpeechRecogn_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void traning_Checked(object sender, RoutedEventArgs e)
+        {
+
         }
 
         /*
