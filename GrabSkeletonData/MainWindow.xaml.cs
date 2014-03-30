@@ -234,6 +234,8 @@
             StartVoiceCommander();
             */
 
+
+            /*
             //test voice
             speechRecognizer = CreateSpeechRecognizer();
             var audioSource = _nui.AudioSource;
@@ -250,6 +252,8 @@
             //reduce background and ambient noise for better accuracy
             _nui.AudioSource.EchoCancellationMode = EchoCancellationMode.None;
             _nui.AudioSource.AutomaticGainControlEnabled = false;
+            */
+
 
             RealTimeImage.DataContext = RealTimeColorManager;
             ReplayImage.DataContext = ReplayColorManager;
@@ -885,33 +889,37 @@
             //set recognizer info
             RecognizerInfo ri = GetKinectRecognizer();
             //create instance of SRE
-            SpeechRecognitionEngine sre;
-            sre = new SpeechRecognitionEngine(ri.Id);
+            //if (null != ri)
+            {
+                SpeechRecognitionEngine sre;
+                sre = new SpeechRecognitionEngine(ri.Id);
 
-            //Now we need to add the words we want our program to recognise
-            var grammar = new Choices();
-            grammar.Add("Record");
-            grammar.Add("Store");
-            grammar.Add("Replay");
-            grammar.Add("Stop");
-            grammar.Add("Learn");
-            grammar.Add("Finish");
+                //Now we need to add the words we want our program to recognise
+                var grammar = new Choices();
+                grammar.Add("Record");
+                grammar.Add("Store");
+                grammar.Add("Replay");
+                grammar.Add("Stop");
+                grammar.Add("Learn");
+                grammar.Add("Finish");
 
 
 
-            //set culture - language, country/region
-            var gb = new GrammarBuilder { Culture = ri.Culture };
-            gb.Append(grammar);
+                //set culture - language, country/region
+                var gb = new GrammarBuilder { Culture = ri.Culture };
+                gb.Append(grammar);
 
-            //set up the grammar builder
-            var g = new Grammar(gb);
-            sre.LoadGrammar(g);
+                //set up the grammar builder
+                var g = new Grammar(gb);
+                sre.LoadGrammar(g);
 
-            //Set events for recognizing, hypothesising and rejecting speech
-            sre.SpeechRecognized += SreSpeechRecognized;
-            sre.SpeechHypothesized += SreSpeechHypothesized;
-            sre.SpeechRecognitionRejected += SreSpeechRecognitionRejected;
-            return sre;
+                //Set events for recognizing, hypothesising and rejecting speech
+                sre.SpeechRecognized += SreSpeechRecognized;
+                sre.SpeechHypothesized += SreSpeechHypothesized;
+                sre.SpeechRecognitionRejected += SreSpeechRecognitionRejected;
+                return sre;
+            }
+
         }
 
         //if speech is rejected
@@ -973,6 +981,7 @@
             }
         }
 
+        /*
         private void Button_Click(object sender, RoutedEventArgs e)
         {
 
@@ -982,5 +991,6 @@
         {
 
         }
+         * */
     }
 }
