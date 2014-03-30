@@ -15,8 +15,9 @@
     using System.Threading;
     using System.Windows.Threading;
     using System.Windows.Media;
-    using System.Speech.Recognition;
-    using System.Speech.AudioFormat;
+    using Microsoft.Speech.AudioFormat;
+    using Microsoft.Speech.Recognition;
+
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -175,6 +176,15 @@
         //Get the speech recognizer (SR)
         private static RecognizerInfo GetKinectRecognizer()
         {
+            /*
+            Func<RecognizerInfo, bool> matchingFunc = r =>
+            {
+                string value;
+                r.AdditionalInfo.TryGetValue("Kinect", out value);
+                return "True".Equals(value, StringComparison.InvariantCultureIgnoreCase) && "en-US".Equals(r.Culture.Name, StringComparison.InvariantCultureIgnoreCase);
+            };
+            return SpeechRecognitionEngine.InstalledRecognizers().Where(matchingFunc).FirstOrDefault();
+            */
             foreach (RecognizerInfo recognizer in SpeechRecognitionEngine.InstalledRecognizers())
             {
                 string value;
@@ -234,31 +244,17 @@
             StartVoiceCommander();
             */
 
-
-            /*
-            //test voice
-            speechRecognizer = CreateSpeechRecognizer();
-            var audioSource = _nui.AudioSource;
-            //Set the beam angle mode - the direction the audio beam is pointing
-            //we want it to be set to adaptive
-            audioSource.BeamAngleMode = BeamAngleMode.Adaptive;
-            //start the audiosource 
-            var kinectStream = audioSource.Start();
-            //configure incoming audio stream
-            speechRecognizer.SetInputToAudioStream(
-                kinectStream, new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
-            //make sure the recognizer does not stop after completing     
-            speechRecognizer.RecognizeAsync(RecognizeMode.Multiple);
-            //reduce background and ambient noise for better accuracy
-            _nui.AudioSource.EchoCancellationMode = EchoCancellationMode.None;
-            _nui.AudioSource.AutomaticGainControlEnabled = false;
-            */
-
-
             RealTimeImage.DataContext = RealTimeColorManager;
             ReplayImage.DataContext = ReplayColorManager;
 
             _nui.Start();
+            CreateSpeechRecognizer();
+
+            
+            
+            
+            
+            
         }
 
         void Kinects_StatusChanged(object sender, StatusChangedEventArgs e)
@@ -884,16 +880,16 @@
 
         }
 
-        private SpeechRecognitionEngine CreateSpeechRecognizer()
+        private void CreateSpeechRecognizer()
         {
             //set recognizer info
             RecognizerInfo ri = GetKinectRecognizer();
             //create instance of SRE
-            //if (null != ri)
+            if (null != ri)
             {
-                SpeechRecognitionEngine sre;
-                sre = new SpeechRecognitionEngine(ri.Id);
-
+                //SpeechRecognitionEngine speechRecognizer;
+                speechRecognizer = new SpeechRecognitionEngine(ri.Id);
+                
                 //Now we need to add the words we want our program to recognise
                 var grammar = new Choices();
                 grammar.Add("Record");
@@ -911,13 +907,33 @@
 
                 //set up the grammar builder
                 var g = new Grammar(gb);
-                sre.LoadGrammar(g);
+                speechRecognizer.LoadGrammar(g);
 
                 //Set events for recognizing, hypothesising and rejecting speech
-                sre.SpeechRecognized += SreSpeechRecognized;
-                sre.SpeechHypothesized += SreSpeechHypothesized;
-                sre.SpeechRecognitionRejected += SreSpeechRecognitionRejected;
-                return sre;
+                speechRecognizer.SpeechRecognized += SreSpeechRecognized;
+                speechRecognizer.SpeechHypothesized += SreSpeechHypothesized;
+                speechRecognizer.SpeechRecognitionRejected += SreSpeechRecognitionRejected;
+
+                //test voice
+                var audioSource = _nui.AudioSource;
+                //Set the beam angle mode - the direction the audio beam is pointing
+                //we want it to be set to adaptive
+                audioSource.BeamAngleMode = BeamAngleMode.Adaptive;
+                //start the audiosource 
+                var kinectStream = audioSource.Start();
+                //configure incoming audio stream
+                speechRecognizer.SetInputToAudioStream(
+                    kinectStream, new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
+                //make sure the recognizer does not stop after completing     
+                speechRecognizer.RecognizeAsync(RecognizeMode.Multiple);
+                //reduce background and ambient noise for better accuracy
+                _nui.AudioSource.EchoCancellationMode = EchoCancellationMode.None;
+                _nui.AudioSource.AutomaticGainControlEnabled = false;
+                this.status.Text = "11111";
+            }
+            else
+            {
+                this.status.Text = "656456456";
             }
 
         }
