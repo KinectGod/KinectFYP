@@ -17,6 +17,7 @@
     using System.Windows.Media;
     using Microsoft.Speech.AudioFormat;
     using Microsoft.Speech.Recognition;
+    using Microsoft.Speech.Synthesis;
 
 
     /// <summary>
@@ -122,8 +123,15 @@
         /// </summary>
         private KinectSensor  _nui;
 
-        //and the speech recognition engine (SRE)
+        ///<summary>
+        ///and the speech recognition engine (SRE)
+        ///</summary>
         private SpeechRecognitionEngine speechRecognizer;
+
+        ///<summary>
+        ///text to speech
+        ///</summary>
+        private SpeechSynthesizer synthesizer;
 
         /// <summary>
         /// Switch used to ignore certain skeleton frames
@@ -251,6 +259,12 @@
 
             _nui.Start();
             CreateSpeechRecognizer();
+
+            //text tp speech
+            synthesizer = new SpeechSynthesizer();
+            synthesizer.Volume = 100;//聲音大小(0 ~ 100)      
+            synthesizer.Rate = -2;//聲音速度(-10 ~ 10)
+        
         }
 
         void Kinects_StatusChanged(object sender, StatusChangedEventArgs e)
@@ -907,15 +921,24 @@
                 speechRecognizer = new SpeechRecognitionEngine(ri.Id);
                 
                 //Now we need to add the words we want our program to recognise
-                var grammar = new Choices();
-                grammar.Add("Record");
-                grammar.Add("Store");
-                grammar.Add("Replay");
-                grammar.Add("Stop");
-                grammar.Add("Learn");
-                grammar.Add("Finish");
-
-
+                var grammar = new Choices("Kinect");
+                grammar.Add(new SemanticResultValue("Record", "RECORD"));
+                grammar.Add(new SemanticResultValue("Store", "STORE"));
+                grammar.Add(new SemanticResultValue("Replay", "REPLAY"));
+                grammar.Add(new SemanticResultValue("Stop", "STOP"));
+                grammar.Add(new SemanticResultValue("Learn", "LEARN"));
+                grammar.Add(new SemanticResultValue("Finish", "FINISH"));
+                /*
+                 * var directions = new Choices();
+                * directions.Add(new SemanticResultValue("forward", "FORWARD"));
+                * directions.Add(new SemanticResultValue("forwards", "FORWARD"));
+                * directions.Add(new SemanticResultValue("straight", "FORWARD"));
+                * directions.Add(new SemanticResultValue("backward", "BACKWARD"));
+                * directions.Add(new SemanticResultValue("backwards", "BACKWARD"));
+                * directions.Add(new SemanticResultValue("back", "BACKWARD"));
+                * directions.Add(new SemanticResultValue("turn left", "LEFT"));
+                * directions.Add(new SemanticResultValue("turn right", "RIGHT"));
+                */
 
                 //set culture - language, country/region
                 var gb = new GrammarBuilder { Culture = ri.Culture };
@@ -971,10 +994,11 @@
         {
             //Very important! - change this value to adjust accuracy - the higher the value
             //the more accurate it will have to be, lower it if it is not recognizing you
-            if (e.Result.Confidence < 1)
+            if (e.Result.Confidence < 0.7f)
             {
                 RejectSpeech(e.Result);
             }
+            string recognized_text = null;
             //and finally, here we set what we want to happen when 
             //the SRE recognizes a word
             /*
@@ -983,31 +1007,38 @@
                 case "RECORD":
                     DtwCaptureClick();
                     status2.Text = "Record.";
+                    recognized_text = "record in five second";
                     break;
                 case "STORE":
                     DtwStoreClick();
                     status2.Text = "Store.";
+                    recognized_text = "Store";
                     break;
                 case "REPLAY":
                     DtwReplayClick();
                     status2.Text = "Replay.";
+                    recognized_text = "Replay";
                     break;
                 case "STOP":
                     DtwStopReplayClick();
                     status2.Text = "Stop.";
+                    recognized_text = "Stop replay";
                     break;
                 case "LEARN":
                     DtwStartRecognClick();
                     status2.Text = "Learn.";
+                    recognized_text = "Start learning in five second";
                     break;
                 case "FINISH":
                     DtwStopRecogn();
                     status2.Text = "finish.";
+                    recognized_text = "Finish learning"
                     break;
                 default:
                     break;
             }
             */
+            synthesizer.Speak(recognized_text);
         }
 
         private void traning_Checked(object sender, RoutedEventArgs e)
@@ -1022,7 +1053,12 @@
 
         private void SpeechRecogn_Checked(object sender, RoutedEventArgs e)
         {
+            CreateSpeechRecognizer();
+        }
 
+        private void SpeechRecogn_Checked(object sender, RoutedEventArgs e)
+        {
+            speechRecognizer.RecognizeAsyncStop();
         }
 
         private void easy_Checked(object sender, RoutedEventArgs e)
