@@ -17,8 +17,8 @@
     using System.Windows.Media;
     using Microsoft.Speech.AudioFormat;
     using Microsoft.Speech.Recognition;
+    using System.ComponentModel;
     using Microsoft.Speech.Synthesis;
-
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -124,7 +124,7 @@
         private KinectSensor  _nui;
 
         ///<summary>
-        ///and the speech recognition engine (SRE)
+	    ///and the speech recognition engine (SRE)
         ///</summary>
         private SpeechRecognitionEngine speechRecognizer;
 
@@ -176,12 +176,32 @@
         private static double threshold = 40.0;
 
         /// <summary>
+        /// Property change event
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
         /// The replay rate 
         /// </summary>
-        private static int SelectedFPS = 30;
-        private static double rateinmsec = 1000.0/SelectedFPS;
+        private int selectedFPS = 30;
+        //private static double rateinmsec = 1000.0/SelectedFPS;
 
+        public int SelectedFPS
+        {
+            get
+            {
+                return (int)this.selectedFPS;
+            }
 
+            set
+            {
+                this.selectedFPS = (int)(value);
+                if (null != this.PropertyChanged)
+                {
+                    this.PropertyChanged.Invoke(this, new PropertyChangedEventArgs("SelectedFPS"));
+                }
+            }
+        }
         //Get the speech recognizer (SR)
         private static RecognizerInfo GetKinectRecognizer()
         {
@@ -264,7 +284,7 @@
             synthesizer = new SpeechSynthesizer();
             synthesizer.Volume = 100;//聲音大小(0 ~ 100)      
             synthesizer.Rate = -2;//聲音速度(-10 ~ 10)
-        
+
         }
 
         void Kinects_StatusChanged(object sender, StatusChangedEventArgs e)
@@ -460,12 +480,13 @@
                         Directory.CreateDirectory(path);
                     }
 
-                    FileStream fs = File.Create(@path + "frame_number");
-                    BinaryWriter sw = new BinaryWriter(fs);
-                    sw.Write(sframe.FrameNumber);
-                    sw.Close();
-                    fs.Close();
-                    //REMARK
+                    using (FileStream fs = File.Create(@path + "frame_number"))
+                    {
+                        using (BinaryWriter sw = new BinaryWriter(fs))
+                        {
+                            sw.Write(sframe.FrameNumber);
+                        }
+                    }
                 }
             }
             
@@ -545,18 +566,18 @@
                 Directory.CreateDirectory(path);
             }
 
-            FileStream fs = File.OpenRead(path + "frame_number");
-            
-            BinaryReader reader = new BinaryReader(fs);
-
-            int intVal = reader.ReadInt32();
-
-            if (intVal <= frame.FrameNumber)
+            using (FileStream fs = File.OpenRead(path + "frame_number"))
             {
-                MasterSkeletonCanvas.Children.Clear();
-                LearningSkeletonCanvas.Children.Clear();
-                ReplayImage.Source = null;
-             }
+
+                BinaryReader reader = new BinaryReader(fs);
+                int intVal = reader.ReadInt32();
+
+                if (intVal <= frame.FrameNumber)
+                {
+                    MasterSkeletonCanvas.Children.Clear();
+                    LearningSkeletonCanvas.Children.Clear();
+                }
+            }
             
         }
 
@@ -698,6 +719,7 @@
 
             dtwCapture.IsEnabled = false;
             dtwStartRegcon.IsEnabled = false;
+            dtwReplay.IsEnabled = false;
             dtwStopRegcon.IsEnabled = true;
             string path = ".\\Records\\" + gestureList.Text + "\\";
 
@@ -706,14 +728,14 @@
             _recordskeletonstream = File.OpenRead(@path + "skeleton");
             _replay = new KinectReplay(_recordskeletonstream);
             _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
-            _replay.Start(rateinmsec);
+            _replay.Start(1000.0/this.SelectedFPS);
 
             if (_recordcolorstream != null)
                 _recordcolorstream.Close();
             _recordcolorstream = File.OpenRead(@path + "colorStream");
             _colorreplay = new KinectReplay(_recordcolorstream);
             _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
-            _colorreplay.Start(rateinmsec);
+            _colorreplay.Start(1000.0/this.SelectedFPS);
 
             _captureCountdownTimer.Dispose();
 
@@ -845,7 +867,7 @@
             _recordskeletonstream = File.OpenRead(@path + "skeleton");
             _replay = new KinectReplay(_recordskeletonstream);
             _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
-            _replay.Start(rateinmsec);
+            _replay.Start(1000.0/this.SelectedFPS);
 
             if (_recordcolorstream != null)
                 _recordcolorstream.Close();
@@ -853,7 +875,7 @@
             _colorreplay = new KinectReplay(_recordcolorstream);
             //recordColorStream.Close();
             _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
-            _colorreplay.Start(rateinmsec);
+            _colorreplay.Start(1000.0/this.SelectedFPS);
 
             dtwStopReplay.IsEnabled = true;
         }
@@ -864,17 +886,15 @@
             dtwCapture.IsEnabled = true;
             dtwStopReplay.IsEnabled = false;
             dtwStartRegcon.IsEnabled = true;
+            dtwReplay.IsEnabled = true;
             _replay.Stop();
             _colorreplay.Stop();
 
             MasterSkeletonCanvas.Children.Clear();
+            //ReplayImage.Source = null;
         }
 
         private void DtwStartRecogn(object sender, RoutedEventArgs e)
-        {
-            DtwStartRecognClick();
-        }
-        private void DtwStartRecognClick()
         {
             _learning = true;
             _capturing = false;
@@ -888,16 +908,12 @@
 
         private void DtwStopRecogn(object sender, RoutedEventArgs e)
         {
-            DtwStopRecogn();
-        }
-
-        private void DtwStopRecogn()
-        {
             status.Text = "Stopped learaning";
             dtwCapture.IsEnabled = true;
             dtwStopReplay.IsEnabled = false;
             dtwStartRegcon.IsEnabled = true;
             dtwStopRegcon.IsEnabled = false;
+            dtwReplay.IsEnabled = true;
             _learning = false;
             _capturing = false;
             _replay.Stop();
@@ -907,7 +923,6 @@
 
             MasterSkeletonCanvas.Children.Clear();
             LearningSkeletonCanvas.Children.Clear();
-            ReplayImage.Source = null;
         }
 
         private void CreateSpeechRecognizer()
@@ -939,6 +954,9 @@
                 * directions.Add(new SemanticResultValue("turn left", "LEFT"));
                 * directions.Add(new SemanticResultValue("turn right", "RIGHT"));
                 */
+
+
+
 
                 //set culture - language, country/region
                 var gb = new GrammarBuilder { Culture = ri.Culture };
@@ -1032,7 +1050,7 @@
                 case "FINISH":
                     DtwStopRecogn();
                     status2.Text = "finish.";
-                    recognized_text = "Finish learning"
+                    recognized_text = "Start learning in five second";
                     break;
                 default:
                     break;
@@ -1056,7 +1074,7 @@
             CreateSpeechRecognizer();
         }
 
-        private void SpeechRecogn_Checked(object sender, RoutedEventArgs e)
+        private void SpeechRecogn_Unchecked(object sender, RoutedEventArgs e)
         {
             speechRecognizer.RecognizeAsyncStop();
         }
