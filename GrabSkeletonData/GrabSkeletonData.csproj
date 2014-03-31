@@ -130,7 +130,6 @@
     </None>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Resource Include="Images\CheckedHover.png" />
     <Resource Include="Images\CheckedNormal.png" />

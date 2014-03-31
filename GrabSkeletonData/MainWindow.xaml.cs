@@ -1010,14 +1010,14 @@
             */
         }
 
-        private void CreateModeSelectionButtonClick(object sender, RoutedEventArgs e)
+        private void traning_Checked(object sender, RoutedEventArgs e)
         {
-
+            _training = true;
         }
 
-        private void CreatedifficultyButtonClick(object sender, RoutedEventArgs e)
+        private void challenge_Checked(object sender, RoutedEventArgs e)
         {
-
+            _training = false;
         }
 
         private void SpeechRecogn_Checked(object sender, RoutedEventArgs e)
@@ -1025,10 +1025,22 @@
 
         }
 
-        private void traning_Checked(object sender, RoutedEventArgs e)
+        private void easy_Checked(object sender, RoutedEventArgs e)
         {
-
+            threshold = 80;
         }
+
+        private void medium_Checked(object sender, RoutedEventArgs e)
+        {
+            threshold = 50;
+        }
+
+        private void hard_Checked(object sender, RoutedEventArgs e)
+        {
+            threshold = 30;
+        }
+
+
 
         /*
         private void Button_Click(object sender, RoutedEventArgs e)

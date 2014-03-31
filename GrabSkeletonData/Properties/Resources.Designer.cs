@@ -67,5 +67,224 @@ namespace GrabSkeletonData.Properties
                 resourceCulture = value;
             }
         }
+
+        internal static string ErrorSaveMesh
+        {
+            get
+            {
+                return ResourceManager.GetString("ErrorSaveMesh", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Error saving Kinect Fusion mesh - out of memory!.
+        /// </summary>
+        internal static string ErrorSaveMeshOutOfMemory
+        {
+            get
+            {
+                return ResourceManager.GetString("ErrorSaveMeshOutOfMemory", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Fps: {0:0.00}.
+        /// </summary>
+        internal static string Fps
+        {
+            get
+            {
+                return ResourceManager.GetString("Fps", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Click &quot;Near Mode&quot; to change sensor range, and &quot;Reset Reconstruction&quot; to clear.
+        /// </summary>
+        internal static string IntroductoryMessage
+        {
+            get
+            {
+                return ResourceManager.GetString("IntroductoryMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid mesh arguments. Saving mesh process aborted.
+        /// </summary>
+        internal static string InvalidMeshArgument
+        {
+            get
+            {
+                return ResourceManager.GetString("InvalidMeshArgument", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot create mesh of non-existent reconstruction.
+        /// </summary>
+        internal static string MeshNullVolume
+        {
+            get
+            {
+                return ResourceManager.GetString("MeshNullVolume", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Mesh save canceled.
+        /// </summary>
+        internal static string MeshSaveCanceled
+        {
+            get
+            {
+                return ResourceManager.GetString("MeshSaveCanceled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Saved Kinect Fusion mesh.
+        /// </summary>
+        internal static string MeshSaved
+        {
+            get
+            {
+                return ResourceManager.GetString("MeshSaved", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A prerequisite component for Kinect Fusion is missing. Please refer to the Toolkit documentation for assistance.
+        /// </summary>
+        internal static string MissingPrerequisite
+        {
+            get
+            {
+                return ResourceManager.GetString("MissingPrerequisite", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Near mode is not supported by device.
+        /// </summary>
+        internal static string NearModeNotSupported
+        {
+            get
+            {
+                return ResourceManager.GetString("NearModeNotSupported", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No DirectX11 device detected, or invalid device index - Kinect Fusion requires a DirectX11 device for GPU-based reconstruction..
+        /// </summary>
+        internal static string NoDirectX11CompatibleDeviceOrInvalidDeviceIndex
+        {
+            get
+            {
+                return ResourceManager.GetString("NoDirectX11CompatibleDeviceOrInvalidDeviceIndex", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No ready Kinect found!.
+        /// </summary>
+        internal static string NoReadyKinect
+        {
+            get
+            {
+                return ResourceManager.GetString("NoReadyKinect", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Out of memory error initializing reconstruction - try a smaller reconstruction volume.
+        /// </summary>
+        internal static string OutOfMemory
+        {
+            get
+            {
+                return ResourceManager.GetString("OutOfMemory", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to FindCameraPose exited early as not good enough pose matches..
+        /// </summary>
+        internal static string PoseFinderNotEnoughMatches
+        {
+            get
+            {
+                return ResourceManager.GetString("PoseFinderNotEnoughMatches", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Kinect Fusion Camera Pose Finder pose history is full, overwritten oldest pose to store current pose..
+        /// </summary>
+        internal static string PoseFinderPoseHistoryFull
+        {
+            get
+            {
+                return ResourceManager.GetString("PoseFinderPoseHistoryFull", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Kinect Fusion reset reconstruction call failed.
+        /// </summary>
+        internal static string ResetFailed
+        {
+            get
+            {
+                return ResourceManager.GetString("ResetFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reconstruction has been reset.
+        /// </summary>
+        internal static string ResetVolume
+        {
+            get
+            {
+                return ResourceManager.GetString("ResetVolume", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Kinect Fusion camera tracking failed, automatically reset volume.
+        /// </summary>
+        internal static string ResetVolumeAuto
+        {
+            get
+            {
+                return ResourceManager.GetString("ResetVolumeAuto", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Creating and saving mesh of reconstruction, please wait....
+        /// </summary>
+        internal static string SavingMesh
+        {
+            get
+            {
+                return ResourceManager.GetString("SavingMesh", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Volume resolution should be greater than 0 and multiple of 32.
+        /// </summary>
+        internal static string VolumeResolution
+        {
+            get
+            {
+                return ResourceManager.GetString("VolumeResolution", resourceCulture);
+            }
+        }
+
+
     }
 }
