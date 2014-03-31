@@ -40,11 +40,8 @@ C:\Users\yywongad\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\Grab
 C:\Users\yywongad\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.pdb
 C:\Users\Rin\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.exe
 C:\Users\Rin\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.pdb
-E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.exe
-E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.pdb
 E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\bin\Debug\GrabSkeletonData.exe
 E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\bin\Debug\GrabSkeletonData.pdb
-E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.csprojResolveAssemblyReference.cache
 E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\MainWindow.baml
 E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\MainWindow.g.cs
 E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\App.g.cs
@@ -52,3 +49,5 @@ E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkel
 E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.g.resources
 E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.Properties.Resources.resources
 E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.csproj.GenerateResource.Cache
+E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.exe
+E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.pdb

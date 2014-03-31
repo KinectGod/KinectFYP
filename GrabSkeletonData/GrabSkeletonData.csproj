@@ -130,8 +130,23 @@
     </None>
     <AppDesigner Include="Properties\" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Images\" />
+    <Resource Include="Images\CheckedHover.png" />
+    <Resource Include="Images\CheckedNormal.png" />
+    <Resource Include="Images\Kinect.ico" />
+    <Resource Include="Images\Logo.png" />
+    <Resource Include="Images\MeshHover.png" />
+    <Resource Include="Images\MeshNormal.png" />
+    <Resource Include="Images\RadioCheckedHover.png" />
+    <Resource Include="Images\RadioCheckedNormal.png" />
+    <Resource Include="Images\RadioUncheckedHover.png" />
+    <Resource Include="Images\RadioUncheckedNormal.png" />
+    <Resource Include="Images\ResetHover.png" />
+    <Resource Include="Images\ResetNormal.png" />
+    <Resource Include="Images\Status.png" />
+    <Resource Include="Images\UncheckedHover.png" />
+    <Resource Include="Images\UncheckedNormal.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
