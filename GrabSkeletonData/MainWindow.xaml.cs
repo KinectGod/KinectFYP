@@ -631,11 +631,12 @@
         /// <param name="e">Routed Event Args</param>
         private void DtwCaptureClick(object sender, RoutedEventArgs e)
         {
-            DtwCaptureClick();
-        }
-        private void DtwCaptureClick()
-        {
             _learning = false;
+            //dtwRead.IsEnabled = false;
+            //dtwCapture.IsEnabled = false;
+            dtwStore.IsEnabled = true;
+            dtwReplay.IsEnabled = false;
+            dtwStartRegcon.IsEnabled = false;
             _captureCountdown = DateTime.Now.AddSeconds(CaptureCountdownSeconds);
 
             _captureCountdownTimer = new System.Windows.Forms.Timer();
@@ -771,6 +772,7 @@
                 _recordcolorstream = File.Create(@path + "colorStream");
                 _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, _recordskeletonstream);
                 _colorrecorder = new KinectRecorder(KinectRecordOptions.Color, _recordcolorstream);
+                
             }
 
             
@@ -785,15 +787,12 @@
         /// <param name="e">Routed Event Args</param>
         private void DtwStoreClick(object sender, RoutedEventArgs e)
         {
-            DtwStoreClick();
-        }
-        private void DtwStoreClick()
-        {
             // Set the buttons enabled state
             //dtwRead.IsEnabled = false;
             //dtwCapture.IsEnabled = true;
             dtwStore.IsEnabled = false;
-
+            dtwReplay.IsEnabled = true;
+            dtwStartRegcon.IsEnabled = true;
             // Set the capturing? flag
             _learning = false;
             _capturing = false;
@@ -820,13 +819,10 @@
         //Replay the saved skeleton
         private void DtwReplayClick (object sender, RoutedEventArgs e) 
         {
-            DtwReplayClick();
-        }
-        private void DtwReplayClick()
-        {
             _learning = false;
             dtwCapture.IsEnabled = false;
             dtwStartRegcon.IsEnabled = false;
+            dtwReplay.IsEnabled = false;
             status.Text = "Replaying master motion " + gestureList.Text;
             string path = ".\\Records\\" + gestureList.Text + "\\";
 
@@ -849,10 +845,6 @@
         }
 
         private void DtwStopReplayClick(object sender, RoutedEventArgs e)
-        {
-            DtwStopReplayClick();
-        }
-        private void DtwStopReplayClick()
         {
             status.Text = "Stopped replay";
             dtwCapture.IsEnabled = true;
