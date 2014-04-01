@@ -20,9 +20,10 @@ using System.Diagnostics;
 namespace GrabSkeletonData.DTW
 {
     using System;
-using System.Collections;
-using System.Drawing;
-using System.Windows.Media.Media3D;
+    using System.Collections;
+    using System.Drawing;
+    using System.IO;
+    using System.Windows.Media.Media3D;
 
     /// <summary>
     /// Dynamic Time Warping nearest neighbour sequence comparison class.
@@ -264,8 +265,8 @@ using System.Windows.Media.Media3D;
         /// <summary>
         /// Compute the min DTW distance between seq2 and all possible endings of seq1.
         /// </summary>
-        /// <param name="seq1">The first array of sequences to compare</param>
-        /// <param name="seq2">The second array of sequences to compare</param>
+        /// <param name="seq1">The master array of sequences to compare</param>
+        /// <param name="seq2">The learner array of sequences to compare</param>
         /// <returns>The best match</returns>
         public double Dtw(ArrayList seq1, ArrayList seq2)
         {
@@ -356,26 +357,7 @@ using System.Windows.Media.Media3D;
                 }
             }
 
-
-
                 return bestMatch;
-        }
-
-        /// <summary>
-        /// Computes a 1-distance between two observations. (aka Manhattan distance).
-        /// </summary>
-        /// <param name="a">Point a (double)</param>
-        /// <param name="b">Point b (double)</param>
-        /// <returns>Manhattan distance between the two points</returns>
-        private double Dist1(double[] a, double[] b)
-        {
-            double d = 0;
-            for (int i = 0; i < _dimension; i++)
-            {
-                d += Math.Abs(a[i] - b[i]);
-            }
-
-            return d;
         }
 
         /// <summary>
@@ -384,21 +366,6 @@ using System.Windows.Media.Media3D;
         /// <param name="a">Point a (double)</param>
         /// <param name="b">Point b (double)</param>
         /// <returns>Euclidian distance between the two points</returns>
-        /*
-        private double Marker(double[] a, double[] b)
-        {
-            
-            double d = 0;
-            for (int i = 0; i < _dimension; i++)
-            {
-                if(Math.Abs(a[i] - b[i]) > _globalThreshold)
-                    d++;
-            }
-            return d / _dimension;
-            //return Math.Sqrt(d);
-        }
-        */
-
         private double Marker(double[] a, double[] b)
         {
             
@@ -435,20 +402,30 @@ using System.Windows.Media.Media3D;
         }
 
         /// <summary>
-        /// return the selected frame number.
+        /// record the selected dtw path in files
         /// </summary>
-        /// <returns></returns>
-        public Point[] DtwSelectedFrames()
+        /// <param name="path">the correspoding path</param>
+        public void DtwRecordSelectedFrames(string path)
         {
-            _matchFrame = new Point [_path.Count];
-            int i = 0;
-            foreach (DtwPathNode data in _path) {
-                _matchFrame[i].X = data.I;
-                _matchFrame[i].Y = data.J;
-                i++;
+            using (FileStream fs_ma = File.Create(@path + "MasterSelected"))
+            {
+                using (FileStream fs_le = File.Create(@path + "LearnerSelected"))
+                {
+                    using (BinaryWriter writer_ma = new BinaryWriter(fs_ma))
+                    {
+                        writer_ma.Write(_path.Count);
+                        using (BinaryWriter writer_le = new BinaryWriter(fs_le))
+                        {
+                            foreach (DtwPathNode data in _path)
+                            {
+                                writer_ma.Write(data.I);
+                                writer_le.Write(data.J);
+                            }
+                        }
+                    }
+                }
             }
-            return _matchFrame;
         }
-        
+
     }
 }

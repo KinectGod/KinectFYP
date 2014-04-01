@@ -214,7 +214,7 @@
 
         <DockPanel Grid.Row="0" Margin="0 0 0 20">
             <Image DockPanel.Dock="Left" Margin="0 10 0 5" Stretch="Fill" Height="32" Width="81" Source="Images\Logo.png"/>
-            <TextBlock DockPanel.Dock="Right" VerticalAlignment="Bottom" FontFamily="Segoe UI" HorizontalAlignment="Center" FontSize="18" Foreground="{StaticResource MediumGreyBrush}">Happy Taichi Learning</TextBlock>
+            <TextBlock DockPanel.Dock="Right" VerticalAlignment="Bottom" FontFamily="Segoe UI" HorizontalAlignment="Right" FontSize="18" Foreground="{StaticResource MediumGreyBrush}">Happy Taichi Learning</TextBlock>
         </DockPanel>
 
         <!--<StackPanel Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3">

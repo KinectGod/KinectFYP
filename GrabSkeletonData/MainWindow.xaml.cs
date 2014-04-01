@@ -138,10 +138,12 @@
         /// </summary>
         private int _flipFlop;
 
+        /*
         /// <summary>
         /// ArrayList of coordinates which are recorded in sequence to define one gesture
         /// </summary>
         private ArrayList _video;
+         * */
 
         // Kinect recorder
         private static KinectRecorder _recorder;
@@ -245,7 +247,7 @@
              * */
             _lastTime = DateTime.Now;
 
-            _video = new ArrayList();
+            //test _video = new ArrayList();
 
             RealTimeSkeleton = new SkeletonDrawManager(RealTimeSkeletonCanvas, _nui);
             ReplaySkeleton = new SkeletonDrawManager(MasterSkeletonCanvas, _nui);
@@ -256,7 +258,7 @@
             _nui.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
             _nui.ColorFrameReady += NuiColorFrameReady;
 
-            Skeleton3DDataExtract.Skeleton3DdataCoordReady += NuiSkeleton3DdataCoordReady;
+            //test Skeleton3DDataExtract.Skeleton3DdataCoordReady += NuiSkeleton3DdataCoordReady;
             _nui.SkeletonStream.Enable(new TransformSmoothParameters
             {
                 Smoothing = 0.5f,
@@ -458,8 +460,6 @@
                                      * temp += instructionX + instructionY +"\r\n";
                                     */
                                     LearningSkeleton.DrawCorrection(data, DetectionTemp[i], angles[i], i);
-                                    
-                                    
                                 }
                             }
                         }
@@ -622,6 +622,8 @@
         /// <param name="e">Event Args</param>
         private void WindowClosed(object sender, EventArgs e)
         {
+            _recordcolorstream.Close();
+            _recordskeletonstream.Close();
             Debug.WriteLine("Stopping NUI");
             _nui.Stop();
             Debug.WriteLine("NUI stopped");
@@ -635,6 +637,7 @@
         /// <param name="a">Skeleton 2Ddata Coord Event Args</param>
         // DEBUG : whether this function relates to the limitation of recording frames
         
+        /*
         private void NuiSkeleton3DdataCoordReady(object sender, Skeleton3DdataCoordEventArgs a)
         {
             /// display the current frame number
@@ -659,6 +662,7 @@
             // Update the debug window with Sequences information
             //dtwTextOutput.Text = _dtw.RetrieveText();
         }
+         * */
         /// <summary>
         /// Starts a countdown timer to enable the player to get in position to record gestures
         /// </summary>
@@ -771,7 +775,7 @@
             status.Text = "Recording motion " + gestureList.Text;
 
             // Clear the _video buffer and start from the beginning
-            _video = new ArrayList();
+            //test _video = new ArrayList();
             string path;
             if (_learning)
             {
@@ -835,18 +839,20 @@
 
 
             // Add the current video buffer to the dtw sequences list
-            _dtw.AddOrUpdate(_video, gestureList.Text);
+            //test _dtw.AddOrUpdate(_video, gestureList.Text);
 
+            /*
             string fileName = "AnglesData.txt";
-            System.IO.File.WriteAllText(@_MasterMovesSaveFileLocation + fileName, _dtw.RetrieveText());
+            System.IO.File.WriteAllText(@_MasterMovesSaveFileLocation + fileName, _dtw.RetrieveText()); * */
             status.Text = "Remembering " + gestureList.Text;
+            
 
             status.Text = gestureList.Text + " added";
             status.Text = "";
             _recordskeletonstream.Close();
             _recordcolorstream.Close();
             // Scratch the _video buffer
-            _video = new ArrayList();
+            //test _video = new ArrayList();
 
             // Switch back to Read mode
             // DtwReadClick(null, null);
@@ -1094,18 +1100,33 @@
             threshold = 30;
         }
 
-
-
-        /*
-        private void Button_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Read the selected dtw path, output an Point array 
+        /// </summary>
+        /// <param name="path">the files' location</param>
+        public Point[] DtwReadSelectedFrames(string path)
         {
-
+            Point[] dtwselected;
+            using (FileStream fs_ma = File.Create(@path + "MasterSelected"))
+            {
+                using (FileStream fs_le = File.Create(@path + "LearnerSelected"))
+                {
+                    using (BinaryReader reader_ma = new BinaryReader(fs_ma))
+                    {
+                        int length = reader_ma.ReadInt32();
+                        dtwselected = new Point[length];
+                        using (BinaryReader reader_le = new BinaryReader(fs_le))
+                        {
+                            for (int i = 0; i < length; i++)
+                            {
+                                dtwselected[i].X = reader_ma.ReadInt32();
+                                dtwselected[i].Y = reader_le.ReadInt32();
+                            }
+                        }
+                    }
+                }
+            }
+            return dtwselected;
         }
-
-        private void dtwSpeedSlide_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-
-        }
-         * */
     }
 }
