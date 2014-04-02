@@ -34,7 +34,7 @@
         /// </summary>
         readonly ColorStreamManager RealTimeColorManager = new ColorStreamManager();
         readonly ColorStreamManager ReplayColorManager = new ColorStreamManager();
-        SkeletonDrawManager LearningSkeleton;
+        //SkeletonDrawManager LearningSkeleton;
         SkeletonDrawManager RealTimeSkeleton;
         SkeletonDrawManager ReplaySkeleton;
 
@@ -111,7 +111,7 @@
         /// <summary>
         /// Dynamic Time Warping object
         /// </summary>
-        private DtwGestureRecognizer _dtw;
+        private DtwForTaiChiLearning _dtw;
 
         /// <summary>
         /// The 'last time' DateTime. Used for calculating frames per second
@@ -132,11 +132,6 @@
         ///text to speech
         ///</summary>
         private SpeechSynthesizer synthesizer;
-
-        /// <summary>
-        /// Switch used to ignore certain skeleton frames
-        /// </summary>
-        private int _flipFlop;
 
         /*
         /// <summary>
@@ -173,6 +168,8 @@
         public static int[] detection = new int [dimension];
 
         private static double[] angles = new double [dimension];
+
+        private static int _finalframeno;
 
         ///Difficulty
         private static double threshold = 40.0;
@@ -255,9 +252,9 @@
 
             RealTimeSkeleton = new SkeletonDrawManager(RealTimeSkeletonCanvas, _nui);
             ReplaySkeleton = new SkeletonDrawManager(MasterSkeletonCanvas, _nui);
-            LearningSkeleton = new SkeletonDrawManager(LearningSkeletonCanvas, _nui);
+            //LearningSkeleton = new SkeletonDrawManager(LearningSkeletonCanvas, _nui);
 
-            _dtw = new DtwGestureRecognizer(dimension *2, 0.6, 2, 2, 10);
+            _dtw = new DtwForTaiChiLearning(dimension * 2, 0.6, 2, 2, 10);
             // If you want to see the RGB stream then include this
             _nui.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
             _nui.ColorFrameReady += NuiColorFrameReady;
@@ -282,6 +279,15 @@
 
             RealTimeImage.DataContext = RealTimeColorManager;
             ReplayImage.DataContext = ReplayColorManager;
+            String path = ".\\Records\\@1stMotion\\";
+            if (Directory.Exists(path))
+            {
+                using (FileStream fs = File.OpenRead(@path + "frame_number"))
+                {
+                    BinaryReader reader = new BinaryReader(fs);
+                    _finalframeno = reader.ReadInt32();
+                }
+            }
 
             _nui.Start();
             CreateSpeechRecognizer();
@@ -402,7 +408,7 @@
 
             if (_learning && _training || _playback)
             {
-                LearningSkeleton.DrawSkeleton(skeletons);
+                //RealTimeSkeleton.DrawSkeleton(skeletons);
                 var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
                 int[] DetectionTemp = new int[dimension];
                 DetectionTemp = detection;
@@ -462,7 +468,7 @@
                                     temp  = "[" + now + "] ";
                                      * temp += instructionX + instructionY +"\r\n";
                                     */
-                                    LearningSkeleton.DrawCorrection(data, DetectionTemp[i], angles[i], i);
+                                    RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], angles[i], i);
                                 }
                             }
                         }
@@ -563,25 +569,17 @@
                 }
             }
 
-            String path = ".\\Records\\" + gestureList.Text + "\\";
-            if (!Directory.Exists(path))
+            if (_finalframeno <= frame.FrameNumber)
             {
-                Directory.CreateDirectory(path);
-            }
-
-            using (FileStream fs = File.OpenRead(path + "frame_number"))
-            {
-
-                BinaryReader reader = new BinaryReader(fs);
-                int intVal = reader.ReadInt32();
-
-                if (intVal <= frame.FrameNumber)
+                if (_learning)
                 {
-                    MasterSkeletonCanvas.Children.Clear();
-                    LearningSkeletonCanvas.Children.Clear();
+                    this.DtwStopRecogn(null, null);
+                }
+                else
+                {
+                    this.DtwStopReplayClick(null, null);
                 }
             }
-            
         }
 
         /// <summary>
@@ -931,7 +929,7 @@
             _recordcolorstream.Close();
 
             MasterSkeletonCanvas.Children.Clear();
-            LearningSkeletonCanvas.Children.Clear();
+            RealTimeSkeletonCanvas.Children.Clear();
         }
 
         private void CreateSpeechRecognizer()
@@ -1130,6 +1128,19 @@
                 }
             }
             return dtwselected;
+        }
+
+        private void readLastFrame(string gesture)
+        {
+            String path = ".\\Records\\" + gesture + "\\";
+            if (Directory.Exists(path))
+            {
+                using (FileStream fs = File.OpenRead(@path + "frame_number"))
+                {
+                    BinaryReader reader = new BinaryReader(fs);
+                    _finalframeno = reader.ReadInt32();
+                }
+            }
         }
     }
 }

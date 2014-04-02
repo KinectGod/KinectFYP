@@ -227,8 +227,14 @@
                 <Viewbox>
                     <Image  Width="480" Height="360" x:Name="ReplayImage" Margin="5,5,5,5" RenderTransformOrigin="0.475,0.5" Source="{Binding Bitmap}"/>
                 </Viewbox>
-                <Viewbox>
+                <!--<Viewbox>
                     <Canvas  Width="480" Height="360" x:Name="LearningSkeletonCanvas" ClipToBounds="True" Margin="5,5,5,5" RenderTransformOrigin="0.489,0.555">
+                        <Canvas Background="transparent" IsHitTestVisible="true"/>
+                    </Canvas>
+                </Viewbox>-->
+
+                <Viewbox>
+                    <Canvas Width="152" Height="100" x:Name="MasterSkeletonCanvas" ClipToBounds="True" Margin="0,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Top" >
                         <Canvas Background="transparent" IsHitTestVisible="true"/>
                     </Canvas>
                 </Viewbox>
@@ -334,18 +340,6 @@
             </Border>
 
             <Grid Grid.Column="2">
-
-                <Viewbox>
-                    <Canvas Width="152" Height="100" x:Name="MasterSkeletonCanvas" ClipToBounds="True" Margin="0,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Top" >
-                        <Canvas.Background>
-                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                <GradientStop Color="#D9040833" Offset="0.238" />
-                                <GradientStop Color="#FF46BC44" Offset="1" />
-                                <GradientStop Color="#E61747B2" Offset="0.811" />
-                            </LinearGradientBrush>
-                        </Canvas.Background>
-                    </Canvas>
-                </Viewbox>
             </Grid>
         </Grid>
 

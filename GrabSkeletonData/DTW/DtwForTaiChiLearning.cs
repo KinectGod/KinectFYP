@@ -29,7 +29,7 @@ namespace GrabSkeletonData.DTW
     /// Dynamic Time Warping nearest neighbour sequence comparison class.
     /// Called 'Gesture Recognizer' but really it can work with any vectors
     /// </summary>
-    internal class DtwGestureRecognizer
+    internal class DtwForTaiChiLearning
     {
         /*
          * By Rhemyst. Dude's a freakin' genius. Also he can do the Rubik's Cube. I mean REALLY do the Rubik's Cube.
@@ -85,7 +85,7 @@ namespace GrabSkeletonData.DTW
         /// <param name="dim">Vector size</param>
         /// <param name="threshold">Maximum distance between the last observations of each sequence</param>
         /// <param name="firstThreshold">Minimum threshold</param>
-        public DtwGestureRecognizer(int dim, double threshold, double firstThreshold, double minLen)
+        public DtwForTaiChiLearning(int dim, double threshold, double firstThreshold, double minLen)
         {
             _dimension = dim;
             _sequences = new ArrayList();
@@ -104,7 +104,7 @@ namespace GrabSkeletonData.DTW
         /// <param name="threshold">Maximum distance between the last observations of each sequence</param>
         /// <param name="firstThreshold">Minimum threshold</param>
         /// <param name="ms">Maximum vertical or horizontal steps in a row</param>
-        public DtwGestureRecognizer(int dim, double threshold, double firstThreshold, int ms, double minLen)
+        public DtwForTaiChiLearning(int dim, double threshold, double firstThreshold, int ms, double minLen)
         {
             _dimension = dim;
             _sequences = new ArrayList();
@@ -116,45 +116,14 @@ namespace GrabSkeletonData.DTW
         }
 
         /// <summary>
-        /// Add a seqence with a label to the known sequences library.
-        /// The gesture MUST start on the first observation of the sequence and end on the last one.
-        /// Sequences may have different lengths.
-        /// </summary>
-        /// <param name="seq">The sequence</param>
-        /// <param name="lab">Sequence name</param>
-        public void AddOrUpdate(ArrayList seq, string lab)
-        {
-            // First we check whether there is already a recording for this label. If so overwrite it, otherwise add a new entry
-            int existingIndex = -1;
-
-            for (int i = 0; i < _labels.Count; i++)
-            {
-                if ((string)_labels[i] == lab)
-                {
-                    existingIndex = i;
-                }
-            }
-
-            // If we have a match then remove the entries at the existing index to avoid duplicates. We will add the new entries later anyway
-            if (existingIndex >= 0)
-            {
-                _sequences.RemoveAt(existingIndex);
-                _labels.RemoveAt(existingIndex);
-            }
-
-            // Add the new entries
-            _sequences.Add(seq);
-            _labels.Add(lab);
-        }
-
-        /// <summary>
         /// Recognize gesture in the given sequence.
         /// It will always assume that the gesture ends on the last observation of that sequence.
         /// If the distance between the last observations of each sequence is too great, or if the overall DTW distance between the two sequence is too great, no gesture will be recognized.
         /// </summary>
         /// <param name="seq">The sequence to recognise</param>
         /// <returns>The recognised gesture name</returns>
-        //public string Recognize(ArrayList seq)  
+        //public string Recognize(ArrayList seq)
+        /*
         public double Recognize(ArrayList seq)
         {
             double minDist = double.PositiveInfinity;
@@ -164,17 +133,16 @@ namespace GrabSkeletonData.DTW
             {
                 var example = (ArrayList)_sequences[i];
                 ////Debug.WriteLine(Marker((double[]) seq[seq.Count - 1], (double[]) example[example.Count - 1]));
-                /*
                 if (Marker((double[])seq[seq.Count - 1], (double[])example[example.Count - 1]) < _firstThreshold)
                 {
-                 * */
-                double d = Dtw(seq, example) / seq.Count;
+                double d = DtwCompution(seq, example) / seq.Count;
                 if (d < minDist) minDist = d;
             }
 
-            return 1 - minDist /*+minDist.ToString()*/;
+            return 1 - minDist +minDist.ToString();
         }
 
+        
         /// <summary>
         /// Retrieves a text represeantation of the _label and its associated _sequence
         /// For use in dispaying debug information and for saving to file
@@ -261,6 +229,38 @@ namespace GrabSkeletonData.DTW
 
             return retStr;
         }
+         /// <summary>
+        /// Add a seqence with a label to the known sequences library.
+        /// The gesture MUST start on the first observation of the sequence and end on the last one.
+        /// Sequences may have different lengths.
+        /// </summary>
+        /// <param name="seq">The sequence</param>
+        /// <param name="lab">Sequence name</param>
+        public void AddOrUpdate(ArrayList seq, string lab)
+        {
+            // First we check whether there is already a recording for this label. If so overwrite it, otherwise add a new entry
+            int existingIndex = -1;
+
+            for (int i = 0; i < _labels.Count; i++)
+            {
+                if ((string)_labels[i] == lab)
+                {
+                    existingIndex = i;
+                }
+            }
+
+            // If we have a match then remove the entries at the existing index to avoid duplicates. We will add the new entries later anyway
+            if (existingIndex >= 0)
+            {
+                _sequences.RemoveAt(existingIndex);
+                _labels.RemoveAt(existingIndex);
+            }
+
+            // Add the new entries
+            _sequences.Add(seq);
+            _labels.Add(lab);
+        }
+         */
 
         /// <summary>
         /// Compute the min DTW distance between seq2 and all possible endings of seq1.
@@ -268,7 +268,7 @@ namespace GrabSkeletonData.DTW
         /// <param name="seq1">The master array of sequences to compare</param>
         /// <param name="seq2">The learner array of sequences to compare</param>
         /// <returns>The best match</returns>
-        public double Dtw(ArrayList seq1, ArrayList seq2)
+        public void DtwCompution(ArrayList seq1, ArrayList seq2, string path)
         {
             // Init
             var seq1R = new ArrayList(seq1);
@@ -332,32 +332,36 @@ namespace GrabSkeletonData.DTW
             }
 
             //Reconstruct the best matched path
-            if (bestMatchI < 1) return -1; //error checking 
-            _path.Clear();
-            _path = new ArrayList();
-            int currentI = bestMatchI;
-            int currentJ = seq2R.Count;
-            
-            while (currentI != 0 && currentJ != 0)
+            if (bestMatchI >= 1) //return -1; //error checking 
             {
-                var target = new DtwPathNode(seq1.Count-currentI,seq2.Count-currentJ,tab[currentI,currentJ]);
-                _path.Add(target);
-                if (slopeI[currentI, currentJ] > 0) //trace the left one
+                _path.Clear();
+                _path = new ArrayList();
+                int currentI = bestMatchI;
+                int currentJ = seq2R.Count;
+
+                while (currentI != 0 && currentJ != 0)
                 {
-                    currentJ -= 1;
+                    var target = new DtwPathNode(seq1.Count - currentI, seq2.Count - currentJ, tab[currentI, currentJ]);
+                    _path.Add(target);
+                    if (slopeI[currentI, currentJ] > 0) //trace the left one
+                    {
+                        currentJ -= 1;
+                    }
+                    else if (slopeJ[currentI, currentJ] > 0) //trace the top one
+                    {
+                        currentI -= 1;
+                    }
+                    else //trace the top left one
+                    {
+                        currentI -= 1;
+                        currentJ -= 1;
+                    }
                 }
-                else if (slopeJ[currentI, currentJ] > 0) //trace the top one
-                {
-                    currentI -= 1;
-                }
-                else //trace the top left one
-                {
-                    currentI -= 1;
-                    currentJ -= 1;
-                }
+
+                DtwRecordSelectedFrames(path);
             }
 
-                return bestMatch;
+                //return bestMatch;
         }
 
         /// <summary>
@@ -382,6 +386,12 @@ namespace GrabSkeletonData.DTW
             //return Math.Sqrt(d);
         }
 
+        /// <summary>
+        /// Calculate the result
+        /// </summary>
+        /// <param name="a1"></param>
+        /// <param name="a2"></param>
+        /// <returns></returns>
         private double RealtimeMarker(Point[] a1, Point[] a2) 
         { 
             double score = 0.0;
@@ -389,6 +399,7 @@ namespace GrabSkeletonData.DTW
             return score;
         }
 
+        /*
         public DtwPathNode MostWrongNode()
         {
             int index = 0;
@@ -400,6 +411,7 @@ namespace GrabSkeletonData.DTW
             }
                 return (DtwPathNode)_path[index];
         }
+         * */
 
         /// <summary>
         /// record the selected dtw path in files

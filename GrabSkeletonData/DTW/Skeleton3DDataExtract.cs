@@ -152,12 +152,6 @@ namespace GrabSkeletonData.DTW
                 OutputData = new Point[a.Length];
                 OutputData = a;
             }
-            // Launch the event!
-            else
-            {
-                Skeleton3DdataCoordReady(null, new Skeleton3DdataCoordEventArgs(a));
-            }
-
         }
 
         public static Point[] ProcessDataTEST(Skeleton data)

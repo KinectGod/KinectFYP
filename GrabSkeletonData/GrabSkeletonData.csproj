@@ -69,7 +69,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BitmapSourceExtensions.cs" />
-    <Compile Include="DTW\DtwGestureRecognizer.cs" />
+    <Compile Include="DTW\DtwForTaiChiLearning.cs" />
     <Compile Include="DTW\DtwPathNode.cs" />
     <Compile Include="DTW\MotionDetection.cs" />
     <Compile Include="DTW\Skeleton3DdataCoordEventArgs.cs" />
