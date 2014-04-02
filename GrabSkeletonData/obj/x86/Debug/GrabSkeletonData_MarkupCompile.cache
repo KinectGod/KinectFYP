@@ -4,16 +4,16 @@
 exe
 C#
 .cs
-C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\
+D:\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\
 GrabSkeletonData
 none
 false
 DEBUG;TRACE
-C:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\App.xaml
+D:\Documents\GitHub\KinectFYP\GrabSkeletonData\App.xaml
 11151548125
 
 331047473467
-16638154670
+16-2015277604
 MainWindow.xaml;
 
 False
