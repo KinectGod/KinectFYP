@@ -1,7 +1,7 @@
 ﻿<Window x:Class="GrabSkeletonData.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="KinectDTW" Height="720" Width="1000" Loaded="WindowLoaded" Closed="WindowClosed">
+        Title="KinectDTW" Height="720" Width="1000" Loaded="WindowLoaded" Closed="WindowClosed" DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Window.Resources>
         <SolidColorBrush x:Key="MediumGreyBrush" Color="#ff6e6e6e"/>
         <SolidColorBrush x:Key="KinectBlueBrush" Color="#ff00BCF2"/>
@@ -216,17 +216,7 @@
             <Image DockPanel.Dock="Left" Margin="0 10 0 5" Stretch="Fill" Height="32" Width="81" Source="Images\Logo.png"/>
             <TextBlock DockPanel.Dock="Right" VerticalAlignment="Bottom" FontFamily="Segoe UI" HorizontalAlignment="Right" FontSize="18" Foreground="{StaticResource MediumGreyBrush}">Happy Taichi Learning</TextBlock>
         </DockPanel>
-
-        <!--<StackPanel Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3">
-            <Label Height="40" Content="TaiChi Happy Learning" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Width="600" FontStretch="Expanded" FontStyle="Normal" HorizontalContentAlignment="Center" VerticalContentAlignment="Top" FontFamily="Segoe UI"></Label>
-        </StackPanel>
-        <StackPanel Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="1">
-            <Label Height="20" Content="Master" FontSize="8" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Width="600" FontStretch="Expanded" FontStyle="Normal" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontFamily="Segoe UI"></Label>
-        </StackPanel>
-        <StackPanel Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="1">
-            <Label Height="20" Content="Learner" FontSize="8" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Width="600" FontStretch="SemiExpanded" FontStyle="Normal" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontFamily="Segoe UI"></Label>
-        </StackPanel>
-        -->
+        
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
@@ -338,7 +328,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Style="{StaticResource KinectTextFormat}" Foreground="{StaticResource KinectPurpleBrush}" Margin="5 0 0 0">Replay FPS</TextBlock>
                         <Slider Grid.Column="1" Style="{StaticResource KinectSlider}" Value="{Binding SelectedFPS}" IsSnapToTickEnabled="True" Minimum="5" Maximum="30" TickFrequency="5" Margin="5,5,23,5" AutomationProperties.AutomationId="ReplayFPS"/>
-                        <TextBlock Grid.Column="2" Style="{StaticResource KinectTextFormat}" Foreground="{StaticResource KinectPurpleBrush}" Margin="0 0 5 0" Text="{Binding SelectedFPS}"/>
+                        <TextBlock Grid.Column="2" Style="{StaticResource KinectTextFormat}" x:Name="txtbox" Foreground="{StaticResource KinectPurpleBrush}" Margin="0 0 5 0" Text="{Binding SelectedFPS, UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid>
                 </Grid>
             </Border>

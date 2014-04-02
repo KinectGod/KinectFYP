@@ -23,7 +23,7 @@
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         // We want to control how depth data gets converted into false-color data
         // for more intuitive visualization, so we keep 32-bit color frame buffer versions of
@@ -188,6 +188,9 @@
         private int selectedFPS = 30;
         //private static double rateinmsec = 1000.0/SelectedFPS;
 
+        public static readonly DependencyProperty selectedFPSProperty =
+    DependencyProperty.Register("selectedFPS", typeof(string), typeof(MainWindow), new PropertyMetadata(null));
+        
         public int SelectedFPS
         {
             get
@@ -204,6 +207,7 @@
                 }
             }
         }
+
         //Get the speech recognizer (SR)
         private static RecognizerInfo GetKinectRecognizer()
         {
@@ -281,7 +285,6 @@
 
             _nui.Start();
             CreateSpeechRecognizer();
-
             //text tp speech
             synthesizer = new SpeechSynthesizer();
             synthesizer.Volume = 100;//聲音大小(0 ~ 100)      
