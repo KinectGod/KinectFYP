@@ -64,3 +64,5 @@ D:\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.Pr
 D:\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.csproj.GenerateResource.Cache
 D:\Documents\GitHub\KinectFYP\GrabSkeletonData\bin\Debug\GrabSkeletonData.exe
 D:\Documents\GitHub\KinectFYP\GrabSkeletonData\bin\Debug\GrabSkeletonData.pdb
+E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\bin\Debug\GrabSkeletonData.exe.config
+E:\Users\Owen\Documents\GitHub\KinectFYP\GrabSkeletonData\obj\x86\Debug\GrabSkeletonData.csprojResolveAssemblyReference.cache

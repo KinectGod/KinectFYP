@@ -328,7 +328,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Style="{StaticResource KinectTextFormat}" Foreground="{StaticResource KinectPurpleBrush}" Margin="5 0 0 0">Replay FPS</TextBlock>
                         <Slider Grid.Column="1" Style="{StaticResource KinectSlider}" Value="{Binding SelectedFPS}" IsSnapToTickEnabled="True" Minimum="5" Maximum="30" TickFrequency="5" Margin="5,5,23,5" AutomationProperties.AutomationId="ReplayFPS"/>
-                        <TextBlock Grid.Column="2" Style="{StaticResource KinectTextFormat}" x:Name="txtbox" Foreground="{StaticResource KinectPurpleBrush}" Margin="0 0 5 0" Text="{Binding SelectedFPS, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBlock Grid.Column="2" Style="{StaticResource KinectTextFormat}" x:Name="txtbox" Foreground="{StaticResource KinectPurpleBrush}" Margin="0 0 5 0" Text="{Binding SelectedFPS}"/>
                     </Grid>
                 </Grid>
             </Border>

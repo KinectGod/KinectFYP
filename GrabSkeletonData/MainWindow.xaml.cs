@@ -625,8 +625,8 @@
         /// <param name="e">Event Args</param>
         private void WindowClosed(object sender, EventArgs e)
         {
-            _recordcolorstream.Close();
-            _recordskeletonstream.Close();
+            if(_recordcolorstream!=null) _recordcolorstream.Close();
+            if (_recordskeletonstream != null) _recordskeletonstream.Close();
             Debug.WriteLine("Stopping NUI");
             _nui.Stop();
             Debug.WriteLine("NUI stopped");
