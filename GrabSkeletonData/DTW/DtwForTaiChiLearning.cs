@@ -262,6 +262,7 @@ namespace GrabSkeletonData.DTW
         }
          */
 
+
         /// <summary>
         /// Compute the min DTW distance between seq2 and all possible endings of seq1.
         /// </summary>

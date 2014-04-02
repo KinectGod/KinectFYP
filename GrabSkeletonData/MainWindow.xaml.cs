@@ -65,12 +65,6 @@
         private const int CaptureCountdownSeconds = 5;
 
         /// <summary>
-        /// Where we will save our gestures to. The app will append a data/time and .txt to this string
-        /// </summary>
-
-        private static string _MasterMovesSaveFileLocation = "";
-
-        /// <summary>
         /// Dictionary of all the joints Kinect SDK is capable of tracking. You might not want always to use them all but they are included here for thouroughness.
        
         /// number of joints that we need
@@ -133,12 +127,11 @@
         ///</summary>
         private SpeechSynthesizer synthesizer;
 
-        /*
         /// <summary>
-        /// ArrayList of coordinates which are recorded in sequence to define one gesture
+        /// ArrayList of master's and learner motion
         /// </summary>
-        private ArrayList _video;
-         * */
+        private ArrayList _masterseq;
+        private ArrayList _learnerseq;
 
         // Kinect recorder
         private static KinectRecorder _recorder;
@@ -146,11 +139,13 @@
 
         private static Stream _recordskeletonstream;
         private static Stream _recordcolorstream;
-        private static Stream _learningskeletonstream;
-        private static Stream _learningcolorstream;
+        private static Stream _learnerskeletonstream;
+        private static Stream _learnercolorstream;
 
         private KinectReplay _replay;
         private KinectReplay _colorreplay;
+
+        private string _temppath = ".\\";
 
         /// 
         private DateTime _captureCountdown = DateTime.Now;
@@ -242,10 +237,6 @@
         {
             if (_nui == null)
                 return;
-            /* voice control
-            audioManager = new AudioStreamManager(kinectSensor.AudioSource);
-            audioBeamAngle.DataContext = audioManager;
-             * */
             _lastTime = DateTime.Now;
 
             //test _video = new ArrayList();
@@ -269,18 +260,13 @@
                 MaxDeviationRadius = 0.04f
             });
             _nui.SkeletonFrameReady += NuiSkeletonFrameReady;
-            _nui.SkeletonFrameReady += SkeletonExtractSkeletonFrameReady;
-            /* Voice Control
-            voiceCommander = new VoiceCommander("record", "stop");
-            voiceCommander.OrderDetected += voiceCommander_OrderDetected;
-
-            StartVoiceCommander();
-            */
+            //_nui.SkeletonFrameReady += SkeletonExtractSkeletonFrameReady; we don't need the viewable data so far !!
 
             RealTimeImage.DataContext = RealTimeColorManager;
             ReplayImage.DataContext = ReplayColorManager;
-            String path = ".\\Records\\@1stMotion\\";
-            if (Directory.Exists(path))
+
+            string path = ".\\Records\\" + "@1stMotion" + "\\";
+            if (File.Exists(@path + "frame_number"))
             {
                 using (FileStream fs = File.OpenRead(@path + "frame_number"))
                 {
@@ -367,24 +353,6 @@
                 _recordskeletonstream.Close();
         }
 
-        private static void SkeletonExtractSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
-        {
-            using (var skeletonFrame = e.OpenSkeletonFrame())
-            {
-                if (skeletonFrame == null) return; // sometimes frame image comes null, so skip it.
-                var skeletons = new Skeleton[skeletonFrame.SkeletonArrayLength];
-                skeletonFrame.CopySkeletonDataTo(skeletons);
-
-                foreach (Skeleton data in skeletons)
-                {
-                    Skeleton3DDataExtract.ProcessData(data, false);
-                }
-
-                //maker for record
-            }
-        }
-
-
         /// <summary>
         /// Runds every time a skeleton frame is ready. Updates the skeleton canvas with new joint and polyline locations.
         /// </summary>
@@ -392,115 +360,51 @@
         /// <param name="e">Skeleton Frame Event Args</param>
         private void NuiSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
-            Skeleton[] skeletons;
             int length;
             Point[] temppt = new Point[dimension];
             using (var frame = e.OpenSkeletonFrame())
             {
                 if (frame == null) return;
-                skeletons = new Skeleton[frame.SkeletonArrayLength];
+                var skeletons = new Skeleton[frame.SkeletonArrayLength];
                 length = frame.SkeletonArrayLength;
                 frame.CopySkeletonDataTo(skeletons);
-            }
 
-            //DrawSkeleton(skeletons, LearnerSkeletonCanvas);
-            RealTimeSkeleton.DrawSkeleton(skeletons);
 
-            if (_learning && _training || _playback)
-            {
-                //RealTimeSkeleton.DrawSkeleton(skeletons);
-                var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-                int[] DetectionTemp = new int[dimension];
-                DetectionTemp = detection;
-                string temp = "";
+                //DrawSkeleton(skeletons, LearnerSkeletonCanvas);
+                RealTimeSkeleton.DrawSkeleton(skeletons);
 
-                foreach (var data in skeletons)
+                if (_learning && _training && _capturing || _playback)
                 {
-                    temppt = Skeleton3DDataExtract.ProcessDataTEST(data);
-                    if (temppt[4].X >= 0)
-                        _LearnerAngle = temppt;
-                    if (_LearnerAngle != null)
+                    //RealTimeSkeleton.DrawSkeleton(skeletons);
+                    var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+                    int[] DetectionTemp = new int[dimension];
+                    DetectionTemp = detection;
+
+                    foreach (var data in skeletons)
                     {
-                        counttime++;
+                        temppt = Skeleton3DDataExtract.ProcessData(data);
+                        if (temppt[4].X >= 0)
+                            _LearnerAngle = temppt;
+                        if (_LearnerAngle != null)
+                        {
                             for (int i = 0; i < dimension; i++)
                             {
                                 if (DetectionTemp[i] > 0)
                                 {
-                                    /// REMARK : 16 cases
-                                    //Console.WriteLine("k");
-                                    //generate the instruction
-                                    /// The hundreds place and a.X represent ProjectToXZ;
-                                    /// 200=down ;300=up; 400=forward; 500=backward.
-                                    /// The tens place and a.Y represent ProjectToZY.
-                                    /// 20=right  40=left
-                                    
-                                    /*
-                                    int XZ =  DetectionTemp[i]/100;
-                                    string instructionX = "";
-                                    switch(XZ)
-                                    {
-                                        case 2:
-                                            instructionX = "down ";
-                                            break;
-                                        case 3:
-                                            instructionX = "up ";
-                                            break;
-                                        case 4:
-                                            instructionX = "forward ";
-                                            break;
-                                        case 5:
-                                            instructionX = "backward ";
-                                            break;
-                                    }
-                                    int YZ = DetectionTemp[i] % 100;
-                                    string instructionY = "";
-                                    switch (YZ)
-                                    {
-                                        case 20:
-                                            instructionY = "right ";
-                                            break;
-                                        case 40:
-                                            instructionY = "left ";
-                                            break;
-                                    }
-
-                                    DateTime now = DateTime.Now;
-                                    temp  = "[" + now + "] ";
-                                     * temp += instructionX + instructionY +"\r\n";
-                                    */
                                     RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], angles[i], i);
                                 }
                             }
                         }
+                    }
                 }
-            }
 
-            if (_capturing == true)
-            {
-                using (var sframe = e.OpenSkeletonFrame())
+                if (_capturing)
                 {
-                    if (sframe == null)
-                        return;
-                    _recorder.Record(sframe);
-
-                    String path = ".\\Records\\" + gestureList.Text + "\\";
-                    if (!Directory.Exists(path))
-                    {
-                        Directory.CreateDirectory(path);
-                    }
-
-                    using (FileStream fs = File.Create(@path + "frame_number"))
-                    {
-                        using (BinaryWriter sw = new BinaryWriter(fs))
-                        {
-                            sw.Write(sframe.FrameNumber);
-                        }
-                    }
+                    if (_recorder == null) return;
+                    _recorder.Record(frame);
+                    if(!_learning) _finalframeno = frame.FrameNumber;
                 }
             }
-            
-            
-
         }
 
         /// <summary>
@@ -517,18 +421,16 @@
                 if (image == null) return; // sometimes frame image comes null, so skip it.
 
                 RealTimeColorManager.Update(image);
-            }
-
-            if (_capturing == true || _learning == true)
-            {
-                using (var scolorImage = e.OpenColorImageFrame())
+                if (_capturing)
                 {
-                    if (scolorImage == null)
+                    if (image == null)
                         return;
-                    if(!_learning)
-                    _colorrecorder.Record(scolorImage);
+                    if(_colorrecorder != null)
+                    _colorrecorder.Record(image);
                 }
             }
+
+            
         }
 
         void replay_ColorImageFrameReady(object sender, ReplayColorImageFrameReadyEventArgs e)
@@ -558,7 +460,7 @@
             {
                 foreach (var data in skeletons)
                 {
-                    temppt = Skeleton3DDataExtract.ProcessDataTEST(data);
+                    temppt = Skeleton3DDataExtract.ProcessData(data);
                     if (temppt[4].X >= 0)
                         _MasterAngle = temppt;
                     //Console.WriteLine(_MasterAngle[4].X);
@@ -632,39 +534,6 @@
         }
 
         /// <summary>
-        /// Runs every time our 2D coordinates are ready.
-        /// </summary>
-        /// <param name="sender">The sender object</param>
-        /// <param name="a">Skeleton 2Ddata Coord Event Args</param>
-        // DEBUG : whether this function relates to the limitation of recording frames
-        
-        /*
-        private void NuiSkeleton3DdataCoordReady(object sender, Skeleton3DdataCoordEventArgs a)
-        {
-            /// display the current frame number
-            //currentBufferFrame.Text = _video.Count.ToString();
-
-            // Decide which skeleton frames to capture. Only do so if the frames actually returned a number. 
-            // For some reason my Kinect/PC setup didn't always return a double in range (i.e. infinity) even when standing completely within the frame.
-            // TODO Weird. Need to investigate this
-            // REMARK. INFINIY PROBLEM
-            if (!double.IsNaN(a.GetPoint(0).X))
-            {
-                // Optionally register only 1 frame out of every n
-                _flipFlop = (_flipFlop + 1) % Ignore;
-                if (_flipFlop == 0)
-                {
-                    _video.Add(a.GetAngle());
-                    //marker
-                    
-                }
-            }
-
-            // Update the debug window with Sequences information
-            //dtwTextOutput.Text = _dtw.RetrieveText();
-        }
-         * */
-        /// <summary>
         /// Starts a countdown timer to enable the player to get in position to record gestures
         /// </summary>
         /// <param name="sender">The sender object</param>
@@ -674,7 +543,7 @@
             _learning = false;
             //dtwRead.IsEnabled = false;
             //dtwCapture.IsEnabled = false;
-            dtwStore.IsEnabled = true;
+            dtwStore.IsEnabled = false;
             dtwReplay.IsEnabled = false;
             dtwStartRegcon.IsEnabled = false;
             _captureCountdown = DateTime.Now.AddSeconds(CaptureCountdownSeconds);
@@ -720,105 +589,74 @@
         private void DtwStartRecogn()
         {
             _learning = true;
-            _capturing = false;
+            _capturing = true;
 
             dtwCapture.IsEnabled = false;
             dtwStartRegcon.IsEnabled = false;
             dtwReplay.IsEnabled = false;
             dtwStopRegcon.IsEnabled = true;
             string path = ".\\Records\\" + gestureList.Text + "\\";
+            readLastFrame(path);
 
             if (_recordskeletonstream != null)
                 _recordskeletonstream.Close();
             _recordskeletonstream = File.OpenRead(@path + "skeleton");
             _replay = new KinectReplay(_recordskeletonstream);
             _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
-            _replay.Start(1000.0/this.SelectedFPS);
+            _replay.Start(1000.0 / this.SelectedFPS);
 
             if (_recordcolorstream != null)
                 _recordcolorstream.Close();
             _recordcolorstream = File.OpenRead(@path + "colorStream");
             _colorreplay = new KinectReplay(_recordcolorstream);
             _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
-            _colorreplay.Start(1000.0/this.SelectedFPS);
+            _colorreplay.Start(1000.0 / this.SelectedFPS);
 
             _captureCountdownTimer.Dispose();
 
             status.Text = "Learning " + gestureList.Text;
-
-            /*
-            // Clear the _video buffer and start from the beginning
-            _video = new ArrayList();
-            path = ".\\Learning\\" + gestureList.Text + "\\";
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-            _recordstream = File.Create(@path + "skeleton");
-            _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, _recordstream);
-            //throw new NotImplementedException();
-             * */
-        } 
+        }
 
         /// <summary>
         /// Capture mode. Sets our control variables and button enabled states
         /// </summary>
         private void StartCapture()
         {
-            // Set the buttons enabled state
-            //dtwRead.IsEnabled = false;
-            //dtwCapture.IsEnabled = false;
-            dtwStore.IsEnabled = true;
-
-            // Set the capturing? flag
             _capturing = true;
-            ////_captureCountdownTimer.Dispose();
-            status.Text = "Recording motion " + gestureList.Text;
-
+            
             // Clear the _video buffer and start from the beginning
             //test _video = new ArrayList();
-            string path;
+            if (File.Exists(@_temppath + "skeleton")) while (FileDelete(@_temppath + "skeleton")) ;
+            if (File.Exists(@_temppath + "colorStream")) while (FileDelete(@_temppath + "colorStream")) ;
             if (_learning)
             {
-                path = ".\\Learning\\" + gestureList.Text + "\\";
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-
-                if (_learningcolorstream != null)
-                    _learningcolorstream.Close();
-                if (_learningskeletonstream != null)
-                    _learningskeletonstream.Close();
-                _MasterMovesSaveFileLocation = path;
-                _learningskeletonstream = File.Create(@path + "skeleton");
-                _learningcolorstream = File.Create(@path + "colorStream");
-                _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, _learningskeletonstream);
-                _colorrecorder = new KinectRecorder(KinectRecordOptions.Color, _learningcolorstream);
+                if (_learnercolorstream != null)
+                    _learnercolorstream.Close();
+                if (_learnerskeletonstream != null)
+                    _learnerskeletonstream.Close();
+                _learnerskeletonstream = File.Create(@_temppath + "skeleton");
+                _learnercolorstream = File.Create(@_temppath + "colorStream");
+                _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, _learnerskeletonstream);
+                _colorrecorder = new KinectRecorder(KinectRecordOptions.Color, _learnercolorstream);
             }
             else
             {
-                path = ".\\Records\\" + gestureList.Text + "\\";
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-
+                // Set the buttons enabled state
+                //dtwRead.IsEnabled = false;
+                //dtwCapture.IsEnabled = false;
+                dtwStore.IsEnabled = true;
+                // Set the capturing? flag
+                status.Text = "Recording motion " + gestureList.Text;
                 if (_recordcolorstream != null)
                     _recordcolorstream.Close();
                 if (_recordskeletonstream != null)
                     _recordskeletonstream.Close();
-                _MasterMovesSaveFileLocation = path;
-                _recordskeletonstream = File.Create(@path + "skeleton");
-                _recordcolorstream = File.Create(@path + "colorStream");
+                _recordskeletonstream = File.Create(@_temppath + "skeleton");
+                _recordcolorstream = File.Create(@_temppath + "colorStream");
                 _recorder = new KinectRecorder(KinectRecordOptions.Skeletons, _recordskeletonstream);
                 _colorrecorder = new KinectRecorder(KinectRecordOptions.Color, _recordcolorstream);
-                
             }
-
-            
         }
-       
 
 
         /// <summary>
@@ -837,26 +675,60 @@
             // Set the capturing? flag
             _learning = false;
             _capturing = false;
+            _recorder = null;
+            _colorrecorder = null;
 
+            const string message = "Are you sure that you would like to store the TaiChi motion?";
+            const string caption = "Confirmation";
+            var result = System.Windows.Forms.MessageBox.Show(message, caption,
+                                         MessageBoxButtons.YesNo,
+                                         MessageBoxIcon.Question);
 
-            // Add the current video buffer to the dtw sequences list
-            //test _dtw.AddOrUpdate(_video, gestureList.Text);
+            // If the no button was pressed ... 
+            if (result == System.Windows.Forms.DialogResult.Yes)
+            {
+                status.Text = "Remembering " + gestureList.Text + ", please stay there until the saving process finished :)";
 
-            /*
-            string fileName = "AnglesData.txt";
-            System.IO.File.WriteAllText(@_MasterMovesSaveFileLocation + fileName, _dtw.RetrieveText()); * */
-            status.Text = "Remembering " + gestureList.Text;
-            
+                string path = ".\\Records\\" + gestureList.Text + "\\";
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
 
-            status.Text = gestureList.Text + " added";
-            status.Text = "";
-            _recordskeletonstream.Close();
-            _recordcolorstream.Close();
-            // Scratch the _video buffer
-            //test _video = new ArrayList();
+                if (_recordcolorstream != null)
+                    _recordcolorstream.Close();
+                if (_recordskeletonstream != null)
+                    _recordskeletonstream.Close();
 
-            // Switch back to Read mode
-            // DtwReadClick(null, null);
+                if (File.Exists(@path + "skeleton")) while (FileDelete(@path + "skeleton"));
+                if (File.Exists(@path + "colorStream")) while (FileDelete(@path + "colorStream"));
+                if (File.Exists(@path + "frame_number")) while (FileDelete(@path + "frame_number")) ;
+
+                File.Move(@_temppath + "skeleton", @path + "skeleton");
+                File.Move(@_temppath + "colorStream", @path + "colorStream");
+
+                /*
+                while (IsFileClosed(@_temppath + "colorStream") && IsFileClosed(@path + "colorStream"))
+                {
+                    Thread.Sleep(1000);
+                }
+                 * */
+
+                using (FileStream fs = File.Create(@path + "frame_number"))
+                {
+                    using (BinaryWriter sw = new BinaryWriter(fs))
+                    {
+                        sw.Write(_finalframeno);
+                    }
+                }
+                status.Text = gestureList.Text + " added";
+            }
+            else
+            {
+                _recordskeletonstream.Close();
+                _recordcolorstream.Close();
+                return;
+            }
         }
 
         //Replay the saved skeleton
@@ -868,6 +740,7 @@
             dtwReplay.IsEnabled = false;
             status.Text = "Replaying master motion " + gestureList.Text;
             string path = ".\\Records\\" + gestureList.Text + "\\";
+            readLastFrame(path);
 
             if (_recordskeletonstream != null)
                 _recordskeletonstream.Close();
@@ -915,7 +788,7 @@
 
         private void DtwStopRecogn(object sender, RoutedEventArgs e)
         {
-            status.Text = "Stopped learaning";
+            status.Text = "Stopped learning";
             dtwCapture.IsEnabled = true;
             dtwStopReplay.IsEnabled = false;
             dtwStartRegcon.IsEnabled = true;
@@ -925,11 +798,45 @@
             _capturing = false;
             _replay.Stop();
             _colorreplay.Stop();
-            _recordskeletonstream.Close();
-            _recordcolorstream.Close();
-
             MasterSkeletonCanvas.Children.Clear();
             RealTimeSkeletonCanvas.Children.Clear();
+            _recorder = null;
+            _colorrecorder = null;
+
+            
+            const string message = "Are you satisfied with your performance this time, save or not?";
+            const string caption = "Confirmation";
+            var result = System.Windows.Forms.MessageBox.Show(message, caption,
+                                         MessageBoxButtons.YesNo,
+                                         MessageBoxIcon.Question);
+
+            // If the no button was pressed ... 
+            if (result == System.Windows.Forms.DialogResult.Yes)
+            {
+                status.Text = "Remembering " + gestureList.Text + ", please stay there until the saving process finished :)";
+
+                string path = ".\\Learnings\\" + gestureList.Text + "\\";
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+
+                if (_learnercolorstream != null)
+                    _learnercolorstream.Close();
+                if (_learnerskeletonstream != null)
+                    _learnerskeletonstream.Close();
+
+                if (File.Exists(@path + "skeleton")) while (FileDelete(@path + "skeleton")) ;
+                if (File.Exists(@path + "colorStream")) while (FileDelete(@path + "colorStream")) ;
+
+                File.Move(@_temppath + "skeleton", @path + "skeleton");
+                File.Move(@_temppath + "colorStream", @path + "colorStream");
+            }
+            else
+            {
+                _learnerskeletonstream.Close();
+                _learnercolorstream.Close();
+            }
         }
 
         private void CreateSpeechRecognizer()
@@ -1142,5 +1049,28 @@
                 }
             }
         }
+
+        /// <summary>
+        /// make sure to delete the file successfully
+        /// </summary>
+        /// <param name="filename">the targeted file</param>
+        /// <returns></returns>
+        public static bool FileDelete(string filename)
+        {
+            try
+            {
+                File.Delete(@filename);
+                while (File.Exists(@filename))
+                {
+                    Thread.Sleep(2000);
+                }
+                return false;
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+        }
+
     }
 }
