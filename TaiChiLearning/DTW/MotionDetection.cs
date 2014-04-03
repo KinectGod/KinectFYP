@@ -31,19 +31,21 @@ namespace TaiChiLearning.DTW
                     else
                         _detection[i] = textInstructionX(a1[i], a2[i]) + textInstructionYR(a1[i], a2[i]);  //right
 
-                    if (Math.Abs(a1[i].X - a2[i].X) > 180) 
+                    if (Math.Abs(a1[i].X - a2[i].X) > 180)
                     {
                         angles[i] = Math.Abs(a1[i].X - a2[i].X) - 180;
                     }
 
-                    else 
+                    else
                     {
                         angles[i] = Math.Abs(a1[i].X - a2[i].X);
                     }
                 }
+
                 else
                 {
                     _detection[i] = 0;
+                    angles[i] = 0;
                 }
 
                 
