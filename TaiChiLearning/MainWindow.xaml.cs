@@ -38,7 +38,7 @@
         //SkeletonDrawManager LearningSkeleton;
         SkeletonDrawManager RealTimeSkeleton;
         SkeletonDrawManager ReplaySkeleton;
-        SkeletonDrawManager PlayBackSkeleton;
+        //SkeletonDrawManager PlayBackSkeleton;
 
         /// <summary>
         /// The red index
@@ -71,18 +71,6 @@
        
         /// number of joints that we need
         private const int dimension = 16;
-
-        /// <summary>
-        /// To avoid feedback too much
-        /// </summary>
-        private static int counttime = 0;
-
-        /* DEPTH
-        /// <summary>
-        /// The depth frame byte array. Only supports 320 * 240 at this time
-        /// </summary>
-        private readonly short[] _depthFrame32 = new short[320 * 240 * 4];
-         * */
 
         /// <summary>
         /// Flag to show whether or not the Tai Chi learning system is capturing a new pose
@@ -156,9 +144,6 @@
 
         /// 
         private System.Windows.Forms.Timer _captureCountdownTimer;
-
-        ///REMARK
-        private static Skeleton[] _RecogSkeletons;
 
         private static Point[] _MasterAngle;
 
@@ -247,7 +232,7 @@
 
             RealTimeSkeleton = new SkeletonDrawManager(RealTimeSkeletonCanvas, _nui);
             ReplaySkeleton = new SkeletonDrawManager(MasterSkeletonCanvas, _nui);
-            PlayBackSkeleton = new SkeletonDrawManager(PlayBackSkeletonCanvas, _nui);
+            //PlayBackSkeleton = new SkeletonDrawManager(PlayBackSkeletonCanvas, _nui);
             //LearningSkeleton = new SkeletonDrawManager(LearningSkeletonCanvas, _nui);
 
             _dtw = new DtwForTaiChiLearning(dimension * 2, 0.6, 2, 2, 10);
@@ -269,7 +254,7 @@
 
             RealTimeImage.DataContext = RealTimeColorManager;
             ReplayImage.DataContext = ReplayColorManager;
-            PlayBackImage.DataContext = PlayBackColorManager;
+            //PlayBackImage.DataContext = PlayBackColorManager;
 
             string path = ".\\Records\\" + "@1stMotion" + "\\";
             if (File.Exists(@path + "frame_number"))
@@ -366,51 +351,55 @@
         /// <param name="e">Skeleton Frame Event Args</param>
         private void NuiSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
-            int length;
-            Point[] temppt = new Point[dimension];
-            using (var frame = e.OpenSkeletonFrame())
+            if (!_playingback)
             {
-                if (frame == null) return;
-                var skeletons = new Skeleton[frame.SkeletonArrayLength];
-                length = frame.SkeletonArrayLength;
-                frame.CopySkeletonDataTo(skeletons);
-
-
-                //DrawSkeleton(skeletons, LearnerSkeletonCanvas);
-                RealTimeSkeleton.DrawSkeleton(skeletons);
-
-                if (_learning && _training && _capturing)
+                int length;
+                Point[] temppt = new Point[dimension];
+                using (var frame = e.OpenSkeletonFrame())
                 {
-                    //RealTimeSkeleton.DrawSkeleton(skeletons);
-                    var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-                    int[] DetectionTemp = new int[dimension];
-                    DetectionTemp = detection;
+                    if (frame == null) return;
+                    var skeletons = new Skeleton[frame.SkeletonArrayLength];
+                    length = frame.SkeletonArrayLength;
+                    frame.CopySkeletonDataTo(skeletons);
 
-                    foreach (var data in skeletons)
+
+                    //DrawSkeleton(skeletons, LearnerSkeletonCanvas);
+                    RealTimeSkeleton.DrawSkeleton(skeletons);
+
+                    if (_learning && _training && _capturing)
                     {
-                        temppt = Skeleton3DDataExtract.ProcessData(data);
-                        if (temppt[4].X >= 0)
-                            _LearnerAngle = temppt;
-                        if (_LearnerAngle != null)
+                        //RealTimeSkeleton.DrawSkeleton(skeletons);
+                        var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+                        int[] DetectionTemp = new int[dimension];
+                        DetectionTemp = detection;
+
+                        foreach (var data in skeletons)
                         {
-                            for (int i = 0; i < dimension; i++)
+                            temppt = Skeleton3DDataExtract.ProcessData(data);
+                            if (temppt[4].X >= 0)
+                                _LearnerAngle = temppt;
+                            if (_LearnerAngle != null)
                             {
-                                if (DetectionTemp[i] > 0)
+                                for (int i = 0; i < dimension; i++)
                                 {
-                                    RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], angles[i], i);
+                                    if (DetectionTemp[i] > 0)
+                                    {
+                                        RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], angles[i], i);
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                if (_capturing)
-                {
-                    if (_recorder == null) return;
-                    _recorder.Record(frame);
-                    if(!_learning) _finalframeno = frame.FrameNumber;
+                    if (_capturing)
+                    {
+                        if (_recorder == null) return;
+                        _recorder.Record(frame);
+                        if (!_learning) _finalframeno = frame.FrameNumber;
+                    }
                 }
             }
+            else return; // do nothing in playing back mode
         }
 
         /// <summary>
@@ -484,7 +473,7 @@
 
             /// get the joint angle data of master
             /// then make comparison
-            if (_learning)
+            if (_learning || _playingback)
             {
                 foreach (var data in skeletons)
                 {
@@ -531,7 +520,7 @@
             Point[] temppt = new Point[dimension];
 
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
-            PlayBackSkeleton.DrawSkeleton(skeletons);
+            RealTimeSkeleton.DrawSkeleton(skeletons);
 
             /// get the joint angle data of master
             /// then make comparison
@@ -932,6 +921,8 @@
             tcStopLearning.IsEnabled = false;
             tcStopPlayBack.IsEnabled = true;
 
+            RealTimeImage.DataContext = PlayBackColorManager;
+
             string path = ".\\Records\\" + gestureList.Text + "\\";
             readLastFrame(path);
 
@@ -940,14 +931,14 @@
             _recordskeletonstream = File.OpenRead(@path + "skeleton");
             _replay = new KinectReplay(_recordskeletonstream);
             _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
-            _replay.Start(1000.0 / this.SelectedFPS);
+            
 
             if (_recordcolorstream != null)
                 _recordcolorstream.Close();
             _recordcolorstream = File.OpenRead(@path + "colorStream");
             _colorreplay = new KinectReplay(_recordcolorstream);
             _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
-            _colorreplay.Start(1000.0 / this.SelectedFPS);
+            
 
             string path2 = ".\\Learnings\\" + gestureList.Text + "\\";
             readLastFrame(path);
@@ -957,14 +948,18 @@
             _learnerskeletonstream = File.OpenRead(@path2 + "skeleton");
             _playback = new KinectReplay(_learnerskeletonstream);
             _playback.SkeletonFrameReady += playback_SkeletonFrameReady;
-            _playback.Start(1000.0 / this.SelectedFPS);
+            
 
             if (_learnercolorstream != null)
                 _learnercolorstream.Close();
             _learnercolorstream = File.OpenRead(@path2 + "colorStream");
             _colorplayback = new KinectReplay(_learnercolorstream);
             _colorplayback.ColorImageFrameReady += playback_ColorImageFrameReady;
+
+            _playback.Start(1000.0 / this.SelectedFPS);
             _colorplayback.Start(1000.0 / this.SelectedFPS);
+            _colorreplay.Start(1000.0 / this.SelectedFPS);
+            _replay.Start(1000.0 / this.SelectedFPS);
 
             status.Text = "Playing back " + gestureList.Text;
         }
@@ -978,6 +973,8 @@
             _learning = false;
             _capturing = false;
             _playingback = false;
+
+            RealTimeImage.DataContext = RealTimeColorManager;
 
             status.Text = "Stopped playing back";
             tcCapture.IsEnabled = true;
@@ -1126,7 +1123,7 @@
                     break;
             }
             */
-            synthesizer.Speak(recognized_text);
+            //synthesizer.Speak(recognized_text);
         }
 
         private void traning_Checked(object sender, RoutedEventArgs e)
