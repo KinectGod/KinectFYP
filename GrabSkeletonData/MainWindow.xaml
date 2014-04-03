@@ -1,4 +1,4 @@
-﻿<Window x:Class="GrabSkeletonData.MainWindow"
+﻿<Window x:Class="TaiChiLearning.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="KinectDTW" Height="720" Width="1000" Loaded="WindowLoaded" Closed="WindowClosed" DataContext="{Binding RelativeSource={RelativeSource Self}}">

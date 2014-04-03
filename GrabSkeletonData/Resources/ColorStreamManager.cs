@@ -3,9 +3,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Kinect;
 using System;
-using GrabSkeletonData.Replay;
+using TaiChiLearning.Replay;
 
-namespace GrabSkeletonData
+namespace TaiChiLearning
 {
     public class ColorStreamManager : Notifier, IStreamManager
     {

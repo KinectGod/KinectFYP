@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GrabSkeletonData
+namespace TaiChiLearning
 {
     [Serializable]
     public struct Vector2

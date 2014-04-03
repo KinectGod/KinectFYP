@@ -7,7 +7,7 @@ using System.Linq;
 using System.Windows.Shapes;
 using System.Windows.Media;
 
-namespace GrabSkeletonData.Replay
+namespace TaiChiLearning.Replay
 {
     public class ReplaySkeletonFrame : ReplayFrame
     {

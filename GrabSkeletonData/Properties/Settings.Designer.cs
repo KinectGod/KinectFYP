@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace GrabSkeletonData.Properties {
+namespace TaiChiLearning.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

@@ -1,6 +1,6 @@
 using System.Windows.Media.Imaging;
 
-namespace GrabSkeletonData
+namespace TaiChiLearning
 {
     public interface IStreamManager
     {

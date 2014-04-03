@@ -4,7 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GrabSkeletonData.Replay
+namespace TaiChiLearning.Replay
 {
     class ReplaySystem<T>  where T:ReplayFrame, new()
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace GrabSkeletonData.Recorder
+namespace TaiChiLearning.Recorder
 {
     [FlagsAttribute]
     public enum KinectRecordOptions

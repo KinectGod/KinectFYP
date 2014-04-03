@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace GrabSkeletonData.Replay
+namespace TaiChiLearning.Replay
 {
     public abstract class ReplayFrame
     {

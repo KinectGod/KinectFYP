@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GrabSkeletonData.Replay
+namespace TaiChiLearning.Replay
 {
     public class ReplaySkeletonFrameReadyEventArgs : EventArgs
     {

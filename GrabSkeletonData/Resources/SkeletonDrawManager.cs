@@ -8,7 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace GrabSkeletonData
+namespace TaiChiLearning
 {
     public class SkeletonDrawManager
     {

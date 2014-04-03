@@ -6,7 +6,7 @@ using System.IO;
 using Microsoft.Kinect;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace GrabSkeletonData.Recorder
+namespace TaiChiLearning.Recorder
 {
     class SkeletonRecorder
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GrabSkeletonData
+namespace TaiChiLearning
 {
     public static class MathHelper
     {

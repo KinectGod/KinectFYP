@@ -1,4 +1,4 @@
-﻿namespace GrabSkeletonData
+﻿namespace TaiChiLearning
 {
     using System;
     using System.Collections;
@@ -8,9 +8,9 @@
     using System.Windows.Forms;
     using System.Linq;
     using Microsoft.Kinect;
-    using GrabSkeletonData.DTW;
-    using GrabSkeletonData.Recorder;
-    using GrabSkeletonData.Replay;
+    using TaiChiLearning.DTW;
+    using TaiChiLearning.Recorder;
+    using TaiChiLearning.Replay;
     using System.IO;
     using System.Threading;
     using System.Windows.Threading;

@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using Microsoft.Kinect;
 
-namespace GrabSkeletonData.Recorder
+namespace TaiChiLearning.Recorder
 {
     class KinectRecorder
     {

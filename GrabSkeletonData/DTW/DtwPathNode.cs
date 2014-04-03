@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GrabSkeletonData.DTW
+namespace TaiChiLearning.DTW
 {
     internal class DtwPathNode
     {

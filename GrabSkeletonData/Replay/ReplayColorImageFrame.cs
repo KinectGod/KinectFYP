@@ -3,7 +3,7 @@ using Microsoft.Kinect;
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace GrabSkeletonData.Replay
+namespace TaiChiLearning.Replay
 {
     public class ReplayColorImageFrame : ReplayFrame
     {

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using GrabSkeletonData;
-using GrabSkeletonData.Recorder;
+using TaiChiLearning;
+using TaiChiLearning.Recorder;
 
-namespace GrabSkeletonData.Replay
+namespace TaiChiLearning.Replay
 {
     public class KinectReplay : IDisposable
     {

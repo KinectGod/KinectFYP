@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Linq.Expressions;
 
-namespace GrabSkeletonData
+namespace TaiChiLearning
 {
     public abstract class Notifier : INotifyPropertyChanged
     {

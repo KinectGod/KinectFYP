@@ -11,7 +11,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace GrabSkeletonData.Recorder
+namespace TaiChiLearning.Recorder
 {
     public static class CompressImage
     {

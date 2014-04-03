@@ -4,9 +4,9 @@ using System.Linq;
 using System.IO;
 using Microsoft.Kinect;
 using System.Collections;
-using GrabSkeletonData.DTW;
+using TaiChiLearning.DTW;
 
-namespace GrabSkeletonData
+namespace TaiChiLearning
 {
     public static class Tools
     {

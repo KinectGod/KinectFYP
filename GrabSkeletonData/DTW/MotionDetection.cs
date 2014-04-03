@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 
-namespace GrabSkeletonData.DTW
+namespace TaiChiLearning.DTW
 {
     class MotionDetection
     {

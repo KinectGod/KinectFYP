@@ -17,7 +17,7 @@
 
 using System.Diagnostics;
 
-namespace GrabSkeletonData.DTW
+namespace TaiChiLearning.DTW
 {
     using System;
     using System.Collections;
@@ -29,15 +29,8 @@ namespace GrabSkeletonData.DTW
     /// Dynamic Time Warping nearest neighbour sequence comparison class.
     /// Called 'Gesture Recognizer' but really it can work with any vectors
     /// </summary>
-    internal class DtwForTaiChiLearning
+    public class DtwForTaiChiLearning
     {
-        /*
-         * By Rhemyst. Dude's a freakin' genius. Also he can do the Rubik's Cube. I mean REALLY do the Rubik's Cube.
-         * 
-         * http://social.msdn.microsoft.com/Forums/en-US/kinectsdknuiapi/thread/4a428391-82df-445a-a867-557f284bd4b1
-         * http://www.youtube.com/watch?v=XsIoN96yF3E
-         */
-
         private ArrayList _path;
         private Point[] _matchFrame;
         /// <summary>

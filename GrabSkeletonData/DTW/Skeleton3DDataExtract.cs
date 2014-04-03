@@ -15,7 +15,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-namespace GrabSkeletonData.DTW
+namespace TaiChiLearning.DTW
 {
     using System;
     using System.Windows;
