@@ -269,6 +269,7 @@
 
             RealTimeImage.DataContext = RealTimeColorManager;
             ReplayImage.DataContext = ReplayColorManager;
+            PlayBackImage.DataContext = PlayBackColorManager;
 
             string path = ".\\Records\\" + "@1stMotion" + "\\";
             if (File.Exists(@path + "frame_number"))
@@ -503,6 +504,10 @@
                 if (_learning)
                 {
                     this.tcStopLearningClick(null, null);
+                }
+                else if (_playingback)
+                {
+                    this.tcStopPlayBackClick(null, null);
                 }
                 else
                 {
@@ -847,7 +852,7 @@
             //ReplayImage.Source = null;
         }
 
-        private void tcStartRegconClick(object sender, RoutedEventArgs e)
+        private void tcStartLearningClick(object sender, RoutedEventArgs e)
         {
             _learning = true;
             _capturing = false;
@@ -961,9 +966,33 @@
             _colorplayback.ColorImageFrameReady += playback_ColorImageFrameReady;
             _colorplayback.Start(1000.0 / this.SelectedFPS);
 
-            _captureCountdownTimer.Dispose();
-
             status.Text = "Playing back " + gestureList.Text;
+        }
+        /// <summary>
+        /// Event handler for the stop play back button, which will stop the playing back action
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tcStopPlayBackClick(object sender, RoutedEventArgs e)
+        {
+            _learning = false;
+            _capturing = false;
+            _playingback = false;
+
+            status.Text = "Stopped playing back";
+            tcCapture.IsEnabled = true;
+            tcStopReplay.IsEnabled = false;
+            tcStartLearning.IsEnabled = true;
+            tcReplay.IsEnabled = true;
+            tcStopPlayBack.IsEnabled = false;
+            tcPlayBack.IsEnabled = true;
+            _replay.Stop();
+            _colorreplay.Stop();
+            _playback.Stop();
+            _colorplayback.Stop();
+
+            MasterSkeletonCanvas.Children.Clear();
+            PlayBackSkeletonCanvas.Children.Clear();
         }
 
         private void CreateSpeechRecognizer()
@@ -1198,5 +1227,7 @@
                 return true;
             }
         }
+
+        
     }
 }
