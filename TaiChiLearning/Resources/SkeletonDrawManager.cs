@@ -52,16 +52,17 @@ namespace TaiChiLearning
         /// <returns>Point mapped location of sent joint</returns>
         private Point GetDisplayPosition(Joint joint)
         {
+            /*
             float depthX, depthY;
             var pos = nui.MapSkeletonPointToDepth(joint.Position, DepthImageFormat.Resolution320x240Fps30);
 
             depthX = pos.X;
             depthY = pos.Y;
-
+            */
             int colorX, colorY;
 
             // Only ImageResolution.Resolution640x480 is supported at this point
-            var pos2 = nui.MapSkeletonPointToColor(joint.Position, ColorImageFormat.RgbResolution640x480Fps30);
+            var pos2 = nui.CoordinateMapper.MapSkeletonPointToColorPoint(joint.Position, ColorImageFormat.RgbResolution640x480Fps30);
             colorX = pos2.X;
             colorY = pos2.Y;
 
@@ -189,35 +190,35 @@ namespace TaiChiLearning
             {
                 case 0:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ShoulderCenter, JointType.ShoulderLeft));
-                    //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
+                    DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, corr_color);
                     break;
                 case 1:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ShoulderLeft, JointType.ElbowLeft));
-                    //DrawCorrection(data.Joints[JointType.ShoulderLeft], data.Joints[JointType.ElbowLeft], PorN, PorN * c_angles, brush);
+                    DrawCorrection(data.Joints[JointType.ShoulderLeft], data.Joints[JointType.ElbowLeft], PorN, PorN * c_angles, corr_color);
                     break;
                 case 2:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.WristLeft, JointType.ElbowLeft));
-                    //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
+                    DrawCorrection(data.Joints[JointType.ElbowLeft], data.Joints[JointType.WristLeft], PorN, PorN * c_angles, corr_color);
                     break;
                 case 3:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.WristLeft, JointType.HandLeft));
-                    //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
+                    DrawCorrection(data.Joints[JointType.WristLeft], data.Joints[JointType.HandLeft], PorN, PorN * c_angles, corr_color);
                     break;
                 case 4:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ShoulderCenter, JointType.ShoulderRight));
-                    //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
+                    DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderRight], PorN, PorN * c_angles, corr_color);
                     break;
                 case 5:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ShoulderRight, JointType.ElbowRight));
-                    //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
+                    DrawCorrection(data.Joints[JointType.ShoulderRight], data.Joints[JointType.ElbowRight], PorN, PorN * c_angles, corr_color);
                     break;
                 case 6:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ElbowRight, JointType.WristRight));
-                    //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
+                    DrawCorrection(data.Joints[JointType.ElbowRight], data.Joints[JointType.WristRight], PorN, PorN * c_angles, corr_color);
                     break;
                 case 7:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.WristRight, JointType.HandRight));
-                    //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, brush);
+                    //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, PorN * c_angles, corr_color);
                     break;
                 case 8:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.HipCenter, JointType.HipLeft));
@@ -275,7 +276,9 @@ namespace TaiChiLearning
         {
             Point StartPoint = GetDisplayPosition(joint1);
             Point endpt = GetDisplayPosition(joint2);
+            if (StartPoint.X == endpt.X && StartPoint.Y == endpt.Y) return;
             Point EndPoint = getCorrectCoord(StartPoint, endpt, angle, PorN);
+            if (Double.IsNaN(EndPoint.X) || Double.IsNaN(EndPoint.Y)) return;
             DrawLine(StartPoint, EndPoint, brush);
         }
 
@@ -283,45 +286,14 @@ namespace TaiChiLearning
         private void DrawLine(Point StartPoint, Point EndPoint, SolidColorBrush brush)
         {
             System.Windows.Shapes.Line _Line = new System.Windows.Shapes.Line();
-            System.Windows.Shapes.Line Head = new System.Windows.Shapes.Line();
 
             _Line.X1 = StartPoint.X;
             _Line.Y1 = StartPoint.Y;
             _Line.X2 = EndPoint.X;
             _Line.Y2 = EndPoint.Y;
-            _Line.StrokeThickness = 3;
+            _Line.StrokeThickness = 5;
             _Line.Stroke = brush;
-            /*
-            int d;
-            if (EndPoint.X > StartPoint.X)
-            {
-                Head.X1 = EndPoint.X - 1;
-                Head.X2 = EndPoint.X;
-                d = 1;
-            }
-            else
-            {
-                Head.X1 = EndPoint.X + 1;
-                Head.X2 = EndPoint.X;
-                d = -1;
-            }
-
-            Head.Y1 = getArrowYByX(d, StartPoint, EndPoint);
-            Head.Y2 = EndPoint.Y;
-
-            Head.StrokeEndLineCap = PenLineCap.Triangle;
-            Head.StrokeThickness = 8;
-            Head.Stroke = brush;
-             * 
-            rootCanvas.Children.Add(Head);
-             * */
             rootCanvas.Children.Add(_Line);
-
-        }
-
-        double getArrowYByX(double d, Point pStart, Point pEnd)
-        {
-            return pStart.Y + (pEnd.X - pStart.X - d) * (pEnd.Y - pStart.Y) / (pEnd.X - pStart.X);
         }
 
         /// <summary>
@@ -337,10 +309,12 @@ namespace TaiChiLearning
         private Point getCorrectCoord(Point startpt, Point endpt, double angle, int PorN)
         {
             Point EndPoint = new Point();
-            double length = Math.Sqrt(Math.Pow(startpt.X - endpt.X, 2) + Math.Pow(startpt.Y - endpt.Y, 2));
+            double length = 10;//Math.Sqrt(Math.Pow(startpt.X - endpt.X, 2) + Math.Pow(startpt.Y - endpt.Y, 2));
+            //the slope of the known line
             double slope1 = (startpt.Y - endpt.Y) / (startpt.X - endpt.X);
-            // use the angle and slope of line 1 to calculate the slope if line 2
-            double slope2 = (slope1 / Math.Tan(angle) - 1) * (1 / Math.Tan(angle) - slope1);
+            /// use the angle and slope of line 1 to calculate the slope if line 2
+            double slope2 = (slope1 / Math.Tan(angle * Math.PI / 180) - 1) * (1 / Math.Tan(angle * Math.PI / 180) - slope1);
+
             /*
              * Y=mx+c is the equation of the line you have. (x1,y1) is the point and D is the distance. (x,y) is the point you don't know.
              * D= sqrt((x1-x)^2 +(y1-y)^2)
@@ -352,8 +326,9 @@ namespace TaiChiLearning
             double equa_a = 1 + slope2 * slope2;
             double equa_b = 2 * slope2 * ((c - startpt.Y) - 2 * startpt.X);
             double equa_c = startpt.X * startpt.X + Math.Pow(c - startpt.Y, 2) - length * length;
-            double x1 = (-equa_b + Math.Sqrt(equa_b - 4 * equa_a * equa_c)) / 2 / equa_a;
-            double x2 = (-equa_b - Math.Sqrt(equa_b - 4 * equa_a * equa_c)) / 2 / equa_a;
+            double x1 = (- equa_b + Math.Sqrt(equa_b * equa_b - 4 * equa_a * equa_c)) / 2 / equa_a;
+            double x2 = (- equa_b - Math.Sqrt(equa_b * equa_b - 4 * equa_a * equa_c)) / 2 / equa_a;
+
             /// when located in left
             if (PorN == -1)
             {
@@ -370,8 +345,8 @@ namespace TaiChiLearning
                 else
                     EndPoint.X = x2;
             }
-            EndPoint.Y = slope2 * EndPoint.X + c;
 
+            EndPoint.Y = slope2 * EndPoint.X + c ;
             return EndPoint;
         }
     }

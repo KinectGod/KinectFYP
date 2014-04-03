@@ -399,6 +399,7 @@
                     }
                 }
             }
+
             else return; // do nothing in playing back mode
         }
 

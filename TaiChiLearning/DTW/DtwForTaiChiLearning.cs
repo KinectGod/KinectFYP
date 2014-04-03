@@ -355,7 +355,7 @@ namespace TaiChiLearning.DTW
                 DtwRecordSelectedFrames(path);
             }
 
-                //return bestMatch;
+            //return bestMatch;
         }
 
         /// <summary>
@@ -366,7 +366,6 @@ namespace TaiChiLearning.DTW
         /// <returns>Euclidian distance between the two points</returns>
         private double Marker(double[] a, double[] b)
         {
-            
             double d = 0;
             for (int i = 0; i < _dimension; i++)
             {
@@ -389,7 +388,6 @@ namespace TaiChiLearning.DTW
         private double RealtimeMarker(Point[] a1, Point[] a2) 
         { 
             double score = 0.0;
-
             return score;
         }
 
