@@ -262,7 +262,8 @@ namespace TaiChiLearning.DTW
         /// <param name="seq1">The master array of sequences to compare</param>
         /// <param name="seq2">The learner array of sequences to compare</param>
         /// <returns>The best match</returns>
-        public void DtwCompution(ArrayList seq1, ArrayList seq2, string path)
+        /*
+        public void DtwComputation(ArrayList seq1, ArrayList seq2, string path)
         {
             // Init
             var seq1R = new ArrayList(seq1);
@@ -357,6 +358,7 @@ namespace TaiChiLearning.DTW
 
             //return bestMatch;
         }
+        */
 
         /// <summary>
         /// Computes a 2-distance between two observations. (aka Euclidian distance).
@@ -364,19 +366,22 @@ namespace TaiChiLearning.DTW
         /// <param name="a">Point a (double)</param>
         /// <param name="b">Point b (double)</param>
         /// <returns>Euclidian distance between the two points</returns>
-        private double Marker(double[] a, double[] b)
+        private double Marker(Point[] a, Point[] b)
         {
             double d = 0;
-            for (int i = 0; i < _dimension; i++)
+            //error checking
+            if (a.Length != b.Length) return -1;
+            //aggregate the angle differences
+            for (int i = 0; i < a.Length; i++)
             {
-                d += Math.Pow(a[i] - b[i], 2);
+                d += Math.Abs(a[i].X - b[i].X) + Math.Abs(a[i].Y - b[i].Y);
             }
             Math.Sqrt(d);
-            if (d > _globalThreshold)
-                return 1;
-            else
-                return 0;
-            //return Math.Sqrt(d);
+            //error checking
+            if (!double.IsNaN(d)) return -1;
+            //scale the score
+            d *= 100.0 / 720.0;
+            return d;
         }
 
         /// <summary>
