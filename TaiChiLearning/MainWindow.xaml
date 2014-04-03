@@ -279,13 +279,14 @@
                             <ComboBoxItem Content="@3rdMotion"/>
                             <ComboBoxItem Content="@4thMotion"/>
                         </ComboBox>
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="dtwCapture" Content="Record Motion" Click="DtwCaptureClick"/>
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="dtwStore" Content="Stop and Store" IsEnabled="False" Click="DtwStoreClick" />
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="dtwReplay" Content="Replay" Click="DtwReplayClick" IsEnabled="True" />
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="dtwStopReplay" Content="Stop Replay" Click="DtwStopReplayClick" IsEnabled="False"  />
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="dtwStartRegcon" Content="Start Learning" Click="DtwStartRecogn" IsEnabled="True"  />
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="dtwStopRegcon" Content="Stop Learning" Click="DtwStopRecogn" IsEnabled="False"  />
-
+                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcCapture" Content="Record Motion" Click="tcCaptureClick"/>
+                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcStore" Content="Stop and Store" IsEnabled="False" Click="tcStoreClick" />
+                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcReplay" Content="Replay" Click="tcReplayClick" IsEnabled="True" />
+                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcStopReplay" Content="Stop Replay" Click="tcStopReplayClick" IsEnabled="False"  />
+                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcStartLearning" Content="Start Learning" Click="StartRegcon" IsEnabled="True"  />
+                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcStopLearning" Content="Stop Learning" Click="tcStopLearningClick" IsEnabled="False"  />
+                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcPlayBack" Content="Playback Your Learning" IsEnabled="True" Click="tcPlayBack_Click"  />
+                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcStopPlayBack" Content="Stop Playback" IsEnabled="False"  />
                     </StackPanel>
 
                 </Grid>
@@ -340,6 +341,14 @@
             </Border>
 
             <Grid Grid.Column="2">
+                <Viewbox>
+                    <Image  Width="480" Height="360" x:Name="PlayBackImage" Margin="5,5,5,5" RenderTransformOrigin="0.475,0.5" Source="{Binding Bitmap}"/>
+                </Viewbox>
+                <Viewbox>
+                    <Canvas Width="480" Height="360" x:Name="PlayBackSkeletonCanvas" ClipToBounds="True" Margin="5,5,5,5" RenderTransformOrigin="0.489,0.555" >
+                        <Canvas Background="transparent" IsHitTestVisible="true"/>
+                    </Canvas>
+                </Viewbox>
             </Grid>
         </Grid>
 

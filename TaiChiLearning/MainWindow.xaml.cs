@@ -34,9 +34,11 @@
         /// </summary>
         readonly ColorStreamManager RealTimeColorManager = new ColorStreamManager();
         readonly ColorStreamManager ReplayColorManager = new ColorStreamManager();
+        readonly ColorStreamManager PlayBackColorManager = new ColorStreamManager();
         //SkeletonDrawManager LearningSkeleton;
         SkeletonDrawManager RealTimeSkeleton;
         SkeletonDrawManager ReplaySkeleton;
+        SkeletonDrawManager PlayBackSkeleton;
 
         /// <summary>
         /// The red index
@@ -95,7 +97,7 @@
         /// <summary>
         /// flag to show whether it is playing back or not
         /// </summary>
-        private static bool _playback = false;
+        private static bool _playingback = false;
 
         /// <summary>
         /// Flag to show whether or not the the system is in Learning Mode
@@ -144,6 +146,8 @@
 
         private KinectReplay _replay;
         private KinectReplay _colorreplay;
+        private KinectReplay _playback;
+        private KinectReplay _colorplayback;
 
         private string _temppath = ".\\";
 
@@ -243,6 +247,7 @@
 
             RealTimeSkeleton = new SkeletonDrawManager(RealTimeSkeletonCanvas, _nui);
             ReplaySkeleton = new SkeletonDrawManager(MasterSkeletonCanvas, _nui);
+            PlayBackSkeleton = new SkeletonDrawManager(PlayBackSkeletonCanvas, _nui);
             //LearningSkeleton = new SkeletonDrawManager(LearningSkeletonCanvas, _nui);
 
             _dtw = new DtwForTaiChiLearning(dimension * 2, 0.6, 2, 2, 10);
@@ -373,7 +378,7 @@
                 //DrawSkeleton(skeletons, LearnerSkeletonCanvas);
                 RealTimeSkeleton.DrawSkeleton(skeletons);
 
-                if (_learning && _training && _capturing || _playback)
+                if (_learning && _training && _capturing)
                 {
                     //RealTimeSkeleton.DrawSkeleton(skeletons);
                     var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
@@ -429,10 +434,13 @@
                     _colorrecorder.Record(image);
                 }
             }
-
-            
         }
 
+        /// <summary>
+        /// Handle the replay color iamge frame
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void replay_ColorImageFrameReady(object sender, ReplayColorImageFrameReadyEventArgs e)
         {
             // 32-bit per pixel, RGBA image
@@ -442,6 +450,25 @@
             ReplayColorManager.Update(image);
         }
 
+        /// <summary>
+        /// handle the play back color image frame
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void playback_ColorImageFrameReady(object sender, ReplayColorImageFrameReadyEventArgs e)
+        {
+            // 32-bit per pixel, RGBA image
+            var image = e.ColorImageFrame;
+
+            if (image == null) return; // sometimes frame image comes null, so skip it.
+            PlayBackColorManager.Update(image);
+        }
+
+        /// <summary>
+        /// handle the replay skeleton frame
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void replay_SkeletonFrameReady(object sender, ReplaySkeletonFrameReadyEventArgs e)
         {
             Skeleton[] skeletons;
@@ -475,11 +502,52 @@
             {
                 if (_learning)
                 {
-                    this.DtwStopRecogn(null, null);
+                    this.tcStopLearningClick(null, null);
                 }
                 else
                 {
-                    this.DtwStopReplayClick(null, null);
+                    this.tcStopReplayClick(null, null);
+                }
+            }
+        }
+
+        /// <summary>
+        /// handle the replay skeleton frame
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void playback_SkeletonFrameReady(object sender, ReplaySkeletonFrameReadyEventArgs e)
+        {
+            Skeleton[] skeletons;
+            var frame = e.SkeletonFrame;
+            if (frame == null) return;
+            skeletons = new Skeleton[frame.ArrayLength];
+            skeletons = frame.Skeletons;
+            Point[] temppt = new Point[dimension];
+
+            //DrawSkeleton(skeletons, MasterSkeletonCanvas);
+            PlayBackSkeleton.DrawSkeleton(skeletons);
+
+            /// get the joint angle data of master
+            /// then make comparison
+            var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+            int[] DetectionTemp = new int[dimension];
+            DetectionTemp = detection;
+
+            foreach (var data in skeletons)
+            {
+                temppt = Skeleton3DDataExtract.ProcessData(data);
+                if (temppt[4].X >= 0)
+                    _LearnerAngle = temppt;
+                if (_LearnerAngle != null)
+                {
+                    for (int i = 0; i < dimension; i++)
+                    {
+                        if (DetectionTemp[i] > 0)
+                        {
+                            RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], angles[i], i);
+                        }
+                    }
                 }
             }
         }
@@ -533,26 +601,6 @@
             Environment.Exit(0);
         }
 
-        /// <summary>
-        /// Starts a countdown timer to enable the player to get in position to record gestures
-        /// </summary>
-        /// <param name="sender">The sender object</param>
-        /// <param name="e">Routed Event Args</param>
-        private void DtwCaptureClick(object sender, RoutedEventArgs e)
-        {
-            _learning = false;
-            //dtwRead.IsEnabled = false;
-            //dtwCapture.IsEnabled = false;
-            dtwStore.IsEnabled = false;
-            dtwReplay.IsEnabled = false;
-            dtwStartRegcon.IsEnabled = false;
-            _captureCountdown = DateTime.Now.AddSeconds(CaptureCountdownSeconds);
-
-            _captureCountdownTimer = new System.Windows.Forms.Timer();
-            _captureCountdownTimer.Interval = 50;
-            _captureCountdownTimer.Start();
-            _captureCountdownTimer.Tick += CaptureCountdown;
-        }
 
         /// <summary>
         /// The method fired by the countdown timer. Either updates the countdown or fires the StartCapture method if the timer expires
@@ -574,7 +622,7 @@
                     if (_learning)
                     {
                         status.Text = "Recognizing motion";
-                        DtwStartRecogn();
+                        StartRegcon();
                         StartCapture();
                     }
                     else
@@ -584,37 +632,6 @@
                     }
                 }
             }
-        }
-
-        private void DtwStartRecogn()
-        {
-            _learning = true;
-            _capturing = true;
-
-            dtwCapture.IsEnabled = false;
-            dtwStartRegcon.IsEnabled = false;
-            dtwReplay.IsEnabled = false;
-            dtwStopRegcon.IsEnabled = true;
-            string path = ".\\Records\\" + gestureList.Text + "\\";
-            readLastFrame(path);
-
-            if (_recordskeletonstream != null)
-                _recordskeletonstream.Close();
-            _recordskeletonstream = File.OpenRead(@path + "skeleton");
-            _replay = new KinectReplay(_recordskeletonstream);
-            _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
-            _replay.Start(1000.0 / this.SelectedFPS);
-
-            if (_recordcolorstream != null)
-                _recordcolorstream.Close();
-            _recordcolorstream = File.OpenRead(@path + "colorStream");
-            _colorreplay = new KinectReplay(_recordcolorstream);
-            _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
-            _colorreplay.Start(1000.0 / this.SelectedFPS);
-
-            _captureCountdownTimer.Dispose();
-
-            status.Text = "Learning " + gestureList.Text;
         }
 
         /// <summary>
@@ -643,8 +660,8 @@
             {
                 // Set the buttons enabled state
                 //dtwRead.IsEnabled = false;
-                //dtwCapture.IsEnabled = false;
-                dtwStore.IsEnabled = true;
+                //tcCapture.IsEnabled = false;
+                tcStore.IsEnabled = true;
                 // Set the capturing? flag
                 status.Text = "Recording motion " + gestureList.Text;
                 if (_recordcolorstream != null)
@@ -658,20 +675,76 @@
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        private void StartRegcon()
+        {
+            _learning = true;
+            _capturing = true;
+
+            tcCapture.IsEnabled = false;
+            tcStartLearning.IsEnabled = false;
+            tcReplay.IsEnabled = false;
+            tcStopLearning.IsEnabled = true;
+            string path = ".\\Records\\" + gestureList.Text + "\\";
+            readLastFrame(path);
+
+            if (_recordskeletonstream != null)
+                _recordskeletonstream.Close();
+            _recordskeletonstream = File.OpenRead(@path + "skeleton");
+            _replay = new KinectReplay(_recordskeletonstream);
+            _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
+            _replay.Start(1000.0 / this.SelectedFPS);
+
+            if (_recordcolorstream != null)
+                _recordcolorstream.Close();
+            _recordcolorstream = File.OpenRead(@path + "colorStream");
+            _colorreplay = new KinectReplay(_recordcolorstream);
+            _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
+            _colorreplay.Start(1000.0 / this.SelectedFPS);
+
+            _captureCountdownTimer.Dispose();
+
+            status.Text = "Learning " + gestureList.Text;
+        }
+        
+
+
+        /// <summary>
+        /// Starts a countdown timer to enable the player to get in position to record gestures
+        /// </summary>
+        /// <param name="sender">The sender object</param>
+        /// <param name="e">Routed Event Args</param>
+        private void tcCaptureClick(object sender, RoutedEventArgs e)
+        {
+            _learning = false;
+            //dtwRead.IsEnabled = false;
+            //tcCapture.IsEnabled = false;
+            tcStore.IsEnabled = false;
+            tcReplay.IsEnabled = false;
+            tcStartLearning.IsEnabled = false;
+            _captureCountdown = DateTime.Now.AddSeconds(CaptureCountdownSeconds);
+
+            _captureCountdownTimer = new System.Windows.Forms.Timer();
+            _captureCountdownTimer.Interval = 50;
+            _captureCountdownTimer.Start();
+            _captureCountdownTimer.Tick += CaptureCountdown;
+        }
 
         /// <summary>
         /// Stores our gesture to the DTW sequences list
         /// </summary>
         /// <param name="sender">The sender object</param>
         /// <param name="e">Routed Event Args</param>
-        private void DtwStoreClick(object sender, RoutedEventArgs e)
+        private void tcStoreClick(object sender, RoutedEventArgs e)
         {
             // Set the buttons enabled state
             //dtwRead.IsEnabled = false;
-            //dtwCapture.IsEnabled = true;
-            dtwStore.IsEnabled = false;
-            dtwReplay.IsEnabled = true;
-            dtwStartRegcon.IsEnabled = true;
+            //tcCapture.IsEnabled = true;
+            tcStore.IsEnabled = false;
+            tcReplay.IsEnabled = true;
+            tcStartLearning.IsEnabled = true;
             // Set the capturing? flag
             _learning = false;
             _capturing = false;
@@ -700,8 +773,8 @@
                 if (_recordskeletonstream != null)
                     _recordskeletonstream.Close();
 
-                if (File.Exists(@path + "skeleton")) while (FileDelete(@path + "skeleton"));
-                if (File.Exists(@path + "colorStream")) while (FileDelete(@path + "colorStream"));
+                if (File.Exists(@path + "skeleton")) while (FileDelete(@path + "skeleton")) ;
+                if (File.Exists(@path + "colorStream")) while (FileDelete(@path + "colorStream")) ;
                 if (File.Exists(@path + "frame_number")) while (FileDelete(@path + "frame_number")) ;
 
                 File.Move(@_temppath + "skeleton", @path + "skeleton");
@@ -732,12 +805,12 @@
         }
 
         //Replay the saved skeleton
-        private void DtwReplayClick (object sender, RoutedEventArgs e) 
+        private void tcReplayClick (object sender, RoutedEventArgs e) 
         {
             _learning = false;
-            dtwCapture.IsEnabled = false;
-            dtwStartRegcon.IsEnabled = false;
-            dtwReplay.IsEnabled = false;
+            tcCapture.IsEnabled = false;
+            tcStartLearning.IsEnabled = false;
+            tcReplay.IsEnabled = false;
             status.Text = "Replaying master motion " + gestureList.Text;
             string path = ".\\Records\\" + gestureList.Text + "\\";
             readLastFrame(path);
@@ -757,16 +830,16 @@
             _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
             _colorreplay.Start(1000.0/this.SelectedFPS);
 
-            dtwStopReplay.IsEnabled = true;
+            tcStopReplay.IsEnabled = true;
         }
 
-        private void DtwStopReplayClick(object sender, RoutedEventArgs e)
+        private void tcStopReplayClick(object sender, RoutedEventArgs e)
         {
             status.Text = "Stopped replay";
-            dtwCapture.IsEnabled = true;
-            dtwStopReplay.IsEnabled = false;
-            dtwStartRegcon.IsEnabled = true;
-            dtwReplay.IsEnabled = true;
+            tcCapture.IsEnabled = true;
+            tcStopReplay.IsEnabled = false;
+            tcStartLearning.IsEnabled = true;
+            tcReplay.IsEnabled = true;
             _replay.Stop();
             _colorreplay.Stop();
 
@@ -774,7 +847,7 @@
             //ReplayImage.Source = null;
         }
 
-        private void DtwStartRecogn(object sender, RoutedEventArgs e)
+        private void tcStartRegconClick(object sender, RoutedEventArgs e)
         {
             _learning = true;
             _capturing = false;
@@ -785,15 +858,20 @@
             _captureCountdownTimer.Start();
             _captureCountdownTimer.Tick += CaptureCountdown;
         }
-
-        private void DtwStopRecogn(object sender, RoutedEventArgs e)
+        
+        /// <summary>
+        /// Event handler for the stop learning click
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void tcStopLearningClick(object sender, RoutedEventArgs e)
         {
             status.Text = "Stopped learning";
-            dtwCapture.IsEnabled = true;
-            dtwStopReplay.IsEnabled = false;
-            dtwStartRegcon.IsEnabled = true;
-            dtwStopRegcon.IsEnabled = false;
-            dtwReplay.IsEnabled = true;
+            tcCapture.IsEnabled = true;
+            tcStopReplay.IsEnabled = false;
+            tcStartLearning.IsEnabled = true;
+            tcStopLearning.IsEnabled = false;
+            tcReplay.IsEnabled = true;
             _learning = false;
             _capturing = false;
             _replay.Stop();
@@ -802,14 +880,12 @@
             RealTimeSkeletonCanvas.Children.Clear();
             _recorder = null;
             _colorrecorder = null;
-
             
             const string message = "Are you satisfied with your performance this time, save or not?";
             const string caption = "Confirmation";
             var result = System.Windows.Forms.MessageBox.Show(message, caption,
                                          MessageBoxButtons.YesNo,
                                          MessageBoxIcon.Question);
-
             // If the no button was pressed ... 
             if (result == System.Windows.Forms.DialogResult.Yes)
             {
@@ -837,6 +913,57 @@
                 _learnerskeletonstream.Close();
                 _learnercolorstream.Close();
             }
+        }
+
+        private void tcPlayBack_Click(object sender, RoutedEventArgs e)
+        {
+            _learning = false;
+            _capturing = false;
+            _playingback = true;
+
+            tcCapture.IsEnabled = false;
+            tcStartLearning.IsEnabled = false;
+            tcReplay.IsEnabled = false;
+            tcStopLearning.IsEnabled = false;
+            tcStopPlayBack.IsEnabled = true;
+
+            string path = ".\\Records\\" + gestureList.Text + "\\";
+            readLastFrame(path);
+
+            if (_recordskeletonstream != null)
+                _recordskeletonstream.Close();
+            _recordskeletonstream = File.OpenRead(@path + "skeleton");
+            _replay = new KinectReplay(_recordskeletonstream);
+            _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
+            _replay.Start(1000.0 / this.SelectedFPS);
+
+            if (_recordcolorstream != null)
+                _recordcolorstream.Close();
+            _recordcolorstream = File.OpenRead(@path + "colorStream");
+            _colorreplay = new KinectReplay(_recordcolorstream);
+            _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
+            _colorreplay.Start(1000.0 / this.SelectedFPS);
+
+            string path2 = ".\\Learnings\\" + gestureList.Text + "\\";
+            readLastFrame(path);
+
+            if (_learnerskeletonstream != null)
+                _learnerskeletonstream.Close();
+            _learnerskeletonstream = File.OpenRead(@path2 + "skeleton");
+            _playback = new KinectReplay(_learnerskeletonstream);
+            _playback.SkeletonFrameReady += playback_SkeletonFrameReady;
+            _playback.Start(1000.0 / this.SelectedFPS);
+
+            if (_learnercolorstream != null)
+                _learnercolorstream.Close();
+            _learnercolorstream = File.OpenRead(@path2 + "colorStream");
+            _colorplayback = new KinectReplay(_learnercolorstream);
+            _colorplayback.ColorImageFrameReady += playback_ColorImageFrameReady;
+            _colorplayback.Start(1000.0 / this.SelectedFPS);
+
+            _captureCountdownTimer.Dispose();
+
+            status.Text = "Playing back " + gestureList.Text;
         }
 
         private void CreateSpeechRecognizer()
@@ -937,22 +1064,22 @@
             switch (e.Result.Text.ToUpperInvariant())
             {
                 case "RECORD":
-                    DtwCaptureClick();
+                    tcCaptureClick();
                     status2.Text = "Record.";
                     recognized_text = "record in five second";
                     break;
                 case "STORE":
-                    DtwStoreClick();
+                    tcStoreClick();
                     status2.Text = "Store.";
                     recognized_text = "Store";
                     break;
                 case "REPLAY":
-                    DtwReplayClick();
+                    tcReplayClick();
                     status2.Text = "Replay.";
                     recognized_text = "Replay";
                     break;
                 case "STOP":
-                    DtwStopReplayClick();
+                    tcStopReplayClick();
                     status2.Text = "Stop.";
                     recognized_text = "Stop replay";
                     break;
@@ -962,7 +1089,7 @@
                     recognized_text = "Start learning in five second";
                     break;
                 case "FINISH":
-                    DtwStopRecogn();
+                    tcStopRegconClick();
                     status2.Text = "finish.";
                     recognized_text = "Start learning in five second";
                     break;
@@ -1071,6 +1198,5 @@
                 return true;
             }
         }
-
     }
 }
