@@ -310,7 +310,7 @@
                     </StackPanel>
                     
                     <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="10 10 10 10">
-                        <CheckBox Grid.Column="1" Style="{StaticResource KinectCheckBox}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10 0 10 0" Name="SpeechRecogn" Content="Speech Recognize" AutomationProperties.AutomationId="NearMode" Checked="SpeechRecogn_Checked" Unchecked="SpeechRecogn_Unchecked"/>
+                        <CheckBox Grid.Column="1" Style="{StaticResource KinectCheckBox}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10 0 10 0" Name="SpeechRecogn" Content="Speech Recognize" AutomationProperties.AutomationId="NearMode"  Checked="SpeechRecogn_Checked" Unchecked="SpeechRecogn_Unchecked"/>
                         <TextBlock Style="{StaticResource KinectTextFormat}" Foreground="{StaticResource KinectPurpleBrush}" Margin="10 10 5 0" HorizontalAlignment="Left">Choose Mode</TextBlock>
 
                         <StackPanel Orientation="Horizontal" Margin="0 -3 0 0">
@@ -341,14 +341,8 @@
             </Border>
 
             <Grid Grid.Column="2">
-                <Viewbox>
-                    <Image  Width="480" Height="360" x:Name="PlayBackImage" Margin="5,5,5,5" RenderTransformOrigin="0.475,0.5" Source="{Binding Bitmap}"/>
-                </Viewbox>
-                <Viewbox>
-                    <Canvas Width="480" Height="360" x:Name="PlayBackSkeletonCanvas" ClipToBounds="True" Margin="5,5,5,5" RenderTransformOrigin="0.489,0.555" >
-                        <Canvas Background="transparent" IsHitTestVisible="true"/>
-                    </Canvas>
-                </Viewbox>
+                <TextBlock Style="{StaticResource KinectTextFormat}" x:Name="txtDTW" Foreground="{StaticResource KinectPurpleBrush}" Margin="0 0 5 0" />
+                <TextBlock Style="{StaticResource KinectTextFormat}" x:Name="txtDTWmark" Foreground="{StaticResource KinectPurpleBrush}" Margin="0 0 5 0" Text="{Binding DTWresult}"/>
             </Grid>
         </Grid>
 

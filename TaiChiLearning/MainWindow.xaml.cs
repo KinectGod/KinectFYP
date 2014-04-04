@@ -83,6 +83,16 @@
         private static bool _training = true;
 
         /// <summary>
+        /// Flag to show whether the mode is replaying
+        /// </summary>
+        private static bool _replaying = false;
+
+        /// <summary>
+        /// speech recognition mode
+        /// </summary>
+        private static bool _speechrecognition = false;
+
+        /// <summary>
         /// flag to show whether it is playing back or not
         /// </summary>
         private static bool _playingback = false;
@@ -120,8 +130,8 @@
         /// <summary>
         /// ArrayList of master's and learner motion
         /// </summary>
-        private ArrayList _masterseq;
-        private ArrayList _learnerseq;
+        private ArrayList _masterseq = new ArrayList();
+        private ArrayList _learnerseq = new ArrayList();
 
         // Kinect recorder
         private static KinectRecorder _recorder;
@@ -388,6 +398,7 @@
                                     }
                                 }
                             }
+                            _learnerseq.Add(temppt);
                         }
                     }
 
@@ -487,6 +498,7 @@
                         angles = MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension, threshold, detection);
                     }
                 }
+                _masterseq.Add(temppt);
             }
 
             if (_finalframeno <= frame.FrameNumber)
@@ -802,6 +814,7 @@
         //Replay the saved skeleton
         private void tcReplayClick (object sender, RoutedEventArgs e) 
         {
+            _replaying = true;
             _learning = false;
             tcCapture.IsEnabled = false;
             tcStartLearning.IsEnabled = false;
@@ -830,6 +843,7 @@
 
         private void tcStopReplayClick(object sender, RoutedEventArgs e)
         {
+            _replaying = false;
             status.Text = "Stopped replay";
             tcCapture.IsEnabled = true;
             tcStopReplay.IsEnabled = false;
@@ -990,7 +1004,7 @@
             _colorplayback.Stop();
 
             MasterSkeletonCanvas.Children.Clear();
-            PlayBackSkeletonCanvas.Children.Clear();
+            RealTimeSkeletonCanvas.Children.Clear();
         }
 
         private void CreateSpeechRecognizer()
@@ -1002,16 +1016,32 @@
             {
                 //SpeechRecognitionEngine speechRecognizer;
                 speechRecognizer = new SpeechRecognitionEngine(ri.Id);
-                
+                                
                 //Now we need to add the words we want our program to recognise
-                var grammar = new Choices("Kinect");
+                //  Create lists of alternative choices.
+                Choices speechaction = new Choices(new string[] { "RECORD", "STORE RECORD", "REPLAY", "STOP REPLAY", "LEARN", "FINISH", "PLAYBACK", "STOP PLAYBACK"  });
+
+                // Create a GrammarBuilder object and assemble the grammar components.
+                GrammarBuilder actionMenu = new GrammarBuilder("KINECT");
+                actionMenu.Append(speechaction);
+                //actionMenu.Append("KINECT");
+
+
+                // Build a Grammar object from the GrammarBuilder.
+                Grammar grammar = new Grammar(actionMenu);
+                speechRecognizer.LoadGrammar(grammar);
+
+
+                
+                /*
+                var grammar = new Choices("hello kinect");
                 grammar.Add(new SemanticResultValue("Record", "RECORD"));
                 grammar.Add(new SemanticResultValue("Store", "STORE"));
                 grammar.Add(new SemanticResultValue("Replay", "REPLAY"));
                 grammar.Add(new SemanticResultValue("Stop", "STOP"));
                 grammar.Add(new SemanticResultValue("Learn", "LEARN"));
                 grammar.Add(new SemanticResultValue("Finish", "FINISH"));
-                /*
+                
                  * var directions = new Choices();
                 * directions.Add(new SemanticResultValue("forward", "FORWARD"));
                 * directions.Add(new SemanticResultValue("forwards", "FORWARD"));
@@ -1025,7 +1055,7 @@
 
 
 
-
+                /*
                 //set culture - language, country/region
                 var gb = new GrammarBuilder { Culture = ri.Culture };
                 gb.Append(grammar);
@@ -1033,7 +1063,7 @@
                 //set up the grammar builder
                 var g = new Grammar(gb);
                 speechRecognizer.LoadGrammar(g);
-
+                */
                 //Set events for recognizing, hypothesising and rejecting speech
                 speechRecognizer.SpeechRecognized += SreSpeechRecognized;
                 speechRecognizer.SpeechHypothesized += SreSpeechHypothesized;
@@ -1061,70 +1091,82 @@
         //if speech is rejected
         private void RejectSpeech(RecognitionResult result)
         {
+            if (_speechrecognition)
             status.Text = "Speech is rejected!";
         }
 
         private void SreSpeechRecognitionRejected(object sender, SpeechRecognitionRejectedEventArgs e)
         {
+            if (_speechrecognition)
             RejectSpeech(e.Result);
         }
 
         //hypothesized result
         private void SreSpeechHypothesized(object sender, SpeechHypothesizedEventArgs e)
         {
+            if (_speechrecognition)
             status.Text = "Hypothesized: " + e.Result.Text + " " + e.Result.Confidence;
         }
 
         //Speech is recognised
         private void SreSpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
-            //Very important! - change this value to adjust accuracy - the higher the value
-            //the more accurate it will have to be, lower it if it is not recognizing you
-            if (e.Result.Confidence < 0.7f)
+            if (_speechrecognition)
             {
-                RejectSpeech(e.Result);
+                //Very important! - change this value to adjust accuracy - the higher the value
+                //the more accurate it will have to be, lower it if it is not recognizing you
+                if (e.Result.Confidence < 0.5)
+                {
+                    RejectSpeech(e.Result);
+                }
+                string recognized_text = null;
+                //and finally, here we set what we want to happen when 
+                //the SRE recognizes a word
+                
+                switch (e.Result.Text.ToUpperInvariant())
+                {
+                    case "KINECT RECORD":
+                        if(!_replaying && !_learning && _playingback)
+                        this.tcCaptureClick(null, null);
+                        //status2.Text = "Record.";
+                        recognized_text = "record in five second";
+                        break;
+                    case "STORE":
+                        if(_capturing)
+                        this.tcStoreClick(null, null);
+                        //status2.Text = "Store.";
+                        recognized_text = "Store";
+                        break;
+                    case "KINECT REPLAY":
+                        if (!_capturing && !_learning && _playingback)
+                        this.tcReplayClick(null, null);
+                        //status2.Text = "Replay.";
+                        recognized_text = "Replay";
+                        break;
+                    case "STOP":
+                        if(_replaying)
+                        this.tcStopReplayClick(null, null);
+                        //status2.Text = "Stop.";
+                        recognized_text = "Stop replay";
+                        break;
+                    case "LEARN":
+                        if (!_replaying && !_capturing && _playingback)
+                        this.tcStartLearningClick(null, null);
+                        //status2.Text = "Learn.";
+                        recognized_text = "Start learning in five second";
+                        break;
+                    case "FINISH":
+                        if(_learning)
+                        this.tcStopLearningClick(null, null);
+                        //status2.Text = "finish.";
+                        recognized_text = "Start learning in five second";
+                        break;
+                    default:
+                        break;
+                }
+                
+                //synthesizer.Speak(recognized_text);
             }
-            string recognized_text = null;
-            //and finally, here we set what we want to happen when 
-            //the SRE recognizes a word
-            /*
-            switch (e.Result.Text.ToUpperInvariant())
-            {
-                case "RECORD":
-                    tcCaptureClick();
-                    status2.Text = "Record.";
-                    recognized_text = "record in five second";
-                    break;
-                case "STORE":
-                    tcStoreClick();
-                    status2.Text = "Store.";
-                    recognized_text = "Store";
-                    break;
-                case "REPLAY":
-                    tcReplayClick();
-                    status2.Text = "Replay.";
-                    recognized_text = "Replay";
-                    break;
-                case "STOP":
-                    tcStopReplayClick();
-                    status2.Text = "Stop.";
-                    recognized_text = "Stop replay";
-                    break;
-                case "LEARN":
-                    DtwStartRecognClick();
-                    status2.Text = "Learn.";
-                    recognized_text = "Start learning in five second";
-                    break;
-                case "FINISH":
-                    tcStopRegconClick();
-                    status2.Text = "finish.";
-                    recognized_text = "Start learning in five second";
-                    break;
-                default:
-                    break;
-            }
-            */
-            //synthesizer.Speak(recognized_text);
         }
 
         private void traning_Checked(object sender, RoutedEventArgs e)
@@ -1139,12 +1181,12 @@
 
         private void SpeechRecogn_Checked(object sender, RoutedEventArgs e)
         {
-            CreateSpeechRecognizer();
+            _speechrecognition = true;
         }
 
         private void SpeechRecogn_Unchecked(object sender, RoutedEventArgs e)
         {
-            speechRecognizer.RecognizeAsyncStop();
+            _speechrecognition = false;
         }
 
         private void easy_Checked(object sender, RoutedEventArgs e)

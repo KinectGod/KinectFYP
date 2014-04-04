@@ -278,8 +278,7 @@ namespace TaiChiLearning
             Point endpt = GetDisplayPosition(joint2);
             if (StartPoint.X == endpt.X && StartPoint.Y == endpt.Y) return;
             Point EndPoint = getCorrectCoord(StartPoint, endpt, angle, PorN);
-            if (Double.IsNaN(EndPoint.X) || Double.IsNaN(EndPoint.Y)) return;
-            DrawLine(StartPoint, EndPoint, brush);
+            if (EndPoint.X <= rootCanvas.Width && EndPoint.Y <= rootCanvas.Height) DrawLine(StartPoint, EndPoint, brush);
         }
 
 
@@ -308,8 +307,8 @@ namespace TaiChiLearning
         /// <returns></returns>
         private Point getCorrectCoord(Point startpt, Point endpt, double angle, int PorN)
         {
-            Point EndPoint = new Point();
-            double length = 10;//Math.Sqrt(Math.Pow(startpt.X - endpt.X, 2) + Math.Pow(startpt.Y - endpt.Y, 2));
+            Point EndPoint = new Point(double.MaxValue, double.MaxValue);
+            double length = Math.Sqrt(Math.Pow(startpt.X - endpt.X, 2) + Math.Pow(startpt.Y - endpt.Y, 2));
             //the slope of the known line
             double slope1 = (startpt.Y - endpt.Y) / (startpt.X - endpt.X);
             /// use the angle and slope of line 1 to calculate the slope if line 2
@@ -330,23 +329,24 @@ namespace TaiChiLearning
             double x2 = (- equa_b - Math.Sqrt(equa_b * equa_b - 4 * equa_a * equa_c)) / 2 / equa_a;
 
             /// when located in left
-            if (PorN == -1)
+            if (PorN == -1 && equa_a > 0 || PorN == 1 && equa_a < 0)
             {
                 if (x1 <= startpt.X)
                     EndPoint.X = x1;
                 else
                     EndPoint.X = x2;
+                EndPoint.Y = slope2 * EndPoint.X + c;
             }
             //when located in right
-            else
+            else if (PorN == -1 && equa_a < 0 || PorN == 1 && equa_a >0)
             {
                 if (x1 >= startpt.X)
                     EndPoint.X = x1;
                 else
                     EndPoint.X = x2;
+                EndPoint.Y = slope2 * EndPoint.X + c;
             }
-
-            EndPoint.Y = slope2 * EndPoint.X + c ;
+            
             return EndPoint;
         }
     }
