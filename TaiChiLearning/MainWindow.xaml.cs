@@ -19,7 +19,7 @@
     using Microsoft.Speech.Recognition;
     using System.ComponentModel;
     using Microsoft.Speech.Synthesis;
-
+    using System.Globalization;
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -1014,6 +1014,9 @@
             //create instance of SRE
             if (null != ri)
             {
+                Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US"); 
+                Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
+
                 //SpeechRecognitionEngine speechRecognizer;
                 speechRecognizer = new SpeechRecognitionEngine(ri.Id);
                                 
@@ -1023,12 +1026,14 @@
 
                 // Create a GrammarBuilder object and assemble the grammar components.
                 GrammarBuilder actionMenu = new GrammarBuilder("KINECT");
+                //actionMenu.Append("KINECT");
                 actionMenu.Append(speechaction);
                 //actionMenu.Append("KINECT");
 
 
                 // Build a Grammar object from the GrammarBuilder.
                 Grammar grammar = new Grammar(actionMenu);
+                grammar.Name = "button";
                 speechRecognizer.LoadGrammar(grammar);
 
 
@@ -1126,12 +1131,12 @@
                 switch (e.Result.Text.ToUpperInvariant())
                 {
                     case "KINECT RECORD":
-                        if(!_replaying && !_learning && _playingback)
+                        //if(!_replaying && !_learning && _playingback)
                         this.tcCaptureClick(null, null);
                         //status2.Text = "Record.";
                         recognized_text = "record in five second";
                         break;
-                    case "STORE":
+                    case "KINECT STORE RECORD":
                         if(_capturing)
                         this.tcStoreClick(null, null);
                         //status2.Text = "Store.";
@@ -1143,19 +1148,19 @@
                         //status2.Text = "Replay.";
                         recognized_text = "Replay";
                         break;
-                    case "STOP":
+                    case "KINECT STOP REPLAY":
                         if(_replaying)
                         this.tcStopReplayClick(null, null);
                         //status2.Text = "Stop.";
                         recognized_text = "Stop replay";
                         break;
-                    case "LEARN":
-                        if (!_replaying && !_capturing && _playingback)
+                    case "KINECT LEARN":
+                        //if (!_replaying && !_capturing && _playingback)
                         this.tcStartLearningClick(null, null);
                         //status2.Text = "Learn.";
                         recognized_text = "Start learning in five second";
                         break;
-                    case "FINISH":
+                    case "KINECT FINISH":
                         if(_learning)
                         this.tcStopLearningClick(null, null);
                         //status2.Text = "finish.";
