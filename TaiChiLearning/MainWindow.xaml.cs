@@ -288,6 +288,8 @@
             CreateSpeechRecognizer();
             //text tp speech
             synthesizer = new SpeechSynthesizer();
+            // Configure the audio output. 
+            synthesizer.SetOutputToDefaultAudioDevice();
             synthesizer.Volume = 100;//聲音大小(0 ~ 100)      
             synthesizer.Rate = -2;//聲音速度(-10 ~ 10)
 
@@ -1024,22 +1026,29 @@
             //create instance of SRE
             if (null != ri)
             {
-                Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US"); 
-                Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
+                //Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US"); 
+                //Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
 
-                //SpeechRecognitionEngine speechRecognizer;
+               //SpeechRecognitionEngine speechRecognizer;
                 speechRecognizer = new SpeechRecognitionEngine(ri.Id);
-                /*
-                var grammar = new Choices();
-                Choices speechaction = new Choices(new string[] { "RECORD", "STORE RECORD", "REPLAY", "STOP REPLAY", "LEARN", "FINISH", "PLAYBACK", "STOP PLAYBACK" });
-                grammar.Add("KINECT");
-                var gb = new GrammarBuilder();
-                gb.Culture = ri.Culture;
-                gb.Append(grammar);
-                gb.Append(speechaction);
-                var g = new Grammar(gb);
-                speechRecognizer.LoadGrammar(g);
-                 * /
+                                
+                //Now we need to add the words we want our program to recognise
+                //  Create lists of alternative choices.
+                Choices speechaction = new Choices(new string[] { "RECORD", "STORE RECORD", "REPLAY", "STOP REPLAY", "LEARN", "FINISH", "PLAYBACK", "STOP PLAYBACK"  });
+
+                // Create a GrammarBuilder object and assemble the grammar components.
+                GrammarBuilder actionMenu = new GrammarBuilder("KINECT");
+                //actionMenu.Append("KINECT");
+                actionMenu.Append(speechaction);
+                //actionMenu.Append("KINECT");
+                actionMenu.Culture = ri.Culture;
+
+                // Build a Grammar object from the GrammarBuilder.
+                Grammar grammar = new Grammar(actionMenu);
+                grammar.Name = "button";
+                speechRecognizer.LoadGrammar(grammar);
+
+                 
 /*
                 //Now we need to add the words we want our program to recognise
                 //  Create lists of alternative choices.
@@ -1060,7 +1069,7 @@
 */
                 //var grammar_start = new Choices();
                 //grammar_start.Add("Kinect");
-
+                /*
                 var grammar = new Choices();
                 grammar.Add(new SemanticResultValue("Record", "RECORD"));
                 grammar.Add(new SemanticResultValue("Store", "STORE"));
@@ -1068,6 +1077,7 @@
                 grammar.Add(new SemanticResultValue("Stop", "STOP"));
                 grammar.Add(new SemanticResultValue("Learn", "LEARN"));
                 grammar.Add(new SemanticResultValue("Finish", "FINISH"));
+                 * */
                 /*
                  * var directions = new Choices();
                 * directions.Add(new SemanticResultValue("forward", "FORWARD"));
@@ -1084,13 +1094,13 @@
 
                 
                 //set culture - language, country/region
-                var gb = new GrammarBuilder { Culture = ri.Culture };
-                gb.Append(grammar);
+               // var gb = new GrammarBuilder { Culture = ri.Culture };
+                //gb.Append(grammar);
                 //gb.Append(grammar_start);
 
                 //set up the grammar builder
-                var g = new Grammar(gb);
-                speechRecognizer.LoadGrammar(g);
+                //var g = new Grammar(gb);
+                //speechRecognizer.LoadGrammar(g);
                 
                 //Set events for recognizing, hypothesising and rejecting speech
                 //speechRecognizer.SpeechRecognized += SreSpeechStartRecogn;
@@ -1137,11 +1147,13 @@
             status.Text = "Hypothesized: " + e.Result.Text + " " + e.Result.Confidence;
         }
 
+        /*
         private void SreSpeechStartRecogn(object sender, SpeechRecognizedEventArgs e)
         {
             if (e.Result.Text.ToUpperInvariant() == "KINECT") 
             _startspeech = true;
         }
+         */
 
         //Speech is recognised
         private void SreSpeechRecognized(object sender, SpeechRecognizedEventArgs e)
@@ -1164,7 +1176,7 @@
                         //if(!_replaying && !_learning && _playingback)
                         this.tcCaptureClick(null, null);
                         //status2.Text = "Record.";
-                        recognized_text = "record in five second";
+                        recognized_text = "RECOD IN FIVE SECONDS";
                         break;
                     case "KINECT STORE RECORD":
                         if(_capturing)
@@ -1172,7 +1184,7 @@
                         //status2.Text = "Store.";
                         recognized_text = "Store";
                         break;
-                    case "REPLAY":
+                    case "KINECT REPLAY":
                         if (!_capturing && !_learning && !_playingback)
                         this.tcReplayClick(null, null);
                         //status2.Text = "Replay.";
@@ -1196,13 +1208,13 @@
                         //status2.Text = "finish.";
                         recognized_text = "Start learning in five second";
                         break;
-                    case "PLAYBACK":
+                    case "KINECT PLAYBACK":
                         if (_learning)
                             this.tcStopLearningClick(null, null);
                         //status2.Text = "finish.";
                         recognized_text = "Playing back " + gestureList.Text;
                         break;
-                    case "STOP PLAYBACK":
+                    case "KINECT STOP PLAYBACK":
                         if (_learning)
                             this.tcStopLearningClick(null, null);
                         //status2.Text = "finish.";
@@ -1211,8 +1223,14 @@
                     default:
                         break;
                 }
-                _startspeech = false;
-                //synthesizer.Speak(recognized_text);
+                //_startspeech = false;
+                //try
+                {
+                    synthesizer.Speak(recognized_text);
+
+                }
+                //catch { }
+
             }
         }
 
