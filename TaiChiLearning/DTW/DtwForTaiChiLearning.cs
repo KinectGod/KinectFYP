@@ -262,7 +262,7 @@ namespace TaiChiLearning.DTW
         /// <param name="seq1">The master array of sequences to compare</param>
         /// <param name="seq2">The learner array of sequences to compare</param>
         /// <returns>The best match</returns>
-        public void DtwCompution(ArrayList seq1, ArrayList seq2, string path)
+        public double DtwCompution(ArrayList seq1, ArrayList seq2, string path)
         {
             // Init
             var seq1R = new ArrayList(seq1);
@@ -284,7 +284,7 @@ namespace TaiChiLearning.DTW
             }
 
             tab[0, 0] = 0;
-
+            
             // Dynamic computation of the DTW matrix.
             for (int i = 1; i < seq1R.Count + 1; i++)
             {
@@ -293,26 +293,26 @@ namespace TaiChiLearning.DTW
                     if (tab[i, j - 1] < tab[i - 1, j - 1] && tab[i, j - 1] < tab[i - 1, j] && //case1: tab[i,j-1] (left) have passed the shortest path so far
                         slopeI[i, j - 1] < _maxSlope)
                     {
-                        tab[i, j] = Marker((double[])seq1R[i - 1], (double[])seq2R[j - 1]) + tab[i, j - 1];
+                        tab[i, j] = Marker((Point[])seq1R[i - 1], (Point[])seq2R[j - 1]) + tab[i, j - 1];
                         slopeI[i, j] = slopeI[i, j - 1] + 1;
                         slopeJ[i, j] = 0;
                     }
                     else if (tab[i - 1, j] < tab[i - 1, j - 1] && tab[i - 1, j] < tab[i, j - 1] && //case2: tab[i-1,j] (top) have passed the shortest path so far
                              slopeJ[i - 1, j] < _maxSlope)
                     {
-                        tab[i, j] = Marker((double[])seq1R[i - 1], (double[])seq2R[j - 1]) + tab[i - 1, j];
+                        tab[i, j] = Marker((Point[])seq1R[i - 1], (Point[])seq2R[j - 1]) + tab[i - 1, j];
                         slopeI[i, j] = 0;
                         slopeJ[i, j] = slopeJ[i - 1, j] + 1;
                     }
                     else //case3: tab[i-1,j-1] (top left) have passed the shortest path so far
                     {
-                        tab[i, j] = Marker((double[])seq1R[i - 1], (double[])seq2R[j - 1]) + tab[i - 1, j - 1];
+                        tab[i, j] = Marker((Point[])seq1R[i - 1], (Point[])seq2R[j - 1]) + tab[i - 1, j - 1];
                         slopeI[i, j] = 0;
                         slopeJ[i, j] = 0;
                     }
                 }
             }
-
+            
             // Find best between seq2 and an ending (postfix) of seq1.
             double bestMatch = double.PositiveInfinity;
             int bestMatchI = 0;
@@ -355,7 +355,7 @@ namespace TaiChiLearning.DTW
                 DtwRecordSelectedFrames(path);
             }
 
-            //return bestMatch;
+            return bestMatch / seq1R.Count;
         }
 
         /// <summary>
@@ -364,21 +364,46 @@ namespace TaiChiLearning.DTW
         /// <param name="a">Point a (double)</param>
         /// <param name="b">Point b (double)</param>
         /// <returns>Euclidian distance between the two points</returns>
-        private double Marker(double[] a, double[] b)
-        {
-            double d = 0;
-            for (int i = 0; i < _dimension; i++)
-            {
-                d += Math.Pow(a[i] - b[i], 2);
-            }
-            Math.Sqrt(d);
-            if (d > _globalThreshold)
-                return 1;
-            else
-                return 0;
-            //return Math.Sqrt(d);
-        }
 
+        private double Marker(Point[] a, Point[] b)
+        {
+
+            double d = 0.0;
+            double d2 = 0.0;
+            double mark = 0;
+            for (int i = 0; i < _dimension; i++)
+                //error checking
+                if (a.Length != b.Length) return -1;
+            //aggregate the angle differences
+            for (int i = 0; i < a.Length; i++)
+            {
+                d += Math.Abs(a[i].X - b[i].X); 
+                d2 += Math.Abs(a[i].Y - b[i].Y);
+            }
+            d = Math.Sqrt(d);
+            d2 = Math.Sqrt(d2);
+            //error checking
+            if (!double.IsNaN(d) || !double.IsNaN(d2)) return -1;
+            //scale the score
+            if (d > _globalThreshold)
+            {
+                mark += 0;
+            }
+            else 
+            {
+                mark += 0.5;
+            }
+
+            if (d2 > _globalThreshold)
+            {
+                mark += 0;
+            }
+            else
+            {
+                mark += 0.5;
+            }
+            return mark;
+        }
         /// <summary>
         /// Calculate the result
         /// </summary>

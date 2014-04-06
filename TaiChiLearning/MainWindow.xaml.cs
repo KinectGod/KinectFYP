@@ -75,7 +75,7 @@
         /// <summary>
         /// Flag to show whether or not the Tai Chi learning system is capturing a new pose
         /// </summary>
-        private bool _capturing = false;
+        private static bool _capturing = false;
 
         /// <summary>
         /// Flag to show whether the mode is training mode or challenge mode
@@ -100,7 +100,9 @@
         /// <summary>
         /// Flag to show whether or not the the system is in Learning Mode
         /// </summary>
-        private bool _learning = false;
+        private static bool _learning = false;
+
+        private static bool _startspeech = false;
 
         /// <summary>
         /// Dynamic Time Warping object
@@ -198,6 +200,12 @@
                 }
             }
         }
+
+        /// <summary>
+        /// The replay rate 
+        /// </summary>
+        private static double _dTWresult = 0.0;
+        //private static double rateinmsec = 1000.0/SelectedFPS;
 
         //Get the speech recognizer (SR)
         private static RecognizerInfo GetKinectRecognizer()
@@ -889,6 +897,8 @@
             RealTimeSkeletonCanvas.Children.Clear();
             _recorder = null;
             _colorrecorder = null;
+
+            //_dTWresult = _dtw.DtwCompution(_masterseq, _learnerseq, _temppath);
             
             const string message = "Are you satisfied with your performance this time, save or not?";
             const string caption = "Confirmation";
@@ -1016,7 +1026,18 @@
             {
                 //SpeechRecognitionEngine speechRecognizer;
                 speechRecognizer = new SpeechRecognitionEngine(ri.Id);
-                                
+                /*
+                var grammar = new Choices();
+                Choices speechaction = new Choices(new string[] { "RECORD", "STORE RECORD", "REPLAY", "STOP REPLAY", "LEARN", "FINISH", "PLAYBACK", "STOP PLAYBACK" });
+                grammar.Add("KINECT");
+                var gb = new GrammarBuilder();
+                gb.Culture = ri.Culture;
+                gb.Append(grammar);
+                gb.Append(speechaction);
+                var g = new Grammar(gb);
+                speechRecognizer.LoadGrammar(g);
+                 * /
+/*
                 //Now we need to add the words we want our program to recognise
                 //  Create lists of alternative choices.
                 Choices speechaction = new Choices(new string[] { "RECORD", "STORE RECORD", "REPLAY", "STOP REPLAY", "LEARN", "FINISH", "PLAYBACK", "STOP PLAYBACK"  });
@@ -1030,18 +1051,19 @@
                 // Build a Grammar object from the GrammarBuilder.
                 Grammar grammar = new Grammar(actionMenu);
                 speechRecognizer.LoadGrammar(grammar);
-
-
                 
-                /*
-                var grammar = new Choices("hello kinect");
+*/
+                //var grammar_start = new Choices();
+                //grammar_start.Add("Kinect");
+
+                var grammar = new Choices();
                 grammar.Add(new SemanticResultValue("Record", "RECORD"));
                 grammar.Add(new SemanticResultValue("Store", "STORE"));
                 grammar.Add(new SemanticResultValue("Replay", "REPLAY"));
                 grammar.Add(new SemanticResultValue("Stop", "STOP"));
                 grammar.Add(new SemanticResultValue("Learn", "LEARN"));
                 grammar.Add(new SemanticResultValue("Finish", "FINISH"));
-                
+                /*
                  * var directions = new Choices();
                 * directions.Add(new SemanticResultValue("forward", "FORWARD"));
                 * directions.Add(new SemanticResultValue("forwards", "FORWARD"));
@@ -1055,16 +1077,18 @@
 
 
 
-                /*
+                
                 //set culture - language, country/region
                 var gb = new GrammarBuilder { Culture = ri.Culture };
                 gb.Append(grammar);
+                //gb.Append(grammar_start);
 
                 //set up the grammar builder
                 var g = new Grammar(gb);
                 speechRecognizer.LoadGrammar(g);
-                */
+                
                 //Set events for recognizing, hypothesising and rejecting speech
+                //speechRecognizer.SpeechRecognized += SreSpeechStartRecogn;
                 speechRecognizer.SpeechRecognized += SreSpeechRecognized;
                 speechRecognizer.SpeechHypothesized += SreSpeechHypothesized;
                 speechRecognizer.SpeechRecognitionRejected += SreSpeechRecognitionRejected;
@@ -1108,6 +1132,12 @@
             status.Text = "Hypothesized: " + e.Result.Text + " " + e.Result.Confidence;
         }
 
+        private void SreSpeechStartRecogn(object sender, SpeechRecognizedEventArgs e)
+        {
+            if (e.Result.Text.ToUpperInvariant() == "KINECT") 
+            _startspeech = true;
+        }
+
         //Speech is recognised
         private void SreSpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
@@ -1115,7 +1145,7 @@
             {
                 //Very important! - change this value to adjust accuracy - the higher the value
                 //the more accurate it will have to be, lower it if it is not recognizing you
-                if (e.Result.Confidence < 0.5)
+                if (e.Result.Confidence < 0.2)
                 {
                     RejectSpeech(e.Result);
                 }
@@ -1125,8 +1155,8 @@
                 
                 switch (e.Result.Text.ToUpperInvariant())
                 {
-                    case "KINECT RECORD":
-                        if(!_replaying && !_learning && _playingback)
+                    case "RECORD":
+                        if(!_replaying && !_learning && !_playingback)
                         this.tcCaptureClick(null, null);
                         //status2.Text = "Record.";
                         recognized_text = "record in five second";
@@ -1137,8 +1167,8 @@
                         //status2.Text = "Store.";
                         recognized_text = "Store";
                         break;
-                    case "KINECT REPLAY":
-                        if (!_capturing && !_learning && _playingback)
+                    case "REPLAY":
+                        if (!_capturing && !_learning && !_playingback)
                         this.tcReplayClick(null, null);
                         //status2.Text = "Replay.";
                         recognized_text = "Replay";
@@ -1150,7 +1180,7 @@
                         recognized_text = "Stop replay";
                         break;
                     case "LEARN":
-                        if (!_replaying && !_capturing && _playingback)
+                        if (!_replaying && !_capturing && !_playingback)
                         this.tcStartLearningClick(null, null);
                         //status2.Text = "Learn.";
                         recognized_text = "Start learning in five second";
@@ -1161,10 +1191,22 @@
                         //status2.Text = "finish.";
                         recognized_text = "Start learning in five second";
                         break;
+                    case "PLAYBACK":
+                        if (_learning)
+                            this.tcStopLearningClick(null, null);
+                        //status2.Text = "finish.";
+                        recognized_text = "Playing back " + gestureList.Text;
+                        break;
+                    case "STOP PLAYBACK":
+                        if (_learning)
+                            this.tcStopLearningClick(null, null);
+                        //status2.Text = "finish.";
+                        recognized_text = "Stop playing back " + gestureList.Text;
+                        break;
                     default:
                         break;
                 }
-                
+                _startspeech = false;
                 //synthesizer.Speak(recognized_text);
             }
         }
