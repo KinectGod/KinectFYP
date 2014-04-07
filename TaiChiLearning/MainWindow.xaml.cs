@@ -900,7 +900,7 @@
             _recorder = null;
             _colorrecorder = null;
 
-            //_dTWresult = _dtw.DtwCompution(_masterseq, _learnerseq, _temppath);
+            _dTWresult = _dtw.DtwCompution(_masterseq, _learnerseq, _temppath);
             
             const string message = "Are you satisfied with your performance this time, save or not?";
             const string caption = "Confirmation";
@@ -1223,13 +1223,13 @@
                     default:
                         break;
                 }
-                //_startspeech = false;
-                //try
+                _startspeech = false;
+                try
                 {
                     synthesizer.Speak(recognized_text);
 
                 }
-                //catch { }
+                catch { }
 
             }
         }
