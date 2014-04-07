@@ -38,6 +38,7 @@
         //SkeletonDrawManager LearningSkeleton;
         SkeletonDrawManager RealTimeSkeleton;
         SkeletonDrawManager ReplaySkeleton;
+        SkeletonDrawManager LearnerSkeleton;
         //SkeletonDrawManager PlayBackSkeleton;
 
         /// <summary>
@@ -70,7 +71,7 @@
         /// Dictionary of all the joints Kinect SDK is capable of tracking. You might not want always to use them all but they are included here for thouroughness.
        
         /// number of joints that we need
-        private const int dimension = 16;
+        private const int dimension = 18;
 
         /// <summary>
         /// Flag to show whether or not the Tai Chi learning system is capturing a new pose
@@ -161,9 +162,11 @@
 
         private static Point[] _LearnerAngle;
 
-        public static int[] detection = new int [dimension];
+        public static int[] detection = new int [dimension - 1];
 
-        private static double[] angles = new double [dimension];
+        private static double[] _master_angles = new double [dimension - 1];
+
+        private static double[] _master_length = new double[dimension];
 
         private static int _finalframeno;
 
@@ -250,6 +253,7 @@
 
             RealTimeSkeleton = new SkeletonDrawManager(RealTimeSkeletonCanvas, _nui);
             ReplaySkeleton = new SkeletonDrawManager(MasterSkeletonCanvas, _nui);
+            LearnerSkeleton = new SkeletonDrawManager(MasterSkeletonCanvas, _nui);
             //PlayBackSkeleton = new SkeletonDrawManager(PlayBackSkeletonCanvas, _nui);
             //LearningSkeleton = new SkeletonDrawManager(LearningSkeletonCanvas, _nui);
 
@@ -374,7 +378,9 @@
             if (!_playingback)
             {
                 int length;
-                Point[] temppt = new Point[dimension];
+                Point[] temppt = new Point[dimension - 1];
+                double[] templength = new double[dimension];
+
                 using (var frame = e.OpenSkeletonFrame())
                 {
                     if (frame == null) return;
@@ -390,25 +396,32 @@
                     {
                         //RealTimeSkeleton.DrawSkeleton(skeletons);
                         var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-                        int[] DetectionTemp = new int[dimension];
+                        int[] DetectionTemp = new int[dimension - 1];
                         DetectionTemp = detection;
 
                         foreach (var data in skeletons)
                         {
-                            temppt = Skeleton3DDataExtract.ProcessData(data);
-                            if (temppt[4].X >= 0)
-                                _LearnerAngle = temppt;
-                            if (_LearnerAngle != null)
+                            if (SkeletonTrackingState.Tracked == data.TrackingState)
                             {
-                                for (int i = 0; i < dimension; i++)
+                                temppt = Skeleton3DDataExtract.ProcessData(data);
+                                templength = Skeleton3DDataExtract.LengthGeneration(data);
+
+                                if (temppt[4].X >= 0)
+                                    _LearnerAngle = temppt;
+                                if (_LearnerAngle != null)
                                 {
-                                    if (DetectionTemp[i] > 0)
+                                    for (int i = 0; i < dimension - 2; i++)
                                     {
-                                        RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], angles[i], i);
+                                        if (DetectionTemp[i] > 0)
+                                        {
+                                            RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], _master_angles[i], i);
+                                        }
                                     }
+                                    _learnerseq.Add(temppt);
                                 }
+
+                                LearnerSkeleton.MasterMatchLearner(_master_length, templength, data);
                             }
-                            _learnerseq.Add(temppt);
                         }
                     }
 
@@ -488,9 +501,11 @@
             if (frame == null) return;
             skeletons = new Skeleton[frame.ArrayLength];
             skeletons = frame.Skeletons;
-            Point[] temppt = new Point[dimension];
+            Point[] temppt = new Point[dimension - 1];
+            double[] templength = new double[dimension];
 
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
+            if(!_learning)
             ReplaySkeleton.DrawSkeleton(skeletons);
 
             /// get the joint angle data of master
@@ -499,16 +514,22 @@
             {
                 foreach (var data in skeletons)
                 {
-                    temppt = Skeleton3DDataExtract.ProcessData(data);
-                    if (temppt[4].X >= 0)
-                        _MasterAngle = temppt;
-                    //Console.WriteLine(_MasterAngle[4].X);
-                    if (_LearnerAngle != null && _MasterAngle != null)
+                    if (SkeletonTrackingState.Tracked == data.TrackingState)
                     {
-                        angles = MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension, threshold, detection);
+
+                        temppt = Skeleton3DDataExtract.ProcessData(data);
+
+                        if (temppt[4].X >= 0)
+                            _MasterAngle = temppt;
+                        //Console.WriteLine(_MasterAngle[4].X);
+                        if (_LearnerAngle != null && _MasterAngle != null)
+                        {
+                            _master_angles = MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension - 1, threshold, detection);
+                            _master_length = Skeleton3DDataExtract.LengthGeneration(data);
+                        }
                     }
+                    _masterseq.Add(temppt);
                 }
-                _masterseq.Add(temppt);
             }
 
             if (_finalframeno <= frame.FrameNumber)
@@ -540,7 +561,7 @@
             if (frame == null) return;
             skeletons = new Skeleton[frame.ArrayLength];
             skeletons = frame.Skeletons;
-            Point[] temppt = new Point[dimension];
+            Point[] temppt = new Point[dimension - 1];
 
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
             RealTimeSkeleton.DrawSkeleton(skeletons);
@@ -548,21 +569,24 @@
             /// get the joint angle data of master
             /// then make comparison
             var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-            int[] DetectionTemp = new int[dimension];
+            int[] DetectionTemp = new int[dimension - 1];
             DetectionTemp = detection;
 
             foreach (var data in skeletons)
             {
-                temppt = Skeleton3DDataExtract.ProcessData(data);
-                if (temppt[4].X >= 0)
-                    _LearnerAngle = temppt;
-                if (_LearnerAngle != null)
+                if (SkeletonTrackingState.Tracked == data.TrackingState)
                 {
-                    for (int i = 0; i < dimension; i++)
+                    temppt = Skeleton3DDataExtract.ProcessData(data);
+                    if (temppt[4].X >= 0)
+                        _LearnerAngle = temppt;
+                    if (_LearnerAngle != null)
                     {
-                        if (DetectionTemp[i] > 0)
+                        for (int i = 0; i < dimension - 1; i++)
                         {
-                            RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], angles[i], i);
+                            if (DetectionTemp[i] > 0)
+                            {
+                                RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], _master_angles[i], i);
+                            }
                         }
                     }
                 }

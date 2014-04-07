@@ -6,6 +6,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 
 namespace TaiChiLearning
@@ -190,67 +191,67 @@ namespace TaiChiLearning
             {
                 case 0:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ShoulderCenter, JointType.ShoulderLeft));
-                    DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, c_angles, corr_color);
                     break;
                 case 1:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ShoulderLeft, JointType.ElbowLeft));
-                    DrawCorrection(data.Joints[JointType.ShoulderLeft], data.Joints[JointType.ElbowLeft], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.ShoulderLeft], data.Joints[JointType.ElbowLeft], PorN, c_angles, corr_color);
                     break;
                 case 2:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.WristLeft, JointType.ElbowLeft));
-                    DrawCorrection(data.Joints[JointType.ElbowLeft], data.Joints[JointType.WristLeft], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.ElbowLeft], data.Joints[JointType.WristLeft], PorN, c_angles, corr_color);
                     break;
                 case 3:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.WristLeft, JointType.HandLeft));
-                    DrawCorrection(data.Joints[JointType.WristLeft], data.Joints[JointType.HandLeft], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.WristLeft], data.Joints[JointType.HandLeft], PorN, c_angles, corr_color);
                     break;
                 case 4:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ShoulderCenter, JointType.ShoulderRight));
-                    DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderRight], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderRight], PorN, c_angles, corr_color);
                     break;
                 case 5:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ShoulderRight, JointType.ElbowRight));
-                    DrawCorrection(data.Joints[JointType.ShoulderRight], data.Joints[JointType.ElbowRight], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.ShoulderRight], data.Joints[JointType.ElbowRight], PorN, c_angles, corr_color);
                     break;
                 case 6:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ElbowRight, JointType.WristRight));
-                    DrawCorrection(data.Joints[JointType.ElbowRight], data.Joints[JointType.WristRight], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.ElbowRight], data.Joints[JointType.WristRight], PorN, c_angles, corr_color);
                     break;
                 case 7:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.WristRight, JointType.HandRight));
-                    DrawCorrection(data.Joints[JointType.WristRight], data.Joints[JointType.HandRight], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.WristRight], data.Joints[JointType.HandRight], PorN, c_angles, corr_color);
                     break;
                 case 8:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.HipCenter, JointType.HipLeft));
-                    DrawCorrection(data.Joints[JointType.HipCenter], data.Joints[JointType.HipLeft], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.HipCenter], data.Joints[JointType.HipLeft], PorN, c_angles, corr_color);
                     break;
                 case 9:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.HipLeft, JointType.KneeLeft));
-                    DrawCorrection(data.Joints[JointType.HipLeft], data.Joints[JointType.KneeLeft], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.HipLeft], data.Joints[JointType.KneeLeft], PorN, c_angles, corr_color);
                     break;
                 case 10:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.KneeLeft, JointType.AnkleLeft));
-                    DrawCorrection(data.Joints[JointType.KneeLeft], data.Joints[JointType.AnkleLeft], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.KneeLeft], data.Joints[JointType.AnkleLeft], PorN, c_angles, corr_color);
                     break;
                 case 11:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.AnkleLeft, JointType.FootLeft));
-                    DrawCorrection(data.Joints[JointType.AnkleLeft], data.Joints[JointType.FootLeft], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.AnkleLeft], data.Joints[JointType.FootLeft], PorN, c_angles, corr_color);
                     break;
                 case 12:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.HipCenter, JointType.HipRight));
-                    DrawCorrection(data.Joints[JointType.HipCenter], data.Joints[JointType.HipRight], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.HipCenter], data.Joints[JointType.HipRight], PorN, c_angles, corr_color);
                     break;
                 case 13:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.HipRight, JointType.KneeRight));
-                    DrawCorrection(data.Joints[JointType.HipRight], data.Joints[JointType.KneeRight], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.HipRight], data.Joints[JointType.KneeRight], PorN, c_angles, corr_color);
                     break;
                 case 14:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.KneeRight, JointType.AnkleRight));
-                    DrawCorrection(data.Joints[JointType.KneeRight], data.Joints[JointType.AnkleRight], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.KneeRight], data.Joints[JointType.AnkleRight], PorN, c_angles, corr_color);
                     break;
                 case 15:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.AnkleRight, JointType.FootRight));
-                    DrawCorrection(data.Joints[JointType.AnkleRight], data.Joints[JointType.FootRight], PorN, c_angles, corr_color);
+                    //DrawCorrection(data.Joints[JointType.AnkleRight], data.Joints[JointType.FootRight], PorN, c_angles, corr_color);
                     break;
             }
 
@@ -348,6 +349,48 @@ namespace TaiChiLearning
             }
             
             return EndPoint;
+        }
+
+        public void MasterMatchLearner (double[] ml, double[] ll, Skeleton data)
+        {
+            var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+
+            if (SkeletonTrackingState.Tracked == data.TrackingState)
+            {
+                // Draw bones
+                //left hand
+                data.Joints[JointType.ShoulderLeft] = ProcessCoord (data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], data.Joints[JointType.ShoulderCenter].Position.ToVector3(), ml[1]/ll[1]);
+                data.Joints[JointType.ElbowLeft] = ProcessCoord(data.Joints[JointType.ShoulderLeft], data.Joints[JointType.ElbowLeft], data.Joints[JointType.ShoulderLeft].Position.ToVector3(), ml[2] / ll[2]);
+
+
+                // Draw joints
+                foreach (Joint joint in data.Joints)
+                {
+                    Point jointPos = GetDisplayPosition(joint);
+                    var jointLine = new Line();
+                    jointLine.X1 = jointPos.X - 3;
+                    jointLine.X2 = jointLine.X1 + 6;
+                    jointLine.Y1 = jointLine.Y2 = jointPos.Y;
+                    jointLine.Stroke = _jointColors[joint.JointType];
+                    jointLine.StrokeThickness = 6;
+                    rootCanvas.Children.Add(jointLine);
+                }
+            }
+        }
+
+        private Joint ProcessCoord (Joint sjoint, Joint ejoint, Vector3 newspt, double ratio)
+        {
+            /// calculate the new endpoiny, using the 3d vector calculation
+            Vector3 ep = newspt - (float)ratio * (ejoint.Position.ToVector3() - sjoint.Position.ToVector3());
+            /// assign the new position to the original endpoint
+            SkeletonPoint pos = new SkeletonPoint();
+
+            pos.X = ep.X;
+            pos.Y = ep.Y;
+            pos.Z = ep.Z;
+            ejoint.Position = pos;
+
+            return ejoint;
         }
     }
 }
