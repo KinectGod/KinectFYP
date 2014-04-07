@@ -273,7 +273,6 @@ namespace TaiChiLearning.DTW
             var slopeI = new int[seq1R.Count + 1, seq2R.Count + 1];
             var slopeJ = new int[seq1R.Count + 1, seq2R.Count + 1];
 
-            var patharray = new int[seq1R.Count + 1, seq2R.Count + 1];
 
             for (int i = 0; i < seq1R.Count + 1; i++)
             {
@@ -282,7 +281,6 @@ namespace TaiChiLearning.DTW
                     tab[i, j] = double.PositiveInfinity;
                     slopeI[i, j] = 0; //number of times that the shortest path is from the left consecutively
                     slopeJ[i, j] = 0; //number of times that the shortest path is from the top consecutively
-                    patharray[i, j] = 0;
                 }
             }
 
@@ -296,40 +294,26 @@ namespace TaiChiLearning.DTW
                     if (tab[i, j - 1] < tab[i - 1, j - 1] && tab[i, j - 1] < tab[i - 1, j] && //case1: tab[i,j-1] (left) have passed the shortest path so far
                         slopeI[i, j - 1] < _maxSlope)
                     {
-                        tab[i, j] = Marker((Point[])seq1R[i - 1], (Point[])seq2R[j - 1]) + tab[i, j - 1];
+                        tab[i, j] = Marker((System.Windows.Point[])seq1R[i - 1], (System.Windows.Point[])seq2R[j - 1]) + tab[i, j - 1];
                         slopeI[i, j] = slopeI[i, j - 1] + 1;
                         slopeJ[i, j] = 0;
-                        patharray[i, j] = 1;
                     }
                     else if (tab[i - 1, j] < tab[i - 1, j - 1] && tab[i - 1, j] < tab[i, j - 1] && //case2: tab[i-1,j] (top) have passed the shortest path so far
                              slopeJ[i - 1, j] < _maxSlope)
                     {
-                        tab[i, j] = Marker((Point[])seq1R[i - 1], (Point[])seq2R[j - 1]) + tab[i - 1, j];
+                        tab[i, j] = Marker((System.Windows.Point[])seq1R[i - 1], (System.Windows.Point[])seq2R[j - 1]) + tab[i - 1, j];
                         slopeI[i, j] = 0;
                         slopeJ[i, j] = slopeJ[i - 1, j] + 1;
-                        patharray[i, j] = 1;
                     }
                     else //case3: tab[i-1,j-1] (top left) have passed the shortest path so far
                     {
-                        tab[i, j] = Marker((Point[])seq1R[i - 1], (Point[])seq2R[j - 1]) + tab[i - 1, j - 1];
+                        tab[i, j] = Marker((System.Windows.Point[])seq1R[i - 1], (System.Windows.Point[])seq2R[j - 1]) + tab[i - 1, j - 1];
                         slopeI[i, j] = 0;
                         slopeJ[i, j] = 0;
-                        patharray[i, j] = 1;
                     }
                 }
             }
 
-            int rowLength = patharray.GetLength(0);
-
-            for (int i = 0; i < rowLength; i++)
-            {
-                for (int j = 0; j < rowLength; j++)
-                {
-                    Console.Write(string.Format("{0} ", patharray[i, j]));
-                }
-                Console.Write(Environment.NewLine + Environment.NewLine);
-            }
-            Console.ReadLine();
             
             // Find best between seq2 and an ending (postfix) of seq1.
             double bestMatch = double.PositiveInfinity;
@@ -383,7 +367,7 @@ namespace TaiChiLearning.DTW
         /// <param name="b">Point b (double)</param>
         /// <returns>Euclidian distance between the two points</returns>
 
-        private double Marker(Point[] a, Point[] b)
+        private double Marker(System.Windows.Point[] a, System.Windows.Point[] b)
         {
 
             double d = 0.0;
