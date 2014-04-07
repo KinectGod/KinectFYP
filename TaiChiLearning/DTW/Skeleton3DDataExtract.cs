@@ -145,7 +145,7 @@ namespace TaiChiLearning.DTW
                 // calculate vector joining two points
                 joint0to1 = Vector3D.Subtract(p[i + 1], p[i]);
                 // calculate angle between the vector and the plane
-                a[i - 1] = AngleDetection(joint0to1);
+                a[i] = AngleDetection(joint0to1);
             }
 
             return a;
@@ -287,10 +287,10 @@ namespace TaiChiLearning.DTW
             for (int i = 13; i < 17; i++)
             {
                 // calculate vector joining two points
-                a[i - 1] = Vector3D.Subtract(p[i + 1], p[i]).Length;
+                a[i] = Vector3D.Subtract(p[i + 1], p[i]).Length;
             }
 
-            a[17] = Vector3D.Subtract(p[4], p[13]).Length;
+            a[12] = Vector3D.Subtract(p[4], p[13]).Length; // length of shoulder center and hip center
             return a;
         }
     }

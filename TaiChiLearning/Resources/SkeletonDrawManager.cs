@@ -351,16 +351,20 @@ namespace TaiChiLearning
             return EndPoint;
         }
 
-        public void MasterMatchLearner (double[] ml, double[] ll, Skeleton data)
+        public void MasterMatchLearner (double[] ml, double[] ll, Skeleton data, Joint ini)
         {
             var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
 
             if (SkeletonTrackingState.Tracked == data.TrackingState)
             {
                 // Draw bones
-                //left hand
-                data.Joints[JointType.ShoulderLeft] = ProcessCoord (data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], data.Joints[JointType.ShoulderCenter].Position.ToVector3(), ml[1]/ll[1]);
-                data.Joints[JointType.ElbowLeft] = ProcessCoord(data.Joints[JointType.ShoulderLeft], data.Joints[JointType.ElbowLeft], data.Joints[JointType.ShoulderLeft].Position.ToVector3(), ml[2] / ll[2]);
+                //right leg
+                Joint temp = new Joint();
+                data.Joints[JointType.FootRight] = ini;
+                temp = data.Joints[JointType.AnkleRight];
+                data.Joints[JointType.AnkleRight] = ProcessCoord (data.Joints[JointType.FootRight], data.Joints[JointType.AnkleRight], data.Joints[JointType.FootRight].Position.ToVector3(), ml[16]/ll[16]);
+                temp = data.Joints[JointType.KneeRight];
+                data.Joints[JointType.KneeRight] = ProcessCoord(temp, data.Joints[JointType.KneeRight], data.Joints[JointType.AnkleRight].Position.ToVector3(), ml[15] / ll[15]);
 
 
                 // Draw joints
