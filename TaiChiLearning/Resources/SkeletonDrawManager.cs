@@ -155,7 +155,6 @@ namespace TaiChiLearning
             var corr_color = new SolidColorBrush(Color.FromRgb(255, 165, 0)); // orange, when draw the correction line
             int XZ = indicator / 100;
             int PorN = 1; //indicate the correction line should be left or right
-            //int PorN2 = 1;
 
             switch (XZ)
             {
@@ -175,6 +174,7 @@ namespace TaiChiLearning
                     break;
             }
             int YZ = indicator % 100;
+
             switch (YZ)
             {
                 case 20:
@@ -189,6 +189,7 @@ namespace TaiChiLearning
 
             switch (i)
             {
+                //left hand
                 case 0:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ShoulderCenter, JointType.ShoulderLeft));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], PorN, c_angles, corr_color);
@@ -205,6 +206,8 @@ namespace TaiChiLearning
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.WristLeft, JointType.HandLeft));
                     //DrawCorrection(data.Joints[JointType.WristLeft], data.Joints[JointType.HandLeft], PorN, c_angles, corr_color);
                     break;
+
+                // right hand
                 case 4:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.ShoulderCenter, JointType.ShoulderRight));
                     //DrawCorrection(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderRight], PorN, c_angles, corr_color);
@@ -221,6 +224,8 @@ namespace TaiChiLearning
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.WristRight, JointType.HandRight));
                     //DrawCorrection(data.Joints[JointType.WristRight], data.Joints[JointType.HandRight], PorN, c_angles, corr_color);
                     break;
+
+                // left leg
                 case 8:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.HipCenter, JointType.HipLeft));
                     //DrawCorrection(data.Joints[JointType.HipCenter], data.Joints[JointType.HipLeft], PorN, c_angles, corr_color);
@@ -237,21 +242,25 @@ namespace TaiChiLearning
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.AnkleLeft, JointType.FootLeft));
                     //DrawCorrection(data.Joints[JointType.AnkleLeft], data.Joints[JointType.FootLeft], PorN, c_angles, corr_color);
                     break;
-                case 12:
+
+                // right leg
+                case 13:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.HipCenter, JointType.HipRight));
                     //DrawCorrection(data.Joints[JointType.HipCenter], data.Joints[JointType.HipRight], PorN, c_angles, corr_color);
                     break;
-                case 13:
+                case 14:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.HipRight, JointType.KneeRight));
                     //DrawCorrection(data.Joints[JointType.HipRight], data.Joints[JointType.KneeRight], PorN, c_angles, corr_color);
                     break;
-                case 14:
+                case 15:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.KneeRight, JointType.AnkleRight));
                     //DrawCorrection(data.Joints[JointType.KneeRight], data.Joints[JointType.AnkleRight], PorN, c_angles, corr_color);
                     break;
-                case 15:
+                case 16:
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.AnkleRight, JointType.FootRight));
                     //DrawCorrection(data.Joints[JointType.AnkleRight], data.Joints[JointType.FootRight], PorN, c_angles, corr_color);
+                    break;
+                default :
                     break;
             }
 

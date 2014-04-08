@@ -411,6 +411,8 @@
                                 temppt = Skeleton3DDataExtract.ProcessData(data);
                                 templength = Skeleton3DDataExtract.LengthGeneration(data);
 
+                                LearnerSkeleton.MasterMatchLearner(_master_length, templength, data, _initialjointpos);
+
                                 if (temppt[4].X >= 0)
                                     _LearnerAngle = temppt;
                                 if (_LearnerAngle != null)
@@ -424,8 +426,6 @@
                                     }
                                     _learnerseq.Add(temppt);
                                 }
-
-                                LearnerSkeleton.MasterMatchLearner(_master_length, templength, data, _initialjointpos);
                             }
                         }
                     }
