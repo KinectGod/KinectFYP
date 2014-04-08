@@ -363,6 +363,7 @@ namespace TaiChiLearning
         public void MasterMatchLearner (double[] ml, double[] ll, Skeleton data, Joint ini)
         {
             var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+            rootCanvas.Children.Clear();
 
             if (SkeletonTrackingState.Tracked == data.TrackingState)
             {
