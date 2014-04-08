@@ -1,7 +1,10 @@
 ﻿using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -370,7 +373,7 @@ namespace TaiChiLearning
                 /// Draw bones
                 // create temporary joint to store the original learner joints
                 Skeleton matchdata = new Skeleton();
-                matchdata = data;
+                matchdata = Clone(data);
                 /*
                 Joint temp1 = new Joint();
                 Joint temp2 = new Joint();
@@ -427,7 +430,7 @@ namespace TaiChiLearning
             /// assign the new position to the original endpoint
             SkeletonPoint pos = new SkeletonPoint();
             Joint endpt = new Joint();
-            endpt = ejoint;
+            endpt = Clone(ejoint);
 
             pos.X = ep.X;
             pos.Y = ep.Y;
@@ -436,5 +439,52 @@ namespace TaiChiLearning
 
             return endpt;
         }
+
+        public static T Clone<T>(this T source)
+        {
+            if (!typeof(T).IsSerializable)
+            {
+                throw new ArgumentException("The type must be serializable.", "source");
+            }
+
+            // Don't serialize a null object, simply return the default for that object
+            if (Object.ReferenceEquals(source, null))
+            {
+                return default(T);
+            }
+
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new MemoryStream();
+            using (stream)
+            {
+                formatter.Serialize(stream, source);
+                stream.Seek(0, SeekOrigin.Begin);
+                return (T)formatter.Deserialize(stream);
+            }
+        }
+        /*
+        public static Skeleton Clone<Skeleton>(this Skeleton source)
+        {
+            if (!typeof(Skeleton).IsSerializable)
+            {
+                throw new ArgumentException("The type must be serializable.", "source");
+            }
+
+            // Don't serialize a null object, simply return the default for that object
+            if (Object.ReferenceEquals(source, null))
+            {
+                return default(Skeleton);
+            }
+
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new MemoryStream();
+            using (stream)
+            {
+                formatter.Serialize(stream, source);
+                stream.Seek(0, SeekOrigin.Begin);
+                return (Skeleton)formatter.Deserialize(stream);
+            }
+        }
+         * */
     }
 }
