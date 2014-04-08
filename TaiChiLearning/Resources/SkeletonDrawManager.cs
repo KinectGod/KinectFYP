@@ -359,13 +359,17 @@ namespace TaiChiLearning
             {
                 // Draw bones
                 //right leg
-                Joint temp = new Joint();
-                data.Joints[JointType.FootRight] = ini;
-                temp = data.Joints[JointType.AnkleRight];
-                data.Joints[JointType.AnkleRight] = ProcessCoord (data.Joints[JointType.FootRight], data.Joints[JointType.AnkleRight], data.Joints[JointType.FootRight].Position.ToVector3(), ml[16]/ll[16]);
-                temp = data.Joints[JointType.KneeRight];
-                data.Joints[JointType.KneeRight] = ProcessCoord(temp, data.Joints[JointType.KneeRight], data.Joints[JointType.AnkleRight].Position.ToVector3(), ml[15] / ll[15]);
-
+                Joint temp1 = new Joint();
+                Joint temp2 = new Joint();
+                temp1 = data.Joints[JointType.AnkleRight];
+                data.Joints[JointType.AnkleRight] = ProcessCoord (data.Joints[JointType.FootRight], data.Joints[JointType.AnkleRight], ini.Position.ToVector3(), ml[16]/ll[16]);
+                temp2 = data.Joints[JointType.KneeRight];
+                data.Joints[JointType.KneeRight] = ProcessCoord(temp1, temp2, data.Joints[JointType.AnkleRight].Position.ToVector3(), ml[15] / ll[15]);
+                temp1 = data.Joints[JointType.HipRight];
+                data.Joints[JointType.HipRight] = ProcessCoord(temp2, temp1, data.Joints[JointType.KneeRight].Position.ToVector3(), ml[14] / ll[14]);
+                temp2 = data.Joints[JointType.HipCenter];
+                data.Joints[JointType.HipCenter] = ProcessCoord(temp1, temp2, data.Joints[JointType.HipRight].Position.ToVector3(), ml[13] / ll[13]);
+                rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
 
                 // Draw joints
                 foreach (Joint joint in data.Joints)
