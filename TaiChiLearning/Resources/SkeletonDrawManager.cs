@@ -392,11 +392,11 @@ namespace TaiChiLearning
                 temp1 = data.Joints[JointType.HipLeft];
                 data.Joints[JointType.HipLeft] = ProcessCoord(hipcentre, temp1, data.Joints[JointType.HipCenter].Position.ToVector3(), ml[8] / ll[8]);
                 temp2 = data.Joints[JointType.KneeLeft];
-                data.Joints[JointType.KneeLeft] = ProcessCoord(temp1, temp2, data.Joints[JointType.HipLeft].Position.ToVector3(), ml[7] / ll[7]);
+                data.Joints[JointType.KneeLeft] = ProcessCoord(temp1, temp2, data.Joints[JointType.HipLeft].Position.ToVector3(), ml[9] / ll[9]);
                 temp1 = data.Joints[JointType.AnkleLeft];
-                data.Joints[JointType.AnkleLeft] = ProcessCoord(temp2, temp1, data.Joints[JointType.KneeLeft].Position.ToVector3(), ml[6] / ll[6]);
+                data.Joints[JointType.AnkleLeft] = ProcessCoord(temp2, temp1, data.Joints[JointType.KneeLeft].Position.ToVector3(), ml[10] / ll[10]);
                 temp2 = data.Joints[JointType.FootLeft];
-                data.Joints[JointType.FootLeft] = ProcessCoord(temp1, temp2, data.Joints[JointType.AnkleLeft].Position.ToVector3(), ml[5] / ll[6]);
+                data.Joints[JointType.FootLeft] = ProcessCoord(temp1, temp2, data.Joints[JointType.AnkleLeft].Position.ToVector3(), ml[11] / ll[11]);
 
                 // Draw joints
                 foreach (Joint joint in data.Joints)
