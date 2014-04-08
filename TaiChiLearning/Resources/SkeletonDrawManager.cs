@@ -425,7 +425,8 @@ namespace TaiChiLearning
             Vector3 ep = newspt.Position.ToVector3() - (float)ratio * (ejoint.Position.ToVector3() - sjoint.Position.ToVector3());
             /// assign the new position to the original endpoint
             SkeletonPoint pos = new SkeletonPoint();
-            Joint endpt = ejoint;
+            Joint endpt = new Joint();
+            endpt = ejoint;
 
             pos.X = ep.X;
             pos.Y = ep.Y;
