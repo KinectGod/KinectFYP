@@ -368,38 +368,44 @@ namespace TaiChiLearning
             {
                 /// Draw bones
                 // create temporary joint to store the original learner joints
+                Skeleton matchdata = new Skeleton();
+                matchdata = data;
+                /*
                 Joint temp1 = new Joint();
                 Joint temp2 = new Joint();
                 Joint shouldercentre = new Joint();
                 Joint hipcentre = new Joint();
+                 * */
 
                 /// Right leg
-                temp1 = data.Joints[JointType.AnkleRight];
-                data.Joints[JointType.AnkleRight] = ProcessCoord (data.Joints[JointType.FootRight], data.Joints[JointType.AnkleRight], ini.Position.ToVector3(), ml[16]/ll[16]);
-                temp2 = data.Joints[JointType.KneeRight];
-                data.Joints[JointType.KneeRight] = ProcessCoord(temp1, temp2, data.Joints[JointType.AnkleRight].Position.ToVector3(), ml[15] / ll[15]);
-                temp1 = data.Joints[JointType.HipRight];
-                data.Joints[JointType.HipRight] = ProcessCoord(temp2, temp1, data.Joints[JointType.KneeRight].Position.ToVector3(), ml[14] / ll[14]);
-                hipcentre = data.Joints[JointType.HipCenter];
-                data.Joints[JointType.HipCenter] = ProcessCoord(temp1, hipcentre, data.Joints[JointType.HipRight].Position.ToVector3(), ml[13] / ll[13]);
-                rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
+                //temp1 = data.Joints[JointType.AnkleRight];
+                matchdata.Joints[JointType.FootRight] = ini;
+                matchdata.Joints[JointType.AnkleRight] = ProcessCoord (data.Joints[JointType.FootRight], data.Joints[JointType.AnkleRight], ini, ml[16]/ll[16]);
+                //temp2 = data.Joints[JointType.KneeRight];
+                matchdata.Joints[JointType.KneeRight] = ProcessCoord(data.Joints[JointType.AnkleRight], data.Joints[JointType.KneeRight], matchdata.Joints[JointType.AnkleRight], ml[15] / ll[15]);
+                //temp1 = data.Joints[JointType.HipRight];
+                matchdata.Joints[JointType.HipRight] = ProcessCoord(data.Joints[JointType.KneeRight], data.Joints[JointType.HipRight], matchdata.Joints[JointType.KneeRight], ml[14] / ll[14]);
+                //hipcentre = data.Joints[JointType.HipCenter];
+                matchdata.Joints[JointType.HipCenter] = ProcessCoord(data.Joints[JointType.HipRight], data.Joints[JointType.HipCenter], matchdata.Joints[JointType.HipRight], ml[13] / ll[13]);
+                rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
 
                 /// Draw line between hip centre and shoulder centre
-                shouldercentre = data.Joints[JointType.ShoulderCenter];
-                data.Joints[JointType.ShoulderCenter] = ProcessCoord(hipcentre, shouldercentre, data.Joints[JointType.HipCenter].Position.ToVector3(), ml[17]/ll[17]);
+                //shouldercentre = data.Joints[JointType.ShoulderCenter];
+                matchdata.Joints[JointType.ShoulderCenter] = ProcessCoord(data.Joints[JointType.HipCenter], data.Joints[JointType.ShoulderCenter], matchdata.Joints[JointType.HipCenter], ml[17] / ll[17]);
 
                 /// Left leg
-                temp1 = data.Joints[JointType.HipLeft];
-                data.Joints[JointType.HipLeft] = ProcessCoord(hipcentre, temp1, data.Joints[JointType.HipCenter].Position.ToVector3(), ml[8] / ll[8]);
-                temp2 = data.Joints[JointType.KneeLeft];
-                data.Joints[JointType.KneeLeft] = ProcessCoord(temp1, temp2, data.Joints[JointType.HipLeft].Position.ToVector3(), ml[9] / ll[9]);
-                temp1 = data.Joints[JointType.AnkleLeft];
-                data.Joints[JointType.AnkleLeft] = ProcessCoord(temp2, temp1, data.Joints[JointType.KneeLeft].Position.ToVector3(), ml[10] / ll[10]);
-                temp2 = data.Joints[JointType.FootLeft];
-                data.Joints[JointType.FootLeft] = ProcessCoord(temp1, temp2, data.Joints[JointType.AnkleLeft].Position.ToVector3(), ml[11] / ll[11]);
+                //temp1 = data.Joints[JointType.HipLeft];
+                matchdata.Joints[JointType.HipLeft] = ProcessCoord(data.Joints[JointType.HipCenter], data.Joints[JointType.HipLeft], matchdata.Joints[JointType.HipCenter], ml[8] / ll[8]);
+                //temp2 = data.Joints[JointType.KneeLeft];
+                matchdata.Joints[JointType.KneeLeft] = ProcessCoord(data.Joints[JointType.HipLeft], data.Joints[JointType.KneeLeft], matchdata.Joints[JointType.HipLeft], ml[9] / ll[9]);
+                //temp1 = data.Joints[JointType.AnkleLeft];
+                matchdata.Joints[JointType.AnkleLeft] = ProcessCoord(data.Joints[JointType.KneeLeft], data.Joints[JointType.AnkleLeft], matchdata.Joints[JointType.KneeLeft], ml[10] / ll[10]);
+                //temp2 = data.Joints[JointType.FootLeft];
+                matchdata.Joints[JointType.FootLeft] = ProcessCoord(data.Joints[JointType.AnkleLeft], data.Joints[JointType.FootLeft], matchdata.Joints[JointType.AnkleLeft], ml[11] / ll[11]);
+                rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
 
                 // Draw joints
-                foreach (Joint joint in data.Joints)
+                foreach (Joint joint in matchdata.Joints)
                 {
                     Point jointPos = GetDisplayPosition(joint);
                     var jointLine = new Line();
@@ -413,19 +419,20 @@ namespace TaiChiLearning
             }
         }
 
-        private Joint ProcessCoord (Joint sjoint, Joint ejoint, Vector3 newspt, double ratio)
+        private Joint ProcessCoord (Joint sjoint, Joint ejoint, Joint newspt, double ratio)
         {
             /// calculate the new endpoiny, using the 3d vector calculation
-            Vector3 ep = newspt - (float)ratio * (ejoint.Position.ToVector3() - sjoint.Position.ToVector3());
+            Vector3 ep = newspt.Position.ToVector3() - (float)ratio * (ejoint.Position.ToVector3() - sjoint.Position.ToVector3());
             /// assign the new position to the original endpoint
             SkeletonPoint pos = new SkeletonPoint();
+            Joint endpt = ejoint;
 
             pos.X = ep.X;
             pos.Y = ep.Y;
             pos.Z = ep.Z;
-            ejoint.Position = pos;
+            endpt.Position = pos;
 
-            return ejoint;
+            return endpt;
         }
     }
 }

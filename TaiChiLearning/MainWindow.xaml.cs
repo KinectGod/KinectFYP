@@ -413,8 +413,8 @@
 
                                 LearnerSkeleton.MasterMatchLearner(_master_length, templength, data, _initialjointpos);
 
-                                if (temppt[4].X >= 0)
-                                    _LearnerAngle = temppt;
+                                //if (temppt[4].X >= 0)
+                                _LearnerAngle = temppt;
                                 if (_LearnerAngle != null)
                                 {
                                     for (int i = 0; i < dimension - 2; i++)
@@ -510,8 +510,10 @@
             double[] templength = new double[dimension];
 
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
-            if(!_learning)
-            ReplaySkeleton.DrawSkeleton(skeletons);
+            if (!_learning)
+            {
+                ReplaySkeleton.DrawSkeleton(skeletons);
+            }
 
             /// get the joint angle data of master
             /// then make comparison
@@ -525,16 +527,16 @@
                         temppt = Skeleton3DDataExtract.ProcessData(data);
                         _initialjointpos = data.Joints[JointType.FootRight];
 
-                        if (temppt[4].X >= 0)
-                            _MasterAngle = temppt;
+                        //if (temppt[4].X >= 0)
+                        _MasterAngle = temppt;
                         //Console.WriteLine(_MasterAngle[4].X);
                         if (_LearnerAngle != null && _MasterAngle != null)
                         {
                             _master_angles = MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension - 1, threshold, detection);
                             _master_length = Skeleton3DDataExtract.LengthGeneration(data);
+                            _masterseq.Add(temppt);
                         }
                     }
-                    _masterseq.Add(temppt);
                 }
             }
 
