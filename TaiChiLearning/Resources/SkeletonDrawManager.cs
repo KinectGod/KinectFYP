@@ -357,19 +357,37 @@ namespace TaiChiLearning
 
             if (SkeletonTrackingState.Tracked == data.TrackingState)
             {
-                // Draw bones
-                //right leg
+                /// Draw bones
+                // create temporary joint to store the original learner joints
                 Joint temp1 = new Joint();
                 Joint temp2 = new Joint();
+                Joint shouldercentre = new Joint();
+                Joint hipcentre = new Joint();
+
+                /// Right leg
                 temp1 = data.Joints[JointType.AnkleRight];
                 data.Joints[JointType.AnkleRight] = ProcessCoord (data.Joints[JointType.FootRight], data.Joints[JointType.AnkleRight], ini.Position.ToVector3(), ml[16]/ll[16]);
                 temp2 = data.Joints[JointType.KneeRight];
                 data.Joints[JointType.KneeRight] = ProcessCoord(temp1, temp2, data.Joints[JointType.AnkleRight].Position.ToVector3(), ml[15] / ll[15]);
                 temp1 = data.Joints[JointType.HipRight];
                 data.Joints[JointType.HipRight] = ProcessCoord(temp2, temp1, data.Joints[JointType.KneeRight].Position.ToVector3(), ml[14] / ll[14]);
-                temp2 = data.Joints[JointType.HipCenter];
-                data.Joints[JointType.HipCenter] = ProcessCoord(temp1, temp2, data.Joints[JointType.HipRight].Position.ToVector3(), ml[13] / ll[13]);
+                hipcentre = data.Joints[JointType.HipCenter];
+                data.Joints[JointType.HipCenter] = ProcessCoord(temp1, hipcentre, data.Joints[JointType.HipRight].Position.ToVector3(), ml[13] / ll[13]);
                 rootCanvas.Children.Add(GetBodySegment(data.Joints, brush, JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
+
+                /// Draw line between hip centre and shoulder centre
+                shouldercentre = data.Joints[JointType.ShoulderCenter];
+                data.Joints[JointType.ShoulderCenter] = ProcessCoord(hipcentre, shouldercentre, data.Joints[JointType.HipCenter].Position.ToVector3(), ml[17]/ll[17]);
+
+                /// Left leg
+                temp1 = data.Joints[JointType.HipLeft];
+                data.Joints[JointType.HipLeft] = ProcessCoord(hipcentre, temp1, data.Joints[JointType.HipCenter].Position.ToVector3(), ml[8] / ll[8]);
+                temp2 = data.Joints[JointType.KneeLeft];
+                data.Joints[JointType.KneeLeft] = ProcessCoord(temp1, temp2, data.Joints[JointType.HipLeft].Position.ToVector3(), ml[7] / ll[7]);
+                temp1 = data.Joints[JointType.AnkleLeft];
+                data.Joints[JointType.AnkleLeft] = ProcessCoord(temp2, temp1, data.Joints[JointType.KneeLeft].Position.ToVector3(), ml[6] / ll[6]);
+                temp2 = data.Joints[JointType.FootLeft];
+                data.Joints[JointType.FootLeft] = ProcessCoord(temp1, temp2, data.Joints[JointType.AnkleLeft].Position.ToVector3(), ml[5] / ll[6]);
 
                 // Draw joints
                 foreach (Joint joint in data.Joints)
