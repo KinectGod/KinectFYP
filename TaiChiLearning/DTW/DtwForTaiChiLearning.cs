@@ -262,7 +262,7 @@ namespace TaiChiLearning.DTW
         /// <param name="seq1">The master array of sequences to compare</param>
         /// <param name="seq2">The learner array of sequences to compare</param>
         /// <returns>The best match</returns>
-        public double DtwComputation(ArrayList seq1, ArrayList seq2, string path)
+        public double DtwComputation(ArrayList seq1, ArrayList seq2, ArrayList seq1FrameNum, ArrayList seq2FrameNum, string path)
         {
             // Init
             var seq1R = new ArrayList(seq1);

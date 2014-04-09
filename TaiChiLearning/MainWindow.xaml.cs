@@ -138,6 +138,10 @@
         private ArrayList _masterseq = new ArrayList();
         private ArrayList _learnerseq = new ArrayList();
 
+        private ArrayList _masterseqNum = new ArrayList();
+        private ArrayList _learnerseqNum = new ArrayList();
+
+
         // Kinect recorder
         private static KinectRecorder _recorder;
         private static KinectRecorder _colorrecorder;
@@ -302,6 +306,8 @@
             */
             _masterseq.Clear();
             _learnerseq.Clear();
+            _masterseqNum.Clear();
+            _learnerseqNum.Clear();
 
         }
 
@@ -427,6 +433,7 @@
                                         }
                                     }
                                     _learnerseq.Add(temppt);
+                                    _learnerseqNum.Add(frame.FrameNumber);
                                 }
                             }
                         }
@@ -538,6 +545,7 @@
                             _master_length = Skeleton3DDataExtract.LengthGeneration(data);
                             
                             _masterseq.Add(temppt);
+                            _masterseqNum.Add(frame.FrameNumber);
                         }
                     }
                 }
@@ -936,7 +944,7 @@
             _recorder = null;
             _colorrecorder = null;
 
-            _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _temppath);
+            _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _masterseqNum, _learnerseqNum, _temppath);
             
             const string message = "Are you satisfied with your performance this time, save or not?";
             const string caption = "Confirmation";
