@@ -363,9 +363,9 @@ namespace TaiChiLearning
             return EndPoint;
         }
 
-        public void MasterMatchLearner (double[] ml, double[] ll, Skeleton data, Joint ini)
+        public void MasterMatchLearner (double[] ml, double[] ll, Skeleton data, Skeleton mdata, Joint ini)
         {
-            var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
+            var brush = new SolidColorBrush(Color.FromRgb(64, 255, 255));
             rootCanvas.Children.Clear();
 
             if (SkeletonTrackingState.Tracked == data.TrackingState)
@@ -373,30 +373,39 @@ namespace TaiChiLearning
                 /// Draw bones
                 // create temporary joint to store the original learner joints
                 Skeleton matchdata = new Skeleton();
-                matchdata = Clone(data);
+                matchdata = mdata;
+                Joint temp = new Joint();
+                temp = mdata.Joints[JointType.FootRight];
+                SkeletonPoint pos = new SkeletonPoint() 
+                {
+                    X = ini.Position.X,
+                    Y = ini.Position.Y,
+                    Z = ini.Position.Z
+                };
+                temp.Position = pos;
                 /*
                 Joint temp1 = new Joint();
                 Joint temp2 = new Joint();
                 Joint shouldercentre = new Joint();
                 Joint hipcentre = new Joint();
                  * */
-
                 /// Right leg
                 //temp1 = data.Joints[JointType.AnkleRight];
-                matchdata.Joints[JointType.FootRight] = ini;
-                matchdata.Joints[JointType.AnkleRight] = ProcessCoord (data.Joints[JointType.FootRight], data.Joints[JointType.AnkleRight], ini, ml[16]/ll[16]);
+                matchdata.Joints[JointType.FootRight] = temp;
+                matchdata.Joints[JointType.AnkleRight] = ProcessCoord(data.Joints[JointType.FootRight], data.Joints[JointType.AnkleRight], matchdata.Joints[JointType.FootRight], ml[16] / ll[16]);
                 //temp2 = data.Joints[JointType.KneeRight];
                 matchdata.Joints[JointType.KneeRight] = ProcessCoord(data.Joints[JointType.AnkleRight], data.Joints[JointType.KneeRight], matchdata.Joints[JointType.AnkleRight], ml[15] / ll[15]);
                 //temp1 = data.Joints[JointType.HipRight];
                 matchdata.Joints[JointType.HipRight] = ProcessCoord(data.Joints[JointType.KneeRight], data.Joints[JointType.HipRight], matchdata.Joints[JointType.KneeRight], ml[14] / ll[14]);
                 //hipcentre = data.Joints[JointType.HipCenter];
                 matchdata.Joints[JointType.HipCenter] = ProcessCoord(data.Joints[JointType.HipRight], data.Joints[JointType.HipCenter], matchdata.Joints[JointType.HipRight], ml[13] / ll[13]);
-                rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
+                rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.FootRight, JointType.AnkleRight, JointType.KneeRight, JointType.HipRight, JointType.HipCenter));
 
                 /// Draw line between hip centre and shoulder centre
                 //shouldercentre = data.Joints[JointType.ShoulderCenter];
                 matchdata.Joints[JointType.ShoulderCenter] = ProcessCoord(data.Joints[JointType.HipCenter], data.Joints[JointType.ShoulderCenter], matchdata.Joints[JointType.HipCenter], ml[17] / ll[17]);
-
+                double a = ml[10];
+                double b = ll[10];
                 /// Left leg
                 //temp1 = data.Joints[JointType.HipLeft];
                 matchdata.Joints[JointType.HipLeft] = ProcessCoord(data.Joints[JointType.HipCenter], data.Joints[JointType.HipLeft], matchdata.Joints[JointType.HipCenter], ml[8] / ll[8]);
@@ -407,7 +416,9 @@ namespace TaiChiLearning
                 //temp2 = data.Joints[JointType.FootLeft];
                 matchdata.Joints[JointType.FootLeft] = ProcessCoord(data.Joints[JointType.AnkleLeft], data.Joints[JointType.FootLeft], matchdata.Joints[JointType.AnkleLeft], ml[11] / ll[11]);
                 rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
+                
 
+                 /*
                 // Draw joints
                 foreach (Joint joint in matchdata.Joints)
                 {
@@ -420,47 +431,25 @@ namespace TaiChiLearning
                     jointLine.StrokeThickness = 6;
                     rootCanvas.Children.Add(jointLine);
                 }
+                  * */
             }
         }
 
         private Joint ProcessCoord (Joint sjoint, Joint ejoint, Joint newspt, double ratio)
         {
             /// calculate the new endpoiny, using the 3d vector calculation
-            Vector3 ep = newspt.Position.ToVector3() - (float)ratio * (ejoint.Position.ToVector3() - sjoint.Position.ToVector3());
+            Vector3 ep = newspt.Position.ToVector3() - (float)ratio * (sjoint.Position.ToVector3() - ejoint.Position.ToVector3());
             /// assign the new position to the original endpoint
-            SkeletonPoint pos = new SkeletonPoint();
+            SkeletonPoint pos = new SkeletonPoint() 
+            {
+                X = ep.X,
+                Y = ep.Y,
+                Z = ep.Z
+            };
             Joint endpt = new Joint();
-            endpt = Clone(ejoint);
-
-            pos.X = ep.X;
-            pos.Y = ep.Y;
-            pos.Z = ep.Z;
+            endpt = ejoint;
             endpt.Position = pos;
-
             return endpt;
-        }
-
-        public static T Clone<T>(this T source)
-        {
-            if (!typeof(T).IsSerializable)
-            {
-                throw new ArgumentException("The type must be serializable.", "source");
-            }
-
-            // Don't serialize a null object, simply return the default for that object
-            if (Object.ReferenceEquals(source, null))
-            {
-                return default(T);
-            }
-
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new MemoryStream();
-            using (stream)
-            {
-                formatter.Serialize(stream, source);
-                stream.Seek(0, SeekOrigin.Begin);
-                return (T)formatter.Deserialize(stream);
-            }
         }
         /*
         public static Skeleton Clone<Skeleton>(this Skeleton source)

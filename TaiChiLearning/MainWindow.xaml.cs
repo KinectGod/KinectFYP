@@ -105,6 +105,8 @@
 
         private static bool _startspeech = false;
 
+        private static Skeleton _masterskeleton;
+
         /// <summary>
         /// Dynamic Time Warping object
         /// </summary>
@@ -133,7 +135,7 @@
         /// <summary>
         /// The two initial joint point positions in order to match the learner and master skeleton
         /// </summary>
-        private static Joint _initialjointpos;
+        private static Joint _initialjointpos = new Joint();
 
         /// <summary>
         /// ArrayList of master's and learner motion
@@ -411,7 +413,8 @@
                                 temppt = Skeleton3DDataExtract.ProcessData(data);
                                 templength = Skeleton3DDataExtract.LengthGeneration(data);
 
-                                LearnerSkeleton.MasterMatchLearner(_master_length, templength, data, _initialjointpos);
+                                if (_masterskeleton != null)
+                                LearnerSkeleton.MasterMatchLearner(_master_length, templength, data, _masterskeleton, _initialjointpos);
 
                                 //if (temppt[4].X >= 0)
                                 _LearnerAngle = temppt;
@@ -532,6 +535,7 @@
                         //Console.WriteLine(_MasterAngle[4].X);
                         if (_LearnerAngle != null && _MasterAngle != null)
                         {
+                            _masterskeleton = data;
                             _master_angles = MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension - 1, threshold, detection);
                             _master_length = Skeleton3DDataExtract.LengthGeneration(data);
                             _masterseq.Add(temppt);
