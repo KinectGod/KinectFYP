@@ -349,7 +349,7 @@ namespace TaiChiLearning.DTW
 
                 while (currentI != 0 && currentJ != 0)
                 {
-                    var target = new DtwPathNode(seq1.Count - currentI, seq2.Count - currentJ, tab[currentI, currentJ]);
+                    var target = new DtwPathNode((int)seq1FrameNum[ seq1.Count - currentI], (int)seq2FrameNum[seq2.Count - currentJ], tab[currentI, currentJ]);
                     _path.Add(target);
                     if (slopeI[currentI, currentJ] > 0) //trace the left one
                     {
