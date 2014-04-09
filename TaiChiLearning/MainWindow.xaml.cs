@@ -141,6 +141,12 @@
         private ArrayList _masterseqNum = new ArrayList();
         private ArrayList _learnerseqNum = new ArrayList();
 
+        private static Point[] _dtwselected;
+
+        private static int _dtwLskeleton = 0;
+        private static int _dtwLcolor = 0;
+        private static int _dtwMskeleton = 0;
+        private static int _dtwMcolor = 0;
 
         // Kinect recorder
         private static KinectRecorder _recorder;
@@ -485,7 +491,9 @@
             // 32-bit per pixel, RGBA image
             var image = e.ColorImageFrame;
 
-            if (image == null) return; // sometimes frame image comes null, so skip it.
+            if (image == null || image.FrameNumber != _dtwselected[_dtwMcolor].X) return; // sometimes frame image comes null, so skip it.
+            if (_dtwselected.Length / 2 > _dtwMcolor)
+                _dtwMcolor++;
             ReplayColorManager.Update(image);
         }
 
@@ -499,8 +507,10 @@
             // 32-bit per pixel, RGBA image
             var image = e.ColorImageFrame;
 
-            if (image == null) return; // sometimes frame image comes null, so skip it.
+            if (image == null || image.FrameNumber != _dtwselected[_dtwLcolor].Y) return; // sometimes frame image comes null, so skip it.
             PlayBackColorManager.Update(image);
+            if (_dtwselected.Length / 2 > _dtwLcolor)
+                _dtwLcolor++;
         }
 
         /// <summary>
@@ -512,7 +522,23 @@
         {
             Skeleton[] skeletons;
             var frame = e.SkeletonFrame;
+            if (_finalframeno <= frame.FrameNumber)
+            {
+                if (_learning)
+                {
+                    this.tcStopLearningClick(null, null);
+                }
+                else if (_playingback)
+                {
+                    this.tcStopPlayBackClick(null, null);
+                }
+                else
+                {
+                    this.tcStopReplayClick(null, null);
+                }
+            }
             if (frame == null) return;
+            if (frame.FrameNumber != _dtwselected[_dtwMskeleton].X && _playingback) return; // make sure it is replaying the selected path
             skeletons = new Skeleton[frame.ArrayLength];
             skeletons = frame.Skeletons;
             Point[] temppt = new Point[dimension - 1];
@@ -549,23 +575,8 @@
                         }
                     }
                 }
-            }
-            
-
-            if (_finalframeno <= frame.FrameNumber)
-            {
-                if (_learning)
-                {
-                    this.tcStopLearningClick(null, null);
-                }
-                else if (_playingback)
-                {
-                    this.tcStopPlayBackClick(null, null);
-                }
-                else
-                {
-                    this.tcStopReplayClick(null, null);
-                }
+                if (_dtwselected.Length / 2 > _dtwMskeleton)
+                    _dtwMskeleton++;
             }
         }
 
@@ -578,7 +589,7 @@
         {
             Skeleton[] skeletons;
             var frame = e.SkeletonFrame;
-            if (frame == null) return;
+            if (frame == null || frame.FrameNumber != _dtwselected[_dtwLskeleton].Y) return; // make sure it is replaying the dtw selected path
             skeletons = new Skeleton[frame.ArrayLength];
             skeletons = frame.Skeletons;
             Point[] temppt = new Point[dimension - 1];
@@ -611,6 +622,8 @@
                     }
                 }
             }
+            if(_dtwselected.Length/2 > _dtwLskeleton)
+                _dtwLskeleton++;
         }
 
         /// <summary>
@@ -943,8 +956,6 @@
             RealTimeSkeletonCanvas.Children.Clear();
             _recorder = null;
             _colorrecorder = null;
-
-            _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _masterseqNum, _learnerseqNum, _temppath);
             
             const string message = "Are you satisfied with your performance this time, save or not?";
             const string caption = "Confirmation";
@@ -972,6 +983,8 @@
 
                 File.Move(@_temppath + "skeleton", @path + "skeleton");
                 File.Move(@_temppath + "colorStream", @path + "colorStream");
+
+                _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _masterseqNum, _learnerseqNum, path);
             }
             else
             {
@@ -1013,6 +1026,12 @@
 
             string path2 = ".\\Learnings\\" + gestureList.Text + "\\";
             readLastFrame(path);
+            // read the previous saved dtw selected path
+            _dtwselected = DtwReadSelectedFrames(path2);
+            _dtwLskeleton = 0;
+            _dtwLcolor = 0;
+            _dtwMskeleton = 0;
+            _dtwMcolor = 0;
 
             if (_learnerskeletonstream != null)
                 _learnerskeletonstream.Close();
@@ -1320,9 +1339,9 @@
         public Point[] DtwReadSelectedFrames(string path)
         {
             Point[] dtwselected;
-            using (FileStream fs_ma = File.Create(@path + "MasterSelected"))
+            using (FileStream fs_ma = File.OpenRead(@path + "MasterSelected"))
             {
-                using (FileStream fs_le = File.Create(@path + "LearnerSelected"))
+                using (FileStream fs_le = File.OpenRead(@path + "LearnerSelected"))
                 {
                     using (BinaryReader reader_ma = new BinaryReader(fs_ma))
                     {
