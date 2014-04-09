@@ -123,8 +123,6 @@ namespace TaiChiLearning
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brushes[5], JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brushes[5], JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brushes[5], JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brushes[5], JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brushes[5], JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
 
 
                     // Draw joints
@@ -363,9 +361,9 @@ namespace TaiChiLearning
             return EndPoint;
         }
 
-        public void MasterMatchLearner (double[] ml, double[] ll, Skeleton data, Skeleton mdata, Joint ini)
+        public void MasterMatchLearner (double[] ml, double[] ll, Skeleton data, Skeleton mdata)
         {
-            var brush = new SolidColorBrush(Color.FromRgb(64, 255, 255));
+            var brush = new SolidColorBrush(Color.FromRgb(192, 192, 192));
             rootCanvas.Children.Clear();
 
             if (SkeletonTrackingState.Tracked == data.TrackingState)
@@ -375,50 +373,53 @@ namespace TaiChiLearning
                 Skeleton matchdata = new Skeleton();
                 matchdata = mdata;
                 Joint temp = new Joint();
-                temp = mdata.Joints[JointType.FootRight];
+                temp = mdata.Joints[JointType.ShoulderCenter];
                 SkeletonPoint pos = new SkeletonPoint() 
                 {
-                    X = ini.Position.X,
-                    Y = ini.Position.Y,
-                    Z = ini.Position.Z
+                    X = mdata.Joints[JointType.ShoulderCenter].Position.X,
+                    Y = mdata.Joints[JointType.ShoulderCenter].Position.Y,
+                    Z = mdata.Joints[JointType.ShoulderCenter].Position.Z
                 };
                 temp.Position = pos;
-                /*
-                Joint temp1 = new Joint();
-                Joint temp2 = new Joint();
-                Joint shouldercentre = new Joint();
-                Joint hipcentre = new Joint();
-                 * */
-                /// Right leg
-                //temp1 = data.Joints[JointType.AnkleRight];
-                matchdata.Joints[JointType.FootRight] = temp;
-                matchdata.Joints[JointType.AnkleRight] = ProcessCoord(data.Joints[JointType.FootRight], data.Joints[JointType.AnkleRight], matchdata.Joints[JointType.FootRight], ml[16] / ll[16]);
-                //temp2 = data.Joints[JointType.KneeRight];
-                matchdata.Joints[JointType.KneeRight] = ProcessCoord(data.Joints[JointType.AnkleRight], data.Joints[JointType.KneeRight], matchdata.Joints[JointType.AnkleRight], ml[15] / ll[15]);
-                //temp1 = data.Joints[JointType.HipRight];
-                matchdata.Joints[JointType.HipRight] = ProcessCoord(data.Joints[JointType.KneeRight], data.Joints[JointType.HipRight], matchdata.Joints[JointType.KneeRight], ml[14] / ll[14]);
-                //hipcentre = data.Joints[JointType.HipCenter];
-                matchdata.Joints[JointType.HipCenter] = ProcessCoord(data.Joints[JointType.HipRight], data.Joints[JointType.HipCenter], matchdata.Joints[JointType.HipRight], ml[13] / ll[13]);
-                rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.FootRight, JointType.AnkleRight, JointType.KneeRight, JointType.HipRight, JointType.HipCenter));
+
+                // initialize the reference point
+                matchdata.Joints[JointType.ShoulderCenter] = temp;
 
                 /// Draw line between hip centre and shoulder centre
                 //shouldercentre = data.Joints[JointType.ShoulderCenter];
-                matchdata.Joints[JointType.ShoulderCenter] = ProcessCoord(data.Joints[JointType.HipCenter], data.Joints[JointType.ShoulderCenter], matchdata.Joints[JointType.HipCenter], ml[17] / ll[17]);
-                double a = ml[10];
-                double b = ll[10];
-                /// Left leg
-                //temp1 = data.Joints[JointType.HipLeft];
-                matchdata.Joints[JointType.HipLeft] = ProcessCoord(data.Joints[JointType.HipCenter], data.Joints[JointType.HipLeft], matchdata.Joints[JointType.HipCenter], ml[8] / ll[8]);
-                //temp2 = data.Joints[JointType.KneeLeft];
-                matchdata.Joints[JointType.KneeLeft] = ProcessCoord(data.Joints[JointType.HipLeft], data.Joints[JointType.KneeLeft], matchdata.Joints[JointType.HipLeft], ml[9] / ll[9]);
-                //temp1 = data.Joints[JointType.AnkleLeft];
-                matchdata.Joints[JointType.AnkleLeft] = ProcessCoord(data.Joints[JointType.KneeLeft], data.Joints[JointType.AnkleLeft], matchdata.Joints[JointType.KneeLeft], ml[10] / ll[10]);
-                //temp2 = data.Joints[JointType.FootLeft];
-                matchdata.Joints[JointType.FootLeft] = ProcessCoord(data.Joints[JointType.AnkleLeft], data.Joints[JointType.FootLeft], matchdata.Joints[JointType.AnkleLeft], ml[11] / ll[11]);
-                rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
+                matchdata.Joints[JointType.HipCenter] = ProcessCoord(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.HipCenter], matchdata.Joints[JointType.ShoulderCenter], ml[12] / ll[12]);
+                matchdata.Joints[JointType.Head] = ProcessCoord(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.Head], matchdata.Joints[JointType.ShoulderCenter],1);
                 
+                /// Right leg
+                matchdata.Joints[JointType.HipRight] = ProcessCoord(data.Joints[JointType.HipCenter], data.Joints[JointType.HipRight], matchdata.Joints[JointType.HipCenter], ml[13] / ll[13]);
+                matchdata.Joints[JointType.KneeRight] = ProcessCoord(data.Joints[JointType.HipRight], data.Joints[JointType.KneeRight], matchdata.Joints[JointType.HipRight], ml[14] / ll[14]);
+                matchdata.Joints[JointType.AnkleRight] = ProcessCoord(data.Joints[JointType.KneeRight], data.Joints[JointType.AnkleRight], matchdata.Joints[JointType.KneeRight], ml[15] / ll[15]);
+                matchdata.Joints[JointType.FootRight] = ProcessCoord(data.Joints[JointType.AnkleRight], data.Joints[JointType.FootRight], matchdata.Joints[JointType.AnkleRight], ml[16] / ll[16]);
+                
+                /// Left leg
+                matchdata.Joints[JointType.HipLeft] = ProcessCoord(data.Joints[JointType.HipCenter], data.Joints[JointType.HipLeft], matchdata.Joints[JointType.HipCenter], ml[8] / ll[8]);
+                matchdata.Joints[JointType.KneeLeft] = ProcessCoord(data.Joints[JointType.HipLeft], data.Joints[JointType.KneeLeft], matchdata.Joints[JointType.HipLeft], ml[9] / ll[9]);
+                matchdata.Joints[JointType.AnkleLeft] = ProcessCoord(data.Joints[JointType.KneeLeft], data.Joints[JointType.AnkleLeft], matchdata.Joints[JointType.KneeLeft], ml[10] / ll[10]);
+                matchdata.Joints[JointType.FootLeft] = ProcessCoord(data.Joints[JointType.AnkleLeft], data.Joints[JointType.FootLeft], matchdata.Joints[JointType.AnkleLeft], ml[11] / ll[11]);
 
-                 /*
+                /// Right Hand
+                matchdata.Joints[JointType.ShoulderRight] = ProcessCoord(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderRight], matchdata.Joints[JointType.ShoulderCenter], ml[4] / ll[4]);
+                matchdata.Joints[JointType.ElbowRight] = ProcessCoord(data.Joints[JointType.ShoulderRight], data.Joints[JointType.ElbowRight], matchdata.Joints[JointType.ShoulderRight], ml[5] / ll[5]);
+                matchdata.Joints[JointType.WristRight] = ProcessCoord(data.Joints[JointType.ElbowRight], data.Joints[JointType.WristRight], matchdata.Joints[JointType.ElbowRight], ml[6] / ll[6]);
+                matchdata.Joints[JointType.HandRight] = ProcessCoord(data.Joints[JointType.WristRight], data.Joints[JointType.HandRight], matchdata.Joints[JointType.WristRight], ml[7] / ll[7]);
+
+                /// Left Hand
+                matchdata.Joints[JointType.ShoulderLeft] = ProcessCoord(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.ShoulderLeft], matchdata.Joints[JointType.ShoulderCenter], ml[0] / ll[0]);
+                matchdata.Joints[JointType.ElbowLeft] = ProcessCoord(data.Joints[JointType.ShoulderLeft], data.Joints[JointType.ElbowLeft], matchdata.Joints[JointType.ShoulderLeft], ml[1] / ll[1]);
+                matchdata.Joints[JointType.WristLeft] = ProcessCoord(data.Joints[JointType.ElbowLeft], data.Joints[JointType.WristLeft], matchdata.Joints[JointType.ElbowLeft], ml[2] / ll[2]);
+                matchdata.Joints[JointType.HandLeft] = ProcessCoord(data.Joints[JointType.WristLeft], data.Joints[JointType.HandLeft], matchdata.Joints[JointType.WristLeft], ml[3] / ll[3]);
+
+                rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.HipCenter, JointType.ShoulderCenter, JointType.Head));
+                rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft));
+                rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
+                rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
+                rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
+
                 // Draw joints
                 foreach (Joint joint in matchdata.Joints)
                 {
@@ -431,7 +432,6 @@ namespace TaiChiLearning
                     jointLine.StrokeThickness = 6;
                     rootCanvas.Children.Add(jointLine);
                 }
-                  * */
             }
         }
 
@@ -451,29 +451,5 @@ namespace TaiChiLearning
             endpt.Position = pos;
             return endpt;
         }
-        /*
-        public static Skeleton Clone<Skeleton>(this Skeleton source)
-        {
-            if (!typeof(Skeleton).IsSerializable)
-            {
-                throw new ArgumentException("The type must be serializable.", "source");
-            }
-
-            // Don't serialize a null object, simply return the default for that object
-            if (Object.ReferenceEquals(source, null))
-            {
-                return default(Skeleton);
-            }
-
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new MemoryStream();
-            using (stream)
-            {
-                formatter.Serialize(stream, source);
-                stream.Seek(0, SeekOrigin.Begin);
-                return (Skeleton)formatter.Deserialize(stream);
-            }
-        }
-         * */
     }
 }
