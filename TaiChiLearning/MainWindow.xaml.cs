@@ -300,9 +300,13 @@
             //text tp speech
             synthesizer = new SpeechSynthesizer();
             // Configure the audio output. 
+            /*
             synthesizer.SetOutputToDefaultAudioDevice();
             synthesizer.Volume = 100;//聲音大小(0 ~ 100)      
             synthesizer.Rate = -2;//聲音速度(-10 ~ 10)
+            */
+            _masterseq.Clear();
+            _learnerseq.Clear();
 
         }
 
@@ -511,7 +515,7 @@
             skeletons = frame.Skeletons;
             Point[] temppt = new Point[dimension - 1];
             double[] templength = new double[dimension];
-
+            
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
             if (!_learning)
             {
@@ -538,11 +542,13 @@
                             _masterskeleton = data;
                             _master_angles = MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension - 1, threshold, detection);
                             _master_length = Skeleton3DDataExtract.LengthGeneration(data);
+                            
                             _masterseq.Add(temppt);
                         }
                     }
                 }
             }
+            
 
             if (_finalframeno <= frame.FrameNumber)
             {
@@ -936,7 +942,7 @@
             _recorder = null;
             _colorrecorder = null;
 
-            _dTWresult = _dtw.DtwCompution(_masterseq, _learnerseq, _temppath);
+            _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _temppath);
             
             const string message = "Are you satisfied with your performance this time, save or not?";
             const string caption = "Confirmation";

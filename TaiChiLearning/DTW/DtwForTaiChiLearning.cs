@@ -262,7 +262,7 @@ namespace TaiChiLearning.DTW
         /// <param name="seq1">The master array of sequences to compare</param>
         /// <param name="seq2">The learner array of sequences to compare</param>
         /// <returns>The best match</returns>
-        public double DtwCompution(ArrayList seq1, ArrayList seq2, string path)
+        public double DtwComputation(ArrayList seq1, ArrayList seq2, string path)
         {
             // Init
             var seq1R = new ArrayList(seq1);
@@ -314,6 +314,18 @@ namespace TaiChiLearning.DTW
                 }
             }
 
+            int rowLength = tab.GetLength(0);
+            int colLength = tab.GetLength(1);
+
+            for (int i = 0; i < rowLength; i++)
+            {
+                for (int j = 0; j < colLength; j++)
+                {
+                    Console.Write(string.Format("{0} ", tab[i, j]));
+                }
+                Console.Write(Environment.NewLine + Environment.NewLine);
+            }
+            Console.ReadLine();
             
             // Find best between seq2 and an ending (postfix) of seq1.
             double bestMatch = double.PositiveInfinity;
@@ -385,8 +397,9 @@ namespace TaiChiLearning.DTW
             d = Math.Sqrt(d);
             d2 = Math.Sqrt(d2);
             //error checking
-            if (!double.IsNaN(d) || !double.IsNaN(d2)) return -1;
+            if (double.IsNaN(d) || double.IsNaN(d2)) return -1;
             //scale the score
+            
             if (d > _globalThreshold)
             {
                 mark += 0;
@@ -404,6 +417,9 @@ namespace TaiChiLearning.DTW
             {
                 mark += 0.5;
             }
+            
+
+            //mark = d + d2;
             return mark;
         }
         /// <summary>
