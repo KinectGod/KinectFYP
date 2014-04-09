@@ -133,11 +133,6 @@
         private SpeechSynthesizer synthesizer;
 
         /// <summary>
-        /// The two initial joint point positions in order to match the learner and master skeleton
-        /// </summary>
-        private static Joint _initialjointpos = new Joint();
-
-        /// <summary>
         /// ArrayList of master's and learner motion
         /// </summary>
         private ArrayList _masterseq = new ArrayList();
@@ -418,7 +413,7 @@
                                 templength = Skeleton3DDataExtract.LengthGeneration(data);
 
                                 if (_masterskeleton != null)
-                                LearnerSkeleton.MasterMatchLearner(_master_length, templength, data, _masterskeleton, _initialjointpos);
+                                LearnerSkeleton.MasterMatchLearner(_master_length, templength, data, _masterskeleton);
 
                                 //if (temppt[4].X >= 0)
                                 _LearnerAngle = temppt;
@@ -532,7 +527,6 @@
                     {
 
                         temppt = Skeleton3DDataExtract.ProcessData(data);
-                        _initialjointpos = data.Joints[JointType.FootRight];
 
                         //if (temppt[4].X >= 0)
                         _MasterAngle = temppt;
