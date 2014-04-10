@@ -317,6 +317,7 @@ namespace TaiChiLearning.DTW
             int rowLength = tab.GetLength(0);
             int colLength = tab.GetLength(1);
 
+            /*
             for (int i = 0; i < rowLength; i++)
             {
                 for (int j = 0; j < colLength; j++)
@@ -326,6 +327,7 @@ namespace TaiChiLearning.DTW
                 Console.Write(Environment.NewLine + Environment.NewLine);
             }
             Console.ReadLine();
+            */
             
             // Find best between seq2 and an ending (postfix) of seq1.
             double bestMatch = double.PositiveInfinity;

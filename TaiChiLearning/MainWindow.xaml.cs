@@ -132,6 +132,10 @@
         ///</summary>
         private SpeechSynthesizer synthesizer;
 
+        private static Joint _masterini = new Joint();
+        private static Joint _learnerini = new Joint();
+        private static Vector3 inidiff = new Vector3();
+
         /// <summary>
         /// ArrayList of master's and learner motion
         /// </summary>
@@ -423,9 +427,14 @@
                             {
                                 temppt = Skeleton3DDataExtract.ProcessData(data);
                                 templength = Skeleton3DDataExtract.LengthGeneration(data);
+                                if(_learnerini == null && _masterini != null)
+                                {
+                                    _learnerini = data.Joints[JointType.ShoulderCenter];
+                                     inidiff = _masterini.Position.ToVector3() - _learnerini.Position.ToVector3();
+                                }
 
-                                if (_masterskeleton != null)
-                                LearnerSkeleton.MasterMatchLearner(_master_length, templength, data, _masterskeleton);
+                                if (_masterskeleton != null && inidiff.X < 9999)
+                                    LearnerSkeleton.MasterMatchLearner(_master_length, templength, data, _masterskeleton, inidiff);
 
                                 //if (temppt[4].X >= 0)
                                 _LearnerAngle = temppt;
@@ -491,9 +500,13 @@
             // 32-bit per pixel, RGBA image
             var image = e.ColorImageFrame;
 
-            if (image == null || image.FrameNumber != _dtwselected[_dtwMcolor].X) return; // sometimes frame image comes null, so skip it.
-            if (_dtwselected.Length / 2 > _dtwMcolor)
-                _dtwMcolor++;
+            if (image == null) return; // sometimes frame image comes null, so skip it.
+            if (_playingback)
+            {
+                if( image.FrameNumber != _dtwselected[_dtwMcolor].X) return;
+                if (_dtwselected.Length / 2 > _dtwMcolor)
+                    _dtwMcolor++;
+            }
             ReplayColorManager.Update(image);
         }
 
@@ -538,7 +551,12 @@
                 }
             }
             if (frame == null) return;
-            if (frame.FrameNumber != _dtwselected[_dtwMskeleton].X && _playingback) return; // make sure it is replaying the selected path
+            if (_playingback)
+            {
+                if (frame.FrameNumber != _dtwselected[_dtwMskeleton].X) return; // make sure it is replaying the selected path
+                if (_dtwselected.Length / 2 > _dtwMskeleton)
+                    _dtwMskeleton++;
+            }
             skeletons = new Skeleton[frame.ArrayLength];
             skeletons = frame.Skeletons;
             Point[] temppt = new Point[dimension - 1];
@@ -567,6 +585,10 @@
                         if (_LearnerAngle != null && _MasterAngle != null)
                         {
                             _masterskeleton = data;
+                            if (_masterini == null)
+                            {
+                                _masterini = data.Joints[JointType.ShoulderCenter];
+                            }
                             _master_angles = MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension - 1, threshold, detection);
                             _master_length = Skeleton3DDataExtract.LengthGeneration(data);
                             
@@ -575,8 +597,7 @@
                         }
                     }
                 }
-                if (_dtwselected.Length / 2 > _dtwMskeleton)
-                    _dtwMskeleton++;
+                
             }
         }
 

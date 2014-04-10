@@ -361,7 +361,7 @@ namespace TaiChiLearning
             return EndPoint;
         }
 
-        public void MasterMatchLearner (double[] ml, double[] ll, Skeleton data, Skeleton mdata)
+        public void MasterMatchLearner (double[] ml, double[] ll, Skeleton data, Skeleton mdata, Vector3 inidiff)
         {
             var brush = new SolidColorBrush(Color.FromRgb(192, 192, 192));
             rootCanvas.Children.Clear();
@@ -373,12 +373,12 @@ namespace TaiChiLearning
                 Skeleton matchdata = new Skeleton();
                 matchdata = mdata;
                 Joint temp = new Joint();
-                temp = mdata.Joints[JointType.ShoulderCenter];
+                temp = data.Joints[JointType.ShoulderCenter];
                 SkeletonPoint pos = new SkeletonPoint() 
                 {
-                    X = mdata.Joints[JointType.ShoulderCenter].Position.X,
-                    Y = mdata.Joints[JointType.ShoulderCenter].Position.Y,
-                    Z = mdata.Joints[JointType.ShoulderCenter].Position.Z
+                    X = data.Joints[JointType.ShoulderCenter].Position.X + inidiff.X,
+                    Y = data.Joints[JointType.ShoulderCenter].Position.Y + inidiff.Y,
+                    Z = data.Joints[JointType.ShoulderCenter].Position.Z + inidiff.Z
                 };
                 temp.Position = pos;
 
