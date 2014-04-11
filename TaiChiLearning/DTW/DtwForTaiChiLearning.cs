@@ -269,6 +269,7 @@ namespace TaiChiLearning.DTW
             seq1R.Reverse();
             var seq2R = new ArrayList(seq2);
             seq2R.Reverse();
+
             var tab = new double[seq1R.Count + 1, seq2R.Count + 1];
             var slopeI = new int[seq1R.Count + 1, seq2R.Count + 1];
             var slopeJ = new int[seq1R.Count + 1, seq2R.Count + 1];
@@ -344,14 +345,15 @@ namespace TaiChiLearning.DTW
             //Reconstruct the best matched path
             if (bestMatchI >= 1) //return -1; //error checking 
             {
-                _path.Clear();
+                //_path.Clear();
                 _path = new ArrayList();
                 int currentI = bestMatchI;
                 int currentJ = seq2R.Count;
-
+                int seq1Count = seq1.Count;
+                int seq2Count = seq2.Count;
                 while (currentI != 0 && currentJ != 0)
                 {
-                    var target = new DtwPathNode((int)seq1FrameNum[ seq1.Count - currentI], (int)seq2FrameNum[seq2.Count - currentJ], tab[currentI, currentJ]);
+                    var target = new DtwPathNode((int)seq1FrameNum[seq1Count - currentI], (int)seq2FrameNum[ seq2Count - currentJ], tab[currentI, currentJ]);
                     _path.Add(target);
                     if (slopeI[currentI, currentJ] > 0) //trace the left one
                     {
