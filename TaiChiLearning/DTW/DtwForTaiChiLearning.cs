@@ -349,11 +349,9 @@ namespace TaiChiLearning.DTW
                 _path = new ArrayList();
                 int currentI = bestMatchI;
                 int currentJ = seq2R.Count;
-                int seq1Count = seq1.Count;
-                int seq2Count = seq2.Count;
                 while (currentI != 0 && currentJ != 0)
                 {
-                    var target = new DtwPathNode((int)seq1FrameNum[seq1Count - currentI], (int)seq2FrameNum[ seq2Count - currentJ], tab[currentI, currentJ]);
+                    var target = new DtwPathNode((int)seq1FrameNum[seq1.Count - currentI], (int)seq2FrameNum[seq2.Count - currentJ], tab[currentI, currentJ]);
                     _path.Add(target);
                     if (slopeI[currentI, currentJ] > 0) //trace the left one
                     {
@@ -373,7 +371,7 @@ namespace TaiChiLearning.DTW
                 DtwRecordSelectedFrames(path);
             }
 
-            return bestMatch / seq1R.Count;
+            return (1- (bestMatch / seq1R.Count));
         }
 
         /// <summary>
@@ -391,35 +389,37 @@ namespace TaiChiLearning.DTW
             double mark = 0;
             for (int i = 0; i < _dimension; i++)
                 //error checking
-                if (a.Length != b.Length) return -1;
+                if (a.Length != b.Length) return -1; //would it affect the result?
             //aggregate the angle differences
             for (int i = 0; i < a.Length; i++)
             {
-                d += Math.Abs(a[i].X - b[i].X); 
+                d += Math.Abs(a[i].X - b[i].X); //should be a square?
                 d2 += Math.Abs(a[i].Y - b[i].Y);
             }
             d = Math.Sqrt(d);
             d2 = Math.Sqrt(d2);
             //error checking
             if (double.IsNaN(d) || double.IsNaN(d2)) return -1;
-            //scale the score
             
+            //scale the score  
+            //should be 0 if d is samller than the globalthreshold
+            //becasue DTW is to find the minimum difference 
             if (d > _globalThreshold)
             {
-                mark += 0;
+                mark += 0.5;
             }
             else 
             {
-                mark += 0.5;
+                mark += 0;
             }
 
             if (d2 > _globalThreshold)
             {
-                mark += 0;
+                mark += 0.5;
             }
             else
             {
-                mark += 0.5;
+                mark += 0;
             }
             
 
