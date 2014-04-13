@@ -273,7 +273,7 @@
             //PlayBackSkeleton = new SkeletonDrawManager(PlayBackSkeletonCanvas, _nui);
             //LearningSkeleton = new SkeletonDrawManager(LearningSkeletonCanvas, _nui);
 
-            _dtw = new DtwForTaiChiLearning(dimension * 2, 0.6, 2, 2, 10);
+            _dtw = new DtwForTaiChiLearning(dimension * 2, 3600, 60, 4, 1);
             // If you want to see the RGB stream then include this
             _nui.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
             _nui.ColorFrameReady += NuiColorFrameReady;
