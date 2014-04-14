@@ -78,6 +78,7 @@ namespace TaiChiLearning.DTW
         /// <param name="dim">Vector size</param>
         /// <param name="threshold">Maximum distance between the last observations of each sequence</param>
         /// <param name="firstThreshold">Minimum threshold</param>
+       /*
         public DtwForTaiChiLearning(int dim, double threshold, double firstThreshold, double minLen)
         {
             _dimension = dim;
@@ -88,7 +89,7 @@ namespace TaiChiLearning.DTW
             _maxSlope = int.MaxValue;
             _minimumLength = minLen;
         }
-
+        */
         /// <summary>
         /// Initializes a new instance of the DtwGestureRecognizer class
         /// Second DTW constructor
@@ -315,10 +316,9 @@ namespace TaiChiLearning.DTW
                 }
             }
 
+            /*
             int rowLength = tab.GetLength(0);
             int colLength = tab.GetLength(1);
-
-            /*
             for (int i = 0; i < rowLength; i++)
             {
                 for (int j = 0; j < colLength; j++)
@@ -353,6 +353,7 @@ namespace TaiChiLearning.DTW
                 {
                     var target = new DtwPathNode((int)seq1FrameNum[seq1.Count - currentI], (int)seq2FrameNum[seq2.Count - currentJ], tab[currentI, currentJ]);
                     _path.Add(target);
+                    Console.WriteLine(target.I + " " + target.J);
                     if (slopeI[currentI, currentJ] > 0) //trace the left one
                     {
                         currentJ -= 1;
@@ -386,15 +387,15 @@ namespace TaiChiLearning.DTW
 
             double d = 0.0;
             double d2 = 0.0;
-            double mark = 0;
+            double mark = 0.0;
             for (int i = 0; i < _dimension; i++)
                 //error checking
                 if (a.Length != b.Length) return -1; //would it affect the result?
             //aggregate the angle differences
             for (int i = 0; i < a.Length; i++)
             {
-                d += Math.Abs(a[i].X - b[i].X); //should be a square?
-                d2 += Math.Abs(a[i].Y - b[i].Y);
+                d += Math.Pow(Math.Abs(a[i].X - b[i].X),2); //should be a square?
+                d2 += Math.Pow(Math.Abs(a[i].Y - b[i].Y),2);
             }
             d = Math.Sqrt(d);
             d2 = Math.Sqrt(d2);
@@ -404,25 +405,34 @@ namespace TaiChiLearning.DTW
             //scale the score  
             //should be 0 if d is samller than the globalthreshold
             //becasue DTW is to find the minimum difference 
-            if (d > _globalThreshold)
+            //if (d > _globalThreshold)
+            if (d > 30 * _dimension / 2)       
             {
                 mark += 0.5;
+            }
+            else if (d > 15 * _dimension / 2)
+            {
+                mark += 0.25;
             }
             else 
             {
                 mark += 0;
             }
 
-            if (d2 > _globalThreshold)
+            if (d2 > 30 * _dimension / 2)
             {
                 mark += 0.5;
+            }
+            else if (d > 15 * _dimension / 2)
+            {
+                mark += 0.25;
             }
             else
             {
                 mark += 0;
             }
-            
 
+            //Console.WriteLine(mark);
             //mark = d + d2;
             return mark;
         }
