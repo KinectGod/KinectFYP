@@ -1323,12 +1323,8 @@
                         break;
                 }
                 _startspeech = false;
-                try
-                {
+                
                     synthesizer.Speak(recognized_text);
-
-                }
-                catch { }
 
             }
         }

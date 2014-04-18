@@ -326,7 +326,7 @@ namespace TaiChiLearning.DTW
                             tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
                             break;
                     }
-                    Console.Write("{0:F2}\t",tab[i, j]);
+                    //Console.Write("{0:F2}\t",tab[i, j]);
 
                 }
                 Console.WriteLine();
@@ -443,12 +443,13 @@ namespace TaiChiLearning.DTW
                 //error checking
                 if (a.Length != b.Length) return 1; //would it affect the result?
             //aggregate the angle differences
+            //a.3,7,11,16
             int count = 0;
             for (int i = 0; i < a.Length; i++)
             {
                 double d = Math.Sqrt(Math.Pow(Math.Abs(a[i].X - b[i].X), 2) + Math.Pow(Math.Abs(a[i].Y - b[i].Y), 2));
-
-                if (d > anglethreshold)
+                
+                if (d > anglethreshold && i != 3 && i != 7 && i != 11 && i != 16 )
                 {
                     mark += 0.2;
                     count += 1;
@@ -466,8 +467,9 @@ namespace TaiChiLearning.DTW
                 }*/
             }
 
+            //return count / a.Length;
             if (count > 5 || mark > 1)
-                return 1;
+               return 1;
             else 
                 return mark;
             /*
