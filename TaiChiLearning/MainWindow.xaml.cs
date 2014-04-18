@@ -187,7 +187,7 @@
         private static int _finalframeno;
 
         ///Difficulty
-        private static double threshold = 40.0;
+        private static double threshold = 80.0;
 
         /// <summary>
         /// Property change event
@@ -565,10 +565,11 @@
             skeletons = frame.Skeletons;
             Point[] temppt = new Point[dimension - 1];
             double[] templength = new double[dimension];
-            
+
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
             if (!_learning || _playingback)
             {
+                if (_playingback) Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
                 ReplaySkeleton.DrawSkeleton(skeletons);
             }
 
@@ -615,11 +616,13 @@
             Skeleton[] skeletons;
             var frame = e.SkeletonFrame;
             if (frame == null || frame.FrameNumber != _dtwselected[_dtwLskeleton].Y) return; // make sure it is replaying the dtw selected path
+            
             skeletons = new Skeleton[frame.ArrayLength];
             skeletons = frame.Skeletons;
             Point[] temppt = new Point[dimension - 1];
 
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
+            Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
             RealTimeSkeleton.DrawSkeleton(skeletons);
 
             /// get the joint angle data of master
@@ -927,7 +930,7 @@
             _recordskeletonstream = File.OpenRead(@path + "skeleton");
             _replay = new KinectReplay(_recordskeletonstream);
             _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
-            _replay.Start(1000.0/this.SelectedFPS);
+            _replay.Start(1000.0 / this.SelectedFPS);
 
             if (_recordcolorstream != null)
                 _recordcolorstream.Close();
@@ -1016,7 +1019,7 @@
                 File.Move(@_temppath + "skeleton", @path + "skeleton");
                 File.Move(@_temppath + "colorStream", @path + "colorStream");
 
-                _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _masterseqNum, _learnerseqNum, path);
+                _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _masterseqNum, _learnerseqNum, path, threshold);
                 status.Text = gestureList.Text + " added";
             }
             else
@@ -1079,10 +1082,10 @@
             _colorplayback = new KinectReplay(_learnercolorstream);
             _colorplayback.ColorImageFrameReady += playback_ColorImageFrameReady;
 
-            _playback.Start(1000.0 / this.SelectedFPS);
-            _colorplayback.Start(1000.0 / this.SelectedFPS);
-            _colorreplay.Start(1000.0 / this.SelectedFPS);
-            _replay.Start(1000.0 / this.SelectedFPS);
+            _playback.Start(200);
+            //_colorplayback.Start(1000.0 / this.SelectedFPS);
+            //_colorreplay.Start(1000.0 / this.SelectedFPS);
+            _replay.Start(200);
 
             status.Text = "Playing back " + gestureList.Text;
         }

@@ -376,8 +376,8 @@ namespace TaiChiLearning
                 temp = mdata.Joints[JointType.ShoulderCenter];
                 SkeletonPoint pos = new SkeletonPoint() 
                 {
-                    X = mdata.Joints[JointType.ShoulderCenter].Position.X ,
-                    Y = mdata.Joints[JointType.ShoulderCenter].Position.Y ,
+                    X = data.Joints[JointType.ShoulderCenter].Position.X ,
+                    Y = mdata.Joints[JointType.ShoulderCenter].Position.Y,
                     Z = mdata.Joints[JointType.ShoulderCenter].Position.Z 
                 };
                 temp.Position = pos;

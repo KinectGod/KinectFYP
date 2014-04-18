@@ -263,7 +263,7 @@ namespace TaiChiLearning.DTW
         /// <param name="seq1">The master array of sequences to compare</param>
         /// <param name="seq2">The learner array of sequences to compare</param>
         /// <returns>The best match</returns>
-        public double DtwComputation(ArrayList seq1, ArrayList seq2, ArrayList seq1FrameNum, ArrayList seq2FrameNum, string path)
+        public double DtwComputation(ArrayList seq1, ArrayList seq2, ArrayList seq1FrameNum, ArrayList seq2FrameNum, string path, double anglethreshold)
         {
             // Init
             var seq1R = new ArrayList(seq1);
@@ -317,13 +317,13 @@ namespace TaiChiLearning.DTW
                     switch (min(tab[i, j - 1], tab[i - 1, j], tab[i - 1, j - 1]))
                     {
                         case 1:
-                            tab[i, j] =  Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]) + tab[i, j - 1];
+                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i, j - 1];
                             break;
                         case 2:
-                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]) + tab[i - 1, j];
+                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j];
                             break;
-                        case 3:                            
-                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]) + tab[i - 1, j - 1];
+                        case 3:
+                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
                             break;
                     }
                     Console.Write("{0:F2}\t",tab[i, j]);
@@ -376,6 +376,7 @@ namespace TaiChiLearning.DTW
                 }
             }
 
+            int totalframe = 0;
             //Reconstruct the best matched path
             if (bestMatchI >= 1) //return -1; //error checking 
             {
@@ -388,6 +389,7 @@ namespace TaiChiLearning.DTW
                 {
                     //var target = new DtwPathNode((int)seq1FrameNum[currentI - 1], (int)seq2FrameNum[currentJ - 1], tab[currentI, currentJ]);
                     var target = new DtwPathNode((int)seq1FrameNum[seq1.Count - currentI], (int)seq2FrameNum[seq2.Count - currentJ], tab[currentI, currentJ]);
+                    
                     _path.Add(target);
                     Console.WriteLine(target.I + " " + target.J);
                     switch (min(tab[currentI, currentJ - 1], tab[currentI - 1, currentJ], tab[currentI - 1, currentJ - 1]))
@@ -406,11 +408,13 @@ namespace TaiChiLearning.DTW
                             //Console.WriteLine("111111111111111111111");
                             break;
                     }
+                    totalframe += 1;
                 }
                 DtwRecordSelectedFrames(path);
             }
-
-            return (1- (bestMatch / seq1R.Count));
+            Console.WriteLine(tab[seq1R.Count - 1, seq2R.Count - 1] + " " + totalframe);
+            Console.WriteLine(1 - (tab[seq1R.Count-1, seq2R.Count-1] / totalframe));
+            return (1 - (tab[seq1R.Count-1, seq2R.Count-1] / totalframe));
         }
 
 
@@ -431,9 +435,42 @@ namespace TaiChiLearning.DTW
         /// <param name="b">Point b (double)</param>
         /// <returns>Euclidian distance between the two points</returns>
 
-        private double Marker(System.Windows.Point[] a, System.Windows.Point[] b)
+        private double Marker(System.Windows.Point[] a, System.Windows.Point[] b, double anglethreshold)
         {
+            
+            double mark = 0.0;
+            for (int i = 0; i < _dimension; i++)
+                //error checking
+                if (a.Length != b.Length) return 1; //would it affect the result?
+            //aggregate the angle differences
+            int count = 0;
+            for (int i = 0; i < a.Length; i++)
+            {
+                double d = Math.Sqrt(Math.Pow(Math.Abs(a[i].X - b[i].X), 2) + Math.Pow(Math.Abs(a[i].Y - b[i].Y), 2));
 
+                if (d > anglethreshold)
+                {
+                    mark += 0.2;
+                    count += 1;
+                }
+                    /*
+                else if (d > (anglethreshold * 4 / 5))
+                {
+                    mark += 0.16;
+                    count += 1;
+                }
+                else if (d > (anglethreshold * 3 / 5))
+                {
+                    mark += 0.12;
+                    //count += 1;
+                }*/
+            }
+
+            if (count > 5 || mark > 1)
+                return 1;
+            else 
+                return mark;
+            /*
             double d = 0.0;
             double d2 = 0.0;
             double mark = 0.0;
@@ -455,28 +492,40 @@ namespace TaiChiLearning.DTW
             {
                 mark += 0.5;
             }
-            else if (d > 15 * _dimension / 2)
+            else if (d > 24 * _dimension / 2)
             {
-                mark += 0.25;
+                mark += 0.4;
             }
-            else 
+            else if (d > 18 * _dimension / 2)
             {
-                mark += 0;
+                mark += 0.3;
             }
+            else if (d > 12 * _dimension / 2)
+            {
+                mark += 0.2;
+            }
+
 
             if (d2 > 30 * _dimension / 2)
             {
                 mark += 0.5;
             }
-            else if (d > 15 * _dimension / 2)
+            else if (d2 > 24 * _dimension / 2)
             {
-                mark += 0.25;
+                mark += 0.4;
             }
-            else
+            else if (d2 > 18 * _dimension / 2)
             {
-                mark += 0;
+                mark += 0.3;
             }
+            else if (d2 > 12 * _dimension / 2)
+            {
+                mark += 0.2;
+            }
+
             return mark;
+            */
+             
         }
         /// <summary>
         /// Calculate the result
