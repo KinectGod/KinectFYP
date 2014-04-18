@@ -71,7 +71,7 @@
         /// Dictionary of all the joints Kinect SDK is capable of tracking. You might not want always to use them all but they are included here for thouroughness.
        
         /// number of joints that we need
-        private const int dimension = 18;
+        private const int dimension = 19;
 
         /// <summary>
         /// Flag to show whether or not the Tai Chi learning system is capturing a new pose
@@ -198,7 +198,7 @@
         /// The replay rate 
         /// </summary>
         private int selectedFPS = 30;
-        //private static double rateinmsec = 1000.0/SelectedFPS;
+        
 
         public static readonly DependencyProperty selectedFPSProperty =
     DependencyProperty.Register("selectedFPS", typeof(string), typeof(MainWindow), new PropertyMetadata(null));
