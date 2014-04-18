@@ -71,7 +71,7 @@
         /// Dictionary of all the joints Kinect SDK is capable of tracking. You might not want always to use them all but they are included here for thouroughness.
        
         /// number of joints that we need
-        private const int dimension = 18;
+        private const int dimension = 19;
 
         /// <summary>
         /// Flag to show whether or not the Tai Chi learning system is capturing a new pose
@@ -178,9 +178,9 @@
 
         private static Point[] _LearnerAngle;
 
-        public static int[] detection = new int [dimension - 1];
+        public static int[] detection = new int [dimension];
 
-        private static double[] _master_angles = new double [dimension - 1];
+        private static double[] _master_angles = new double [dimension];
 
         private static double[] _master_length = new double[dimension];
 
@@ -198,7 +198,7 @@
         /// The replay rate 
         /// </summary>
         private int selectedFPS = 30;
-        //private static double rateinmsec = 1000.0/SelectedFPS;
+        
 
         public static readonly DependencyProperty selectedFPSProperty =
     DependencyProperty.Register("selectedFPS", typeof(string), typeof(MainWindow), new PropertyMetadata(null));
@@ -400,7 +400,7 @@
             if (!_playingback)
             {
                 int length;
-                Point[] temppt = new Point[dimension - 1];
+                Point[] temppt = new Point[dimension];
                 double[] templength = new double[dimension];
 
                 using (var frame = e.OpenSkeletonFrame())
@@ -418,7 +418,7 @@
                     {
                         //RealTimeSkeleton.DrawSkeleton(skeletons);
                         var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-                        int[] DetectionTemp = new int[dimension - 1];
+                        int[] DetectionTemp = new int[dimension];
                         DetectionTemp = detection;
 
                         foreach (var data in skeletons)
@@ -440,7 +440,7 @@
                                 _LearnerAngle = temppt;
                                 if (_LearnerAngle != null)
                                 {
-                                    for (int i = 0; i < dimension - 2; i++)
+                                    for (int i = 0; i < dimension; i++)
                                     {
                                         if (DetectionTemp[i] > 0)
                                         {
@@ -563,7 +563,7 @@
             }
             skeletons = new Skeleton[frame.ArrayLength];
             skeletons = frame.Skeletons;
-            Point[] temppt = new Point[dimension - 1];
+            Point[] temppt = new Point[dimension];
             double[] templength = new double[dimension];
 
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
@@ -594,7 +594,7 @@
                             {
                                 _masterini = data.Joints[JointType.ShoulderCenter];
                             }
-                            _master_angles = MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension - 1, threshold, detection);
+                            _master_angles = MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension, threshold, detection);
                             _master_length = Skeleton3DDataExtract.LengthGeneration(data);
                             
                             _masterseq.Add(temppt);
@@ -619,7 +619,7 @@
             
             skeletons = new Skeleton[frame.ArrayLength];
             skeletons = frame.Skeletons;
-            Point[] temppt = new Point[dimension - 1];
+            Point[] temppt = new Point[dimension];
 
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
             Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
@@ -628,7 +628,7 @@
             /// get the joint angle data of master
             /// then make comparison
             var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-            int[] DetectionTemp = new int[dimension - 1];
+            int[] DetectionTemp = new int[dimension];
             DetectionTemp = detection;
 
             foreach (var data in skeletons)
@@ -640,7 +640,7 @@
                         _LearnerAngle = temppt;
                     if (_LearnerAngle != null)
                     {
-                        for (int i = 0; i < dimension - 1; i++)
+                        for (int i = 0; i < dimension; i++)
                         {
                             if (DetectionTemp[i] > 0)
                             {

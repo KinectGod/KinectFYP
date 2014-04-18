@@ -155,38 +155,6 @@ namespace TaiChiLearning
             var brush_warning = new SolidColorBrush(Color.FromRgb(255,  0, 0)); // red, when detect the realtime error
             var corr_color = new SolidColorBrush(Color.FromRgb(255, 165, 0)); // orange, when draw the correction line
             int XZ = indicator / 100;
-            int PorN = 1; //indicate the correction line should be left or right
-
-            switch (XZ)
-            {
-                case 2:
-                    // down
-                    break;
-                case 3:
-                    // up
-                    break;
-                case 4:
-                    // forward
-                    corr_color = new SolidColorBrush(Color.FromRgb(128, 0, 128)); // purple line when need forward
-                    break;
-                case 5:
-                    // backward
-                    corr_color = new SolidColorBrush(Color.FromRgb(0, 128, 0)); // green line when backward
-                    break;
-            }
-            int YZ = indicator % 100;
-
-            switch (YZ)
-            {
-                case 20:
-                    // right
-                    PorN = 1;
-                    break;
-                case 40:
-                    // left
-                    PorN = -1;
-                    break;
-            }
 
             switch (i)
             {
@@ -261,6 +229,12 @@ namespace TaiChiLearning
                     rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.AnkleRight, JointType.FootRight));
                     //DrawCorrection(data.Joints[JointType.AnkleRight], data.Joints[JointType.FootRight], PorN, c_angles, corr_color);
                     break;
+                case 17:
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.Spine, JointType.ShoulderCenter));
+                    break;
+                case 18:
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brush_warning, JointType.Spine, JointType.HipCenter));
+                    break;
                 default :
                     break;
             }
@@ -281,8 +255,6 @@ namespace TaiChiLearning
             EndPoint.Y = StartPoint.Y + 20;
             DrawArrow(StartPoint, EndPoint, brush);
         }
-        */
-
         private void DrawCorrection(Joint joint1, Joint joint2, int PorN, double angle, SolidColorBrush brush)
         {
             Point StartPoint = GetDisplayPosition(joint1);
@@ -292,7 +264,7 @@ namespace TaiChiLearning
             if (EndPoint.X <= rootCanvas.Width && EndPoint.Y <= rootCanvas.Height) DrawLine(StartPoint, EndPoint, brush);
         }
 
-
+        
         private void DrawLine(Point StartPoint, Point EndPoint, SolidColorBrush brush)
         {
             System.Windows.Shapes.Line _Line = new System.Windows.Shapes.Line();
@@ -325,13 +297,6 @@ namespace TaiChiLearning
             /// use the angle and slope of line 1 to calculate the slope if line 2
             double slope2 = (slope1 / Math.Tan(angle * Math.PI / 180) - 1) * (1 / Math.Tan(angle * Math.PI / 180) - slope1);
 
-            /*
-             * Y=mx+c is the equation of the line you have. (x1,y1) is the point and D is the distance. (x,y) is the point you don't know.
-             * D= sqrt((x1-x)^2 +(y1-y)^2)
-             * sub in for y
-             * D= sqrt((x1-x)^2 +(y1-(mx+c))^2)
-             * then solve for the only unknown, x. this is your x co-ord (2 values). then y=mx+c gives the y.
-             */
             double c = startpt.Y - slope2 * startpt.X;
             double equa_a = 1 + slope2 * slope2;
             double equa_b = 2 * slope2 * ((c - startpt.Y) - 2 * startpt.X);
@@ -360,7 +325,7 @@ namespace TaiChiLearning
             
             return EndPoint;
         }
-
+        */
         public void MasterMatchLearner (double[] ml, double[] ll, Skeleton data, Skeleton mdata, Vector3 inidiff)
         {
             var brush = new SolidColorBrush(Color.FromRgb(192, 192, 192));
@@ -374,6 +339,7 @@ namespace TaiChiLearning
                 matchdata = mdata;
                 Joint temp = new Joint();
                 temp = mdata.Joints[JointType.ShoulderCenter];
+                
                 SkeletonPoint pos = new SkeletonPoint() 
                 {
                     X = data.Joints[JointType.ShoulderCenter].Position.X ,
@@ -387,7 +353,8 @@ namespace TaiChiLearning
 
                 /// Draw line between hip centre and shoulder centre
                 //shouldercentre = data.Joints[JointType.ShoulderCenter];
-                matchdata.Joints[JointType.HipCenter] = ProcessCoord(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.HipCenter], matchdata.Joints[JointType.ShoulderCenter], ml[12] / ll[12]);
+                matchdata.Joints[JointType.Spine] = ProcessCoord(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.Spine], matchdata.Joints[JointType.ShoulderCenter], ml[12] / ll[12]);
+                matchdata.Joints[JointType.HipCenter] = ProcessCoord(data.Joints[JointType.Spine], data.Joints[JointType.HipCenter], matchdata.Joints[JointType.Spine], ml[18] / ll[18]);
                 matchdata.Joints[JointType.Head] = ProcessCoord(data.Joints[JointType.ShoulderCenter], data.Joints[JointType.Head], matchdata.Joints[JointType.ShoulderCenter],1);
                 
                 /// Right leg
@@ -414,7 +381,7 @@ namespace TaiChiLearning
                 matchdata.Joints[JointType.WristLeft] = ProcessCoord(data.Joints[JointType.ElbowLeft], data.Joints[JointType.WristLeft], matchdata.Joints[JointType.ElbowLeft], ml[2] / ll[2]);
                 matchdata.Joints[JointType.HandLeft] = ProcessCoord(data.Joints[JointType.WristLeft], data.Joints[JointType.HandLeft], matchdata.Joints[JointType.WristLeft], ml[3] / ll[3]);
 
-                rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.HipCenter, JointType.ShoulderCenter, JointType.Head));
+                rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.HipCenter, JointType.Spine, JointType.ShoulderCenter, JointType.Head));
                 rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft));
                 rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
                 rootCanvas.Children.Add(GetBodySegment(matchdata.Joints, brush, JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));

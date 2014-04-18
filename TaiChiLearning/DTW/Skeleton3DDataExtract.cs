@@ -49,9 +49,9 @@ namespace TaiChiLearning.DTW
         public static Point[] ProcessData(Skeleton data)
         {
             // Extract the coordinates of the points.
-            var p = new Vector3D[18];
+            var p = new Vector3D[19];
             // Record the angles of the joints,  a.x = xy-plane  a.y = yz-plane
-            var a = new Point[17];
+            var a = new Point[19];
 
             foreach (Joint j in data.Joints)
             {
@@ -111,6 +111,9 @@ namespace TaiChiLearning.DTW
                     case JointType.FootRight:
                         p[17] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
+                    case JointType.Spine:
+                        p[18] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
                 }
             }
 
@@ -147,6 +150,9 @@ namespace TaiChiLearning.DTW
                 // calculate angle between the vector and the plane
                 a[i] = AngleDetection(joint0to1);
             }
+
+            a[17] = AngleDetection(Vector3D.Subtract(p[4], p[18]));
+            a[18] = AngleDetection(Vector3D.Subtract(p[18], p[13]));
 
             return a;
         }
@@ -200,9 +206,9 @@ namespace TaiChiLearning.DTW
         public static double[] LengthGeneration(Skeleton data)
         {
             // Extract the coordinates of the points.
-            var p = new Vector3D[18];
+            var p = new Vector3D[19];
             // Record the angles of the joints,  a.x = xy-plane  a.y = yz-plane
-            var a = new double[18];
+            var a = new double[19];
 
             foreach (Joint j in data.Joints)
             {
@@ -262,6 +268,9 @@ namespace TaiChiLearning.DTW
                     case JointType.FootRight:
                         p[17] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
                         break;
+                    case JointType.Spine:
+                        p[18] = new Vector3D(j.Position.X, j.Position.Y, j.Position.Z);
+                        break;
                 }
             }
 
@@ -290,7 +299,8 @@ namespace TaiChiLearning.DTW
                 a[i] = Vector3D.Subtract(p[i + 1], p[i]).Length;
             }
 
-            a[12] = Vector3D.Subtract(p[4], p[13]).Length; // length of shoulder center and hip center
+            a[12] = Vector3D.Subtract(p[4], p[18]).Length; // length of shoulder center and spine
+            a[18] = Vector3D.Subtract(p[18], p[13]).Length;
             return a;
         }
     }
