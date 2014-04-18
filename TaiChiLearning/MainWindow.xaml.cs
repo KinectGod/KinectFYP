@@ -554,8 +554,12 @@
             if (_playingback)
             {
                 if (frame.FrameNumber != _dtwselected[_dtwMskeleton].X) return; // make sure it is replaying the selected path
-                if (_dtwselected.Length / 2 > _dtwMskeleton)
+                _dtwMskeleton++;
+                while (_dtwselected[_dtwMskeleton].X == _dtwselected[_dtwMskeleton - 1].X)
+                {
+                    if (_dtwselected.Length / 2 <= _dtwMskeleton) break;
                     _dtwMskeleton++;
+                }
             }
             skeletons = new Skeleton[frame.ArrayLength];
             skeletons = frame.Skeletons;
@@ -563,7 +567,7 @@
             double[] templength = new double[dimension];
             
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
-            if (!_learning)
+            if (!_learning || _playingback)
             {
                 ReplaySkeleton.DrawSkeleton(skeletons);
             }
@@ -643,8 +647,15 @@
                     }
                 }
             }
-            if(_dtwselected.Length/2 > _dtwLskeleton)
+            if (_dtwselected.Length / 2 > _dtwLskeleton)
+            {
                 _dtwLskeleton++;
+                while (_dtwselected[_dtwLskeleton].Y == _dtwselected[_dtwLskeleton - 1].Y)
+                {
+                    if (_dtwselected.Length / 2 <= _dtwLskeleton) break;
+                    _dtwLskeleton++;
+                }
+            }
         }
 
         /// <summary>
@@ -1006,6 +1017,7 @@
                 File.Move(@_temppath + "colorStream", @path + "colorStream");
 
                 _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _masterseqNum, _learnerseqNum, path);
+                status.Text = gestureList.Text + " added";
             }
             else
             {

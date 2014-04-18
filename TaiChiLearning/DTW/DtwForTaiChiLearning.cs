@@ -267,9 +267,9 @@ namespace TaiChiLearning.DTW
         {
             // Init
             var seq1R = new ArrayList(seq1);
-            seq1R.Reverse();
+            //seq1R.Reverse();
             var seq2R = new ArrayList(seq2);
-            seq2R.Reverse();
+            //seq2R.Reverse();
 
             var tab = new double[seq1R.Count + 1, seq2R.Count + 1];
             var slopeI = new int[seq1R.Count + 1, seq2R.Count + 1];
@@ -289,31 +289,47 @@ namespace TaiChiLearning.DTW
             tab[0, 0] = 0;
             
             // Dynamic computation of the DTW matrix.
-            for (int i = 1; i < seq1R.Count + 1; i++)
+            for (int i = 1; i < seq1R.Count; i++)
             {
-                for (int j = 1; j < seq2R.Count + 1; j++)
+                for (int j = 1; j < seq2R.Count; j++)
                 {
+                    /*
                     if (tab[i, j - 1] < tab[i - 1, j - 1] && tab[i, j - 1] < tab[i - 1, j] && //case1: tab[i,j-1] (left) have passed the shortest path so far
                         slopeI[i, j - 1] < _maxSlope)
                     {
-                        tab[i, j] = Marker((System.Windows.Point[])seq1R[i - 1], (System.Windows.Point[])seq2R[j - 1]) + tab[i, j - 1];
+                        tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]) + tab[i, j - 1];
                         slopeI[i, j] = slopeI[i, j - 1] + 1;
                         slopeJ[i, j] = 0;
                     }
                     else if (tab[i - 1, j] < tab[i - 1, j - 1] && tab[i - 1, j] < tab[i, j - 1] && //case2: tab[i-1,j] (top) have passed the shortest path so far
                              slopeJ[i - 1, j] < _maxSlope)
                     {
-                        tab[i, j] = Marker((System.Windows.Point[])seq1R[i - 1], (System.Windows.Point[])seq2R[j - 1]) + tab[i - 1, j];
+                        tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]) + tab[i - 1, j];
                         slopeI[i, j] = 0;
                         slopeJ[i, j] = slopeJ[i - 1, j] + 1;
                     }
                     else //case3: tab[i-1,j-1] (top left) have passed the shortest path so far
                     {
-                        tab[i, j] = Marker((System.Windows.Point[])seq1R[i - 1], (System.Windows.Point[])seq2R[j - 1]) + tab[i - 1, j - 1];
+                        tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]) + tab[i - 1, j - 1];
                         slopeI[i, j] = 0;
                         slopeJ[i, j] = 0;
+                    }*/
+                    switch (min(tab[i, j - 1], tab[i - 1, j], tab[i - 1, j - 1]))
+                    {
+                        case 1:
+                            tab[i, j] =  Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]) + tab[i, j - 1];
+                            break;
+                        case 2:
+                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]) + tab[i - 1, j];
+                            break;
+                        case 3:                            
+                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]) + tab[i - 1, j - 1];
+                            break;
                     }
+                    Console.Write("{0:F2}\t",tab[i, j]);
+
                 }
+                Console.WriteLine();
             }
 
             /*
@@ -328,16 +344,34 @@ namespace TaiChiLearning.DTW
                 Console.Write(Environment.NewLine + Environment.NewLine);
             }
             Console.ReadLine();
+            for (int i = 0; i < rowLength; i++)
+            {
+                for (int j = 0; j < colLength; j++)
+                {
+                    Console.Write(string.Format("{0} ", slopeJ[i, j]));
+                }
+                Console.Write(Environment.NewLine + Environment.NewLine);
+            }
+            Console.ReadLine();
+
+            for (int i = 0; i < rowLength; i++)
+            {
+                for (int j = 0; j < colLength; j++)
+                {
+                    Console.Write(string.Format("{0} ", slopeI[i, j]));
+                }
+                Console.Write(Environment.NewLine + Environment.NewLine);
+            }
+            Console.ReadLine();
             */
-            
             // Find best between seq2 and an ending (postfix) of seq1.
             double bestMatch = double.PositiveInfinity;
             int bestMatchI = 0;
-            for (int i = 1; i < (seq1R.Count + 1) - _minimumLength; i++)
+            for (int i = seq1R.Count / 2; i < seq1R.Count; i++)
             {
-                if (tab[i, seq2R.Count] < bestMatch)
+                if (tab[i, seq2R.Count - 1] < bestMatch)
                 {
-                    bestMatch = tab[i, seq2R.Count];
+                    bestMatch = tab[i, seq2R.Count - 1];
                     bestMatchI = i; //trace the AugMin of bestMatch
                 }
             }
@@ -347,32 +381,47 @@ namespace TaiChiLearning.DTW
             {
                 //_path.Clear();
                 _path = new ArrayList();
-                int currentI = bestMatchI;
+                //int currentI = bestMatchI;
+                int currentI = seq1R.Count;
                 int currentJ = seq2R.Count;
                 while (currentI != 0 && currentJ != 0)
                 {
+                    //var target = new DtwPathNode((int)seq1FrameNum[currentI - 1], (int)seq2FrameNum[currentJ - 1], tab[currentI, currentJ]);
                     var target = new DtwPathNode((int)seq1FrameNum[seq1.Count - currentI], (int)seq2FrameNum[seq2.Count - currentJ], tab[currentI, currentJ]);
                     _path.Add(target);
                     Console.WriteLine(target.I + " " + target.J);
-                    if (slopeI[currentI, currentJ] > 0) //trace the left one
+                    switch (min(tab[currentI, currentJ - 1], tab[currentI - 1, currentJ], tab[currentI - 1, currentJ - 1]))
                     {
-                        currentJ -= 1;
-                    }
-                    else if (slopeJ[currentI, currentJ] > 0) //trace the top one
-                    {
-                        currentI -= 1;
-                    }
-                    else //trace the top left one
-                    {
-                        currentI -= 1;
-                        currentJ -= 1;
+                        case 1:
+                            currentJ -= 1;
+                            //Console.WriteLine("33333333333333333");
+                            break;
+                        case 2:
+                            currentI -= 1;
+                            //Console.WriteLine("222222222222222222222");
+                            break;
+                        case 3:                          
+                            currentI -= 1;
+                            currentJ -= 1;
+                            //Console.WriteLine("111111111111111111111");
+                            break;
                     }
                 }
-
                 DtwRecordSelectedFrames(path);
             }
 
             return (1- (bestMatch / seq1R.Count));
+        }
+
+
+        private int min(double a, double b, double c)
+        {
+            if (Math.Min(Math.Min(a, b), c) == a)
+                return 1;
+            else if (Math.Min(Math.Min(a, b), c) == b)
+                return 2;
+            else 
+                return 3;
         }
 
         /// <summary>
@@ -401,11 +450,7 @@ namespace TaiChiLearning.DTW
             d2 = Math.Sqrt(d2);
             //error checking
             if (double.IsNaN(d) || double.IsNaN(d2)) return -1;
-            
-            //scale the score  
-            //should be 0 if d is samller than the globalthreshold
-            //becasue DTW is to find the minimum difference 
-            //if (d > _globalThreshold)
+
             if (d > 30 * _dimension / 2)       
             {
                 mark += 0.5;
@@ -431,9 +476,6 @@ namespace TaiChiLearning.DTW
             {
                 mark += 0;
             }
-
-            //Console.WriteLine(mark);
-            //mark = d + d2;
             return mark;
         }
         /// <summary>

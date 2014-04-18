@@ -373,12 +373,12 @@ namespace TaiChiLearning
                 Skeleton matchdata = new Skeleton();
                 matchdata = mdata;
                 Joint temp = new Joint();
-                temp = data.Joints[JointType.ShoulderCenter];
+                temp = mdata.Joints[JointType.ShoulderCenter];
                 SkeletonPoint pos = new SkeletonPoint() 
                 {
-                    X = data.Joints[JointType.ShoulderCenter].Position.X + inidiff.X,
-                    Y = data.Joints[JointType.ShoulderCenter].Position.Y + inidiff.Y,
-                    Z = data.Joints[JointType.ShoulderCenter].Position.Z + inidiff.Z
+                    X = mdata.Joints[JointType.ShoulderCenter].Position.X ,
+                    Y = mdata.Joints[JointType.ShoulderCenter].Position.Y ,
+                    Z = mdata.Joints[JointType.ShoulderCenter].Position.Z 
                 };
                 temp.Position = pos;
 
