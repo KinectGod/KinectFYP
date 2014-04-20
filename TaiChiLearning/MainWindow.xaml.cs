@@ -20,6 +20,7 @@
     using System.ComponentModel;
     using Microsoft.Speech.Synthesis;
     using System.Globalization;
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -103,7 +104,7 @@
         /// </summary>
         private static bool _learning = false;
 
-        private static bool _startspeech = false;
+        private static bool _counting = false;
 
         private static Skeleton _masterskeleton;
 
@@ -171,8 +172,10 @@
         /// 
         private DateTime _captureCountdown = DateTime.Now;
 
+
         /// 
         private System.Windows.Forms.Timer _captureCountdownTimer;
+        
 
         private static Point[] _MasterAngle;
 
@@ -402,6 +405,7 @@
                 int length;
                 Point[] temppt = new Point[dimension];
                 double[] templength = new double[dimension];
+                Skeleton temp = null;
 
                 using (var frame = e.OpenSkeletonFrame())
                 {
@@ -434,8 +438,7 @@
                                 }
 
                                 if (_masterskeleton != null && inidiff.X < 9999)
-                                    LearnerSkeleton.MasterMatchLearner(_master_length, templength, data, _masterskeleton, inidiff);
-
+                                    temp = LearnerSkeleton.MasterMatchLearner(_master_length, templength, data, _masterskeleton, inidiff);
                                 //if (temppt[4].X >= 0)
                                 _LearnerAngle = temppt;
                                 if (_LearnerAngle != null)
@@ -445,6 +448,10 @@
                                         if (DetectionTemp[i] > 0)
                                         {
                                             RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], _master_angles[i], i);
+                                            if (temp != null)
+                                            {
+                                                ReplaySkeleton.DrawCorrection(temp, DetectionTemp[i], _master_angles[i], i);
+                                            }
                                         }
                                     }
                                     _learnerseq.Add(temppt);
@@ -555,9 +562,12 @@
             {
                 if (frame.FrameNumber != _dtwselected[_dtwMskeleton].X) return; // make sure it is replaying the selected path
                 _dtwMskeleton++;
-                while (_dtwselected[_dtwMskeleton].X == _dtwselected[_dtwMskeleton - 1].X)
+                DateTime mtime;
+                while (_dtwselected[_dtwMskeleton - 1].X == _dtwselected[_dtwMskeleton].X)
                 {
-                    if (_dtwselected.Length / 2 <= _dtwMskeleton) break;
+                    if (_dtwselected.Length / 2 == _dtwMskeleton) break;
+                    mtime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
+                    while (DateTime.Now < mtime) ;
                     _dtwMskeleton++;
                 }
             }
@@ -569,7 +579,6 @@
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
             if (!_learning || _playingback)
             {
-                if (_playingback) Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
                 ReplaySkeleton.DrawSkeleton(skeletons);
             }
 
@@ -622,9 +631,8 @@
             Point[] temppt = new Point[dimension];
 
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
-            Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
             RealTimeSkeleton.DrawSkeleton(skeletons);
-
+            
             /// get the joint angle data of master
             /// then make comparison
             var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
@@ -653,9 +661,13 @@
             if (_dtwselected.Length / 2 > _dtwLskeleton)
             {
                 _dtwLskeleton++;
-                while (_dtwselected[_dtwLskeleton].Y == _dtwselected[_dtwLskeleton - 1].Y)
+                DateTime ltime;
+                while (_dtwselected[_dtwLskeleton - 1].Y == _dtwselected[_dtwLskeleton].Y)
                 {
-                    if (_dtwselected.Length / 2 <= _dtwLskeleton) break;
+                    if (_dtwselected.Length / 2 == _dtwLskeleton) break;
+                    //Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
+                    ltime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
+                    while (DateTime.Now < ltime) ;
                     _dtwLskeleton++;
                 }
             }
@@ -710,6 +722,7 @@
             Environment.Exit(0);
         }
 
+       
 
         /// <summary>
         /// The method fired by the countdown timer. Either updates the countdown or fires the StartCapture method if the timer expires
@@ -720,6 +733,7 @@
         {
             if (sender == _captureCountdownTimer)
             {
+                _counting = true;
                 if (DateTime.Now < _captureCountdown)
                 {
                     status.Text = "Wait " + ((_captureCountdown - DateTime.Now).Seconds + 1) + " seconds";
@@ -727,7 +741,7 @@
                 else
                 {
                     _captureCountdownTimer.Stop();
-                    
+                    _counting = false;
                     if (_learning)
                     {
                         status.Text = "Recognizing motion";
@@ -790,7 +804,7 @@
         private void StartRegcon()
         {
             _learning = true;
-            _capturing = true;
+            _capturing = true; 
 
             tcCapture.IsEnabled = false;
             tcStartLearning.IsEnabled = false;
@@ -840,7 +854,6 @@
             _captureCountdownTimer.Start();
             _captureCountdownTimer.Tick += CaptureCountdown;
         }
-
         /// <summary>
         /// Stores our gesture to the DTW sequences list
         /// </summary>
@@ -985,6 +998,7 @@
             tcReplay.IsEnabled = true;
             _learning = false;
             _capturing = false;
+
             _replay.Stop();
             _colorreplay.Stop();
             MasterSkeletonCanvas.Children.Clear();
@@ -1082,10 +1096,10 @@
             _colorplayback = new KinectReplay(_learnercolorstream);
             _colorplayback.ColorImageFrameReady += playback_ColorImageFrameReady;
 
-            _playback.Start(200);
+            _playback.Start(1000.0 / this.SelectedFPS);
             //_colorplayback.Start(1000.0 / this.SelectedFPS);
             //_colorreplay.Start(1000.0 / this.SelectedFPS);
-            _replay.Start(200);
+            _replay.Start(1000.0 / this.SelectedFPS);
 
             status.Text = "Playing back " + gestureList.Text;
         }
@@ -1133,7 +1147,7 @@
                                 
                 //Now we need to add the words we want our program to recognise
                 //  Create lists of alternative choices.
-                Choices speechaction = new Choices(new string[] { "RECORD", "STORE RECORD", "REPLAY", "STOP REPLAY", "LEARN", "FINISH", "PLAYBACK", "STOP PLAYBACK"  });
+                Choices speechaction = new Choices(new string[] { "RECORD MOTION", "STOP RECORD", "REPLAY", "STOP REPLAY", "START LEARNING", "FINISH LEARNING", "PLAYBACK LEARNING", "STOP PLAYBACK"  });
 
                 // Create a GrammarBuilder object and assemble the grammar components.
                 GrammarBuilder actionMenu = new GrammarBuilder("KINECT");
@@ -1271,20 +1285,20 @@
                 
                 switch (e.Result.Text.ToUpperInvariant())
                 {
-                    case "KINECT RECORD":
-                        //if(!_replaying && !_learning && _playingback)
+                    case "KINECT RECORD MOTION":
+                        if(!_replaying && !_learning && !_playingback && !_counting && !_capturing)
                         this.tcCaptureClick(null, null);
                         //status2.Text = "Record.";
                         recognized_text = "RECOD IN FIVE SECONDS";
                         break;
-                    case "KINECT STORE RECORD":
+                    case "KINECT STOP RECORD":
                         if(_capturing)
                         this.tcStoreClick(null, null);
                         //status2.Text = "Store.";
                         recognized_text = "Store";
                         break;
                     case "KINECT REPLAY":
-                        if (!_capturing && !_learning && !_playingback)
+                        if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
                         this.tcReplayClick(null, null);
                         //status2.Text = "Replay.";
                         recognized_text = "Replay";
@@ -1295,36 +1309,35 @@
                         //status2.Text = "Stop.";
                         recognized_text = "Stop replay";
                         break;
-                    case "KINECT LEARN":
-                        //if (!_replaying && !_capturing && _playingback)
+                    case "KINECT START LEARNING":
+                        if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
                         this.tcStartLearningClick(null, null);
                         //status2.Text = "Learn.";
                         recognized_text = "Start learning in five second";
                         break;
-                    case "KINECT FINISH":
+                    case "KINECT FINISH LEARNING":
                         if(_learning)
                         this.tcStopLearningClick(null, null);
                         //status2.Text = "finish.";
                         recognized_text = "Start learning in five second";
                         break;
-                    case "KINECT PLAYBACK":
-                        if (_learning)
-                            this.tcStopLearningClick(null, null);
+                    case "KINECT PLAYBACK LEARNING":
+                        if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
+                        this.tcStopLearningClick(null, null);
                         //status2.Text = "finish.";
                         recognized_text = "Playing back " + gestureList.Text;
                         break;
                     case "KINECT STOP PLAYBACK":
-                        if (_learning)
-                            this.tcStopLearningClick(null, null);
+                        if (_playingback)
+                        this.tcStopLearningClick(null, null);
                         //status2.Text = "finish.";
                         recognized_text = "Stop playing back " + gestureList.Text;
                         break;
                     default:
                         break;
                 }
-                _startspeech = false;
                 
-                    synthesizer.Speak(recognized_text);
+                    //synthesizer.Speak(recognized_text);
 
             }
         }

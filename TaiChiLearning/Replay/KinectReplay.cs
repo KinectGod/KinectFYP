@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Windows;
 using TaiChiLearning;
 using TaiChiLearning.Recorder;
 
@@ -127,6 +128,46 @@ namespace TaiChiLearning.Replay
                 }, null);
             }
         }
+        /*
+
+        public void StartDTWSelected(double rateinmsec, Point[] dtwselected, string whose)
+        {
+            if (Started)
+                throw new Exception("KinectReplay already started");
+
+            Started = true;
+            if (colorReplay != null)
+            {
+                colorReplay.StartDTWSelected(rateinmsec, dtwselected, whose);
+                colorReplay.FrameReady += frame => synchronizationContext.Send(state =>
+                {
+                    if (ColorImageFrameReady != null)
+                        ColorImageFrameReady(this, new ReplayColorImageFrameReadyEventArgs { ColorImageFrame = frame });
+                }, null);
+            }
+
+            /*
+            if (depthReplay != null)
+            {
+                depthReplay.Start();
+                depthReplay.FrameReady += frame => synchronizationContext.Send(state =>
+                {
+                    if (DepthImageFrameReady != null)
+                        DepthImageFrameReady(this, new ReplayDepthImageFrameReadyEventArgs { DepthImageFrame = frame });
+                }, null);
+            }
+             
+
+            if (skeletonReplay != null)
+            {
+                skeletonReplay.StartDTWSelected(rateinmsec, dtwselected, whose);
+                skeletonReplay.FrameReady += frame => synchronizationContext.Send(state =>
+                {
+                    if (SkeletonFrameReady != null)
+                        SkeletonFrameReady(this, new ReplaySkeletonFrameReadyEventArgs { SkeletonFrame = frame });
+                }, null);
+            }
+        }* */
 
         public void Stop()
         {

@@ -326,16 +326,16 @@ namespace TaiChiLearning
             return EndPoint;
         }
         */
-        public void MasterMatchLearner (double[] ml, double[] ll, Skeleton data, Skeleton mdata, Vector3 inidiff)
+        public Skeleton MasterMatchLearner (double[] ml, double[] ll, Skeleton data, Skeleton mdata, Vector3 inidiff)
         {
-            var brush = new SolidColorBrush(Color.FromRgb(192, 192, 192));
+            var brush = new SolidColorBrush(Color.FromRgb(180, 180, 180));
             rootCanvas.Children.Clear();
+            Skeleton matchdata = new Skeleton();
 
             if (SkeletonTrackingState.Tracked == data.TrackingState)
             {
                 /// Draw bones
                 // create temporary joint to store the original learner joints
-                Skeleton matchdata = new Skeleton();
                 matchdata = mdata;
                 Joint temp = new Joint();
                 temp = mdata.Joints[JointType.ShoulderCenter];
@@ -399,6 +399,11 @@ namespace TaiChiLearning
                     jointLine.StrokeThickness = 6;
                     rootCanvas.Children.Add(jointLine);
                 }
+                return matchdata;
+            }
+            else 
+            {
+                return null;
             }
         }
 
