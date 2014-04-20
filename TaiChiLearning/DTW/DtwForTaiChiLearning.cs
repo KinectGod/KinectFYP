@@ -32,7 +32,6 @@ namespace TaiChiLearning.DTW
     public class DtwForTaiChiLearning
     {
         private ArrayList _path;
-        private Point[] _matchFrame;
         /// <summary>
         /// Size of obeservations vectors.
         /// </summary>
@@ -68,9 +67,6 @@ namespace TaiChiLearning.DTW
         /// </summary>
         private readonly ArrayList _sequences;
 
-
-        private readonly double judgement = 120;
-
         /// <summary>
         /// Initializes a new instance of the DtwGestureRecognizer class
         /// First DTW constructor
@@ -103,6 +99,7 @@ namespace TaiChiLearning.DTW
             _dimension = dim;
             _sequences = new ArrayList();
             _labels = new ArrayList();
+            _path = new ArrayList();
             _globalThreshold = threshold;
             _firstThreshold = firstThreshold;
             _maxSlope = ms;
@@ -293,27 +290,6 @@ namespace TaiChiLearning.DTW
             {
                 for (int j = 1; j < seq2R.Count; j++)
                 {
-                    /*
-                    if (tab[i, j - 1] < tab[i - 1, j - 1] && tab[i, j - 1] < tab[i - 1, j] && //case1: tab[i,j-1] (left) have passed the shortest path so far
-                        slopeI[i, j - 1] < _maxSlope)
-                    {
-                        tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]) + tab[i, j - 1];
-                        slopeI[i, j] = slopeI[i, j - 1] + 1;
-                        slopeJ[i, j] = 0;
-                    }
-                    else if (tab[i - 1, j] < tab[i - 1, j - 1] && tab[i - 1, j] < tab[i, j - 1] && //case2: tab[i-1,j] (top) have passed the shortest path so far
-                             slopeJ[i - 1, j] < _maxSlope)
-                    {
-                        tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]) + tab[i - 1, j];
-                        slopeI[i, j] = 0;
-                        slopeJ[i, j] = slopeJ[i - 1, j] + 1;
-                    }
-                    else //case3: tab[i-1,j-1] (top left) have passed the shortest path so far
-                    {
-                        tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]) + tab[i - 1, j - 1];
-                        slopeI[i, j] = 0;
-                        slopeJ[i, j] = 0;
-                    }*/
                     switch (min(tab[i, j - 1], tab[i - 1, j], tab[i - 1, j - 1]))
                     {
                         case 1:
@@ -329,45 +305,12 @@ namespace TaiChiLearning.DTW
                     //Console.Write("{0:F2}\t",tab[i, j]);
 
                 }
-                Console.WriteLine();
             }
 
-            /*
-            int rowLength = tab.GetLength(0);
-            int colLength = tab.GetLength(1);
-            for (int i = 0; i < rowLength; i++)
-            {
-                for (int j = 0; j < colLength; j++)
-                {
-                    Console.Write(string.Format("{0} ", tab[i, j]));
-                }
-                Console.Write(Environment.NewLine + Environment.NewLine);
-            }
-            Console.ReadLine();
-            for (int i = 0; i < rowLength; i++)
-            {
-                for (int j = 0; j < colLength; j++)
-                {
-                    Console.Write(string.Format("{0} ", slopeJ[i, j]));
-                }
-                Console.Write(Environment.NewLine + Environment.NewLine);
-            }
-            Console.ReadLine();
-
-            for (int i = 0; i < rowLength; i++)
-            {
-                for (int j = 0; j < colLength; j++)
-                {
-                    Console.Write(string.Format("{0} ", slopeI[i, j]));
-                }
-                Console.Write(Environment.NewLine + Environment.NewLine);
-            }
-            Console.ReadLine();
-            */
             // Find best between seq2 and an ending (postfix) of seq1.
             double bestMatch = double.PositiveInfinity;
             int bestMatchI = 0;
-            for (int i = seq1R.Count / 2; i < seq1R.Count; i++)
+            for (int i = seq1R.Count - 1; i < seq1R.Count / 2; i--)
             {
                 if (tab[i, seq2R.Count - 1] < bestMatch)
                 {
@@ -380,10 +323,9 @@ namespace TaiChiLearning.DTW
             //Reconstruct the best matched path
             if (bestMatchI >= 1) //return -1; //error checking 
             {
-                //_path.Clear();
-                _path = new ArrayList();
-                //int currentI = bestMatchI;
-                int currentI = seq1R.Count;
+                _path.Clear();
+                int currentI = bestMatchI;
+                //int currentI = seq1R.Count;
                 int currentJ = seq2R.Count;
                 while (currentI != 0 && currentJ != 0)
                 {
@@ -391,7 +333,7 @@ namespace TaiChiLearning.DTW
                     var target = new DtwPathNode((int)seq1FrameNum[seq1.Count - currentI], (int)seq2FrameNum[seq2.Count - currentJ], tab[currentI, currentJ]);
                     
                     _path.Add(target);
-                    Console.WriteLine(target.I + " " + target.J);
+                    //Console.WriteLine(target.I + " " + target.J);
                     switch (min(tab[currentI, currentJ - 1], tab[currentI - 1, currentJ], tab[currentI - 1, currentJ - 1]))
                     {
                         case 1:
@@ -408,11 +350,11 @@ namespace TaiChiLearning.DTW
                             //Console.WriteLine("111111111111111111111");
                             break;
                     }
-                    totalframe += 1;
+                    totalframe ++;
                 }
                 DtwRecordSelectedFrames(path);
             }
-            Console.WriteLine(tab[seq1R.Count - 1, seq2R.Count - 1] + " " + totalframe);
+            Console.WriteLine(tab[seq1R.Count - 1, seq2R.Count - 1] + " " + totalframe + " " + _path.Count);
             Console.WriteLine(1 - (tab[seq1R.Count-1, seq2R.Count-1] / totalframe));
             return (1 - (tab[seq1R.Count-1, seq2R.Count-1] / totalframe));
         }

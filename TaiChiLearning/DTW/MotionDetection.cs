@@ -23,7 +23,7 @@ namespace TaiChiLearning.DTW
             for (int i = 0; i < dimension; i++)
             {
                 //a.x = xy-plane  a.y = yz-plane
-                if (Math.Abs(a1[i].X - a2[i].X) > threshold || Math.Abs(a1[i].Y - a2[i].Y) > threshold)
+                if ((Math.Abs(a1[i].X - a2[i].X) > threshold && Math.Abs(a1[i].X - a2[i].X) < (360 - threshold)) || (Math.Abs(a1[i].Y - a2[i].Y) > threshold && Math.Abs(a1[i].Y - a2[i].Y) < (360 - threshold)))
                 {
 
                     if (i < 4 || i > 11)

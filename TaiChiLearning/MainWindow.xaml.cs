@@ -561,14 +561,17 @@
             if (_playingback)
             {
                 if (frame.FrameNumber != _dtwselected[_dtwMskeleton].X) return; // make sure it is replaying the selected path
-                _dtwMskeleton++;
-                DateTime mtime;
-                while (_dtwselected[_dtwMskeleton - 1].X == _dtwselected[_dtwMskeleton].X)
+                if (_dtwselected.Length / 2 > _dtwLskeleton)
                 {
-                    if (_dtwselected.Length / 2 == _dtwMskeleton) break;
-                    mtime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
-                    while (DateTime.Now < mtime) ;
                     _dtwMskeleton++;
+                    DateTime mtime;
+                    while (_dtwselected[_dtwMskeleton - 1].X == _dtwselected[_dtwMskeleton].X)
+                    {
+                        if (_dtwselected.Length / 2 == _dtwMskeleton) break;
+                        mtime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
+                        while (DateTime.Now < mtime) ;
+                        _dtwMskeleton++;
+                    }
                 }
             }
             skeletons = new Skeleton[frame.ArrayLength];
@@ -658,16 +661,19 @@
                     }
                 }
             }
+            
             if (_dtwselected.Length / 2 > _dtwLskeleton)
             {
                 _dtwLskeleton++;
                 DateTime ltime;
                 while (_dtwselected[_dtwLskeleton - 1].Y == _dtwselected[_dtwLskeleton].Y)
                 {
+                    Console.WriteLine(_dtwLskeleton + "\t" + _dtwMskeleton);
                     if (_dtwselected.Length / 2 == _dtwLskeleton) break;
                     //Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
                     ltime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
                     while (DateTime.Now < ltime) ;
+                    
                     _dtwLskeleton++;
                 }
             }
@@ -1323,13 +1329,13 @@
                         break;
                     case "KINECT PLAYBACK LEARNING":
                         if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
-                        this.tcStopLearningClick(null, null);
+                        this.tcPlayBack_Click(null, null);
                         //status2.Text = "finish.";
                         recognized_text = "Playing back " + gestureList.Text;
                         break;
                     case "KINECT STOP PLAYBACK":
                         if (_playingback)
-                        this.tcStopLearningClick(null, null);
+                        this.tcStopPlayBackClick(null, null);
                         //status2.Text = "finish.";
                         recognized_text = "Stop playing back " + gestureList.Text;
                         break;
@@ -1364,12 +1370,12 @@
 
         private void easy_Checked(object sender, RoutedEventArgs e)
         {
-            threshold = 80;
+            threshold = 60;
         }
 
         private void medium_Checked(object sender, RoutedEventArgs e)
         {
-            threshold = 50;
+            threshold = 45;
         }
 
         private void hard_Checked(object sender, RoutedEventArgs e)
