@@ -335,12 +335,13 @@ namespace TaiChiLearning.DTW
                     //var target = new DtwPathNode((int)seq1FrameNum[currentI - 1], (int)seq2FrameNum[currentJ - 1], tab[currentI, currentJ]);
                     var target = new DtwPathNode((int)seq1FrameNum[seq1.Count - currentI], (int)seq2FrameNum[seq2.Count - currentJ], tab[currentI, currentJ]);
                     
-                    _path.Add(target);
-                    //Console.WriteLine(target.I + " " + target.J);
+                    //_path.Add(target);
+                    Console.WriteLine(target.I + " " + target.J);
                     switch (min(tab[currentI, currentJ - 1], tab[currentI - 1, currentJ], tab[currentI - 1, currentJ - 1]))
                     {
                         case 1:
                             //if(currentJ != 0)
+                            _path.Add(target);
                             currentJ -= 1;
                             //Console.WriteLine("33333333333333333");
                             break;
@@ -351,6 +352,7 @@ namespace TaiChiLearning.DTW
                             break;
                         case 3:   
                             //if(currentI !=0 )
+                            _path.Add(target);
                             currentI -= 1;
                             currentJ -= 1;
                             //Console.WriteLine("111111111111111111111");
