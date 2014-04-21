@@ -10,8 +10,6 @@ namespace TaiChiLearning.Recorder
     {
         Color = 1,
         Depth = 2,
-        ReplayFrame =3,
         Skeletons = 4
-        
     }
 }

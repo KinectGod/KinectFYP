@@ -20,7 +20,6 @@
     using System.ComponentModel;
     using Microsoft.Speech.Synthesis;
     using System.Globalization;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -414,9 +413,10 @@
                     var skeletons = new Skeleton[frame.SkeletonArrayLength];
                     length = frame.SkeletonArrayLength;
                     frame.CopySkeletonDataTo(skeletons);
+
+
                     //DrawSkeleton(skeletons, LearnerSkeletonCanvas);
                     RealTimeSkeleton.DrawSkeleton(skeletons);
-                    _learnerseqNum.Add(frame);
 
                     if (_learning && _training && _capturing)
                     {
@@ -455,12 +455,11 @@
                                         }
                                     }
                                     _learnerseq.Add(temppt);
+                                    _learnerseqNum.Add(frame.FrameNumber);
                                 }
                             }
                         }
                     }
-
-                   
 
                     if (_capturing)
                     {
@@ -559,11 +558,10 @@
                 }
             }
             if (frame == null) return;
-            /*
             if (_playingback)
             {
                 if (frame.FrameNumber != _dtwselected[_dtwMskeleton].X) return; // make sure it is replaying the selected path
-                if (_dtwselected.Length -1 > _dtwMskeleton)
+                if (_dtwselected.Length > _dtwMskeleton)
                 {
                     _dtwMskeleton++;
                     DateTime mtime;
@@ -571,12 +569,11 @@
                     {
                         if (_dtwselected.Length - 1 == _dtwMskeleton) break;
                         mtime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
-                        //while (DateTime.Now < mtime) ;
+                        while (DateTime.Now < mtime) ;
                         _dtwMskeleton++;
                     }
                 }
             }
-            */
             skeletons = new Skeleton[frame.ArrayLength];
             skeletons = frame.Skeletons;
             Point[] temppt = new Point[dimension];
@@ -613,11 +610,10 @@
                             _master_length = Skeleton3DDataExtract.LengthGeneration(data);
                             
                             _masterseq.Add(temppt);
-                            
+                            _masterseqNum.Add(frame.FrameNumber);
                         }
                     }
                 }
-                _masterseqNum.Add(frame);
                 
             }
         }
@@ -631,7 +627,7 @@
         {
             Skeleton[] skeletons;
             var frame = e.SkeletonFrame;
-            if (frame == null ) return; // make sure it is replaying the dtw selected path
+            if (frame == null || frame.FrameNumber != _dtwselected[_dtwLskeleton].Y) return; // make sure it is replaying the dtw selected path
             
             skeletons = new Skeleton[frame.ArrayLength];
             skeletons = frame.Skeletons;
@@ -666,12 +662,10 @@
                 }
             }
             
-            /*
-            if (_dtwselected.Length - 1 > _dtwLskeleton)
+            if (_dtwselected.Length > _dtwLskeleton)
             {
                 _dtwLskeleton++;
                 DateTime ltime;
-
                 while (_dtwselected[_dtwLskeleton - 1].Y == _dtwselected[_dtwLskeleton].Y)
                 {
                     Console.WriteLine(_dtwLskeleton + "\t" + _dtwMskeleton);
@@ -679,11 +673,10 @@
                     //Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
                     ltime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
                     while (DateTime.Now < ltime) ;
-                    //Thread.Sleep(1200);
+                    
                     _dtwLskeleton++;
                 }
             }
-             * */
         }
 
         /// <summary>
@@ -1073,6 +1066,13 @@
             string path = ".\\Records\\" + gestureList.Text + "\\";
             readLastFrame(path);
 
+            if (_recordskeletonstream != null)
+                _recordskeletonstream.Close();
+            _recordskeletonstream = File.OpenRead(@path + "skeleton");
+            _replay = new KinectReplay(_recordskeletonstream);
+            _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
+            
+
             if (_recordcolorstream != null)
                 _recordcolorstream.Close();
             _recordcolorstream = File.OpenRead(@path + "colorStream");
@@ -1083,25 +1083,17 @@
             string path2 = ".\\Learnings\\" + gestureList.Text + "\\";
             readLastFrame(path);
             // read the previous saved dtw selected path
-            /*
             _dtwselected = DtwReadSelectedFrames(path2);
             _dtwLskeleton = 0;
             _dtwLcolor = 0;
             _dtwMskeleton = 0;
             _dtwMcolor = 0;
-            */
-            if (_recordskeletonstream != null)
-                _recordskeletonstream.Close();
-            _recordskeletonstream = File.OpenRead(@path2 + "MasterSelected");
-            _replay = new KinectReplay(_recordskeletonstream);
-            _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
 
             if (_learnerskeletonstream != null)
                 _learnerskeletonstream.Close();
-            _learnerskeletonstream = File.OpenRead(@path2 + "LearnerSelected");
+            _learnerskeletonstream = File.OpenRead(@path2 + "skeleton");
             _playback = new KinectReplay(_learnerskeletonstream);
             _playback.SkeletonFrameReady += playback_SkeletonFrameReady;
-            
             
 
             if (_learnercolorstream != null)

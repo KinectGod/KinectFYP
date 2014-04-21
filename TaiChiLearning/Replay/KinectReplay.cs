@@ -85,10 +85,6 @@ namespace TaiChiLearning.Replay
                     case KinectRecordOptions.Skeletons:
                         skeletonReplay.AddFrame(reader);
                         break;
-
-                    case KinectRecordOptions.ReplayFrame:
-                        skeletonReplay.AddFrame(reader);
-                        break;
                 }
             }
         }

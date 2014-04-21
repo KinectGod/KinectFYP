@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using Microsoft.Kinect;
-using TaiChiLearning.Replay;
-using GrabSkeletonData.Recorder;
 
 namespace TaiChiLearning.Recorder
 {
@@ -17,7 +15,6 @@ namespace TaiChiLearning.Recorder
         //readonly ColorRecorder colorRecoder;
         readonly SkeletonRecorder skeletonRecorder;
         readonly ColorRecorder colorRecoder;
-        readonly ReplayFrameRecorder replayrecorder;
 
         //
         public KinectRecordOptions Options { get; set; }
@@ -40,11 +37,6 @@ namespace TaiChiLearning.Recorder
                 {
                     skeletonRecorder = new SkeletonRecorder(writer);
                 }
-
-                if ((Options & KinectRecordOptions.ReplayFrame) != 0)
-                {
-                    replayrecorder = new ReplayFrameRecorder(writer);
-                }
             
         }
 
@@ -62,18 +54,6 @@ namespace TaiChiLearning.Recorder
            
         }
 
-        public void Record(ReplaySkeletonFrame frame)
-        {
-
-            if (writer == null)
-                throw new Exception("This recorder is stopped");
-
-            if (replayrecorder == null)
-                throw new Exception("Skeleton recording is not actived on this KinectRecorder");
-
-            replayrecorder.Record(frame);
-
-        }
         
         public void Record(ColorImageFrame frame)
         {
