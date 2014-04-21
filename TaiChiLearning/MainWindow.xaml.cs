@@ -637,16 +637,35 @@
             {
                 _dtwLskeleton++;
                 DateTime ltime;
+                
+                //method 1
+                new Thread((ThreadStart)delegate
+                    {
+                        while (_dtwselected[_dtwLskeleton - 1].Y == _dtwselected[_dtwLskeleton].Y)
+                        {
+                            Console.WriteLine(_dtwLskeleton + "\t" + _dtwMskeleton);
+                            if (_dtwselected.Length - 1 == _dtwLskeleton) break;
+                            //Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
+                            System.Threading.Thread.Sleep(1000 / this.SelectedFPS);
+                            
+                            //ltime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
+                            //while (DateTime.Now < ltime) ;
+
+                            _dtwLskeleton++;
+                        }
+                    }).Start();
+
+                //method 2 
                 while (_dtwselected[_dtwLskeleton - 1].Y == _dtwselected[_dtwLskeleton].Y)
                 {
-                    Console.WriteLine(_dtwLskeleton + "\t" + _dtwMskeleton);
+                    System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+                    timer.Interval = 1000 / this.SelectedFPS;
+                    timer.Tick += new EventHandler(skeletoncheck);
                     if (_dtwselected.Length - 1 == _dtwLskeleton) break;
-                    //Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
-                    ltime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
-                    while (DateTime.Now < ltime) ;
-
-                    _dtwLskeleton++;
+                    timer.Start();
                 }
+
+
             }
             
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
@@ -680,6 +699,16 @@
             
             
         }
+
+        /// <summary>
+        /// _dtwLskeleton++
+        /// </summary>
+        private void skeletoncheck(object sender, EventArgs e)
+        {
+            _dtwLskeleton++;
+            Console.WriteLine("_dtwLskeleton++" + _dtwLskeleton);
+        }
+
 
         /// <summary>
         /// Runs after the window is loaded
