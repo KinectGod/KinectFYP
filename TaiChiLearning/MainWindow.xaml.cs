@@ -633,6 +633,22 @@
             skeletons = frame.Skeletons;
             Point[] temppt = new Point[dimension];
 
+            if (_dtwselected.Length > _dtwLskeleton)
+            {
+                _dtwLskeleton++;
+                DateTime ltime;
+                while (_dtwselected[_dtwLskeleton - 1].Y == _dtwselected[_dtwLskeleton].Y)
+                {
+                    Console.WriteLine(_dtwLskeleton + "\t" + _dtwMskeleton);
+                    if (_dtwselected.Length - 1 == _dtwLskeleton) break;
+                    //Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
+                    ltime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
+                    while (DateTime.Now < ltime) ;
+
+                    _dtwLskeleton++;
+                }
+            }
+            
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
             RealTimeSkeleton.DrawSkeleton(skeletons);
             
@@ -662,21 +678,7 @@
                 }
             }
             
-            if (_dtwselected.Length > _dtwLskeleton)
-            {
-                _dtwLskeleton++;
-                DateTime ltime;
-                while (_dtwselected[_dtwLskeleton - 1].Y == _dtwselected[_dtwLskeleton].Y)
-                {
-                    Console.WriteLine(_dtwLskeleton + "\t" + _dtwMskeleton);
-                    if (_dtwselected.Length - 1 == _dtwLskeleton) break;
-                    //Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
-                    ltime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
-                    while (DateTime.Now < ltime) ;
-                    
-                    _dtwLskeleton++;
-                }
-            }
+            
         }
 
         /// <summary>
