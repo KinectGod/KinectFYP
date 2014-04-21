@@ -561,13 +561,13 @@
             if (_playingback)
             {
                 if (frame.FrameNumber != _dtwselected[_dtwMskeleton].X) return; // make sure it is replaying the selected path
-                if (_dtwselected.Length / 2 > _dtwLskeleton)
+                if (_dtwselected.Length > _dtwMskeleton)
                 {
                     _dtwMskeleton++;
                     DateTime mtime;
                     while (_dtwselected[_dtwMskeleton - 1].X == _dtwselected[_dtwMskeleton].X)
                     {
-                        if (_dtwselected.Length / 2 == _dtwMskeleton) break;
+                        if (_dtwselected.Length - 1 == _dtwMskeleton) break;
                         mtime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
                         while (DateTime.Now < mtime) ;
                         _dtwMskeleton++;
@@ -662,14 +662,14 @@
                 }
             }
             
-            if (_dtwselected.Length / 2 > _dtwLskeleton)
+            if (_dtwselected.Length > _dtwLskeleton)
             {
                 _dtwLskeleton++;
                 DateTime ltime;
                 while (_dtwselected[_dtwLskeleton - 1].Y == _dtwselected[_dtwLskeleton].Y)
                 {
                     Console.WriteLine(_dtwLskeleton + "\t" + _dtwMskeleton);
-                    if (_dtwselected.Length / 2 == _dtwLskeleton) break;
+                    if (_dtwselected.Length - 1 == _dtwLskeleton) break;
                     //Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
                     ltime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
                     while (DateTime.Now < ltime) ;

@@ -310,11 +310,13 @@ namespace TaiChiLearning.DTW
             // Find best between seq2 and an ending (postfix) of seq1.
             double bestMatch = double.PositiveInfinity;
             int bestMatchI = 0;
-            for (int i = seq1R.Count - 1; i < seq1R.Count / 2; i--)
+            for (int i = seq2R.Count - 1; i > seq2R.Count / 2; i--)
             {
-                if (tab[i, seq2R.Count - 1] < bestMatch)
+                if (tab[seq1R.Count - 1,i] < bestMatch)
                 {
-                    bestMatch = tab[i, seq2R.Count - 1];
+                    //bestMatch = tab[i, seq2R.Count - 1];
+                    //bestMatchI = i; //trace the AugMin of bestMatch
+                    bestMatch = tab[seq1R.Count - 1, i];
                     bestMatchI = i; //trace the AugMin of bestMatch
                 }
             }
@@ -324,10 +326,11 @@ namespace TaiChiLearning.DTW
             if (bestMatchI >= 1) //return -1; //error checking 
             {
                 _path.Clear();
-                int currentI = bestMatchI;
-                //int currentI = seq1R.Count;
-                int currentJ = seq2R.Count;
-                while (currentI != 0 && currentJ != 0)
+                //int currentI = bestMatchI;
+                int currentJ = bestMatchI;
+                int currentI = seq1R.Count;
+                //int currentJ = seq2R.Count;
+                while (currentI != 0 || currentJ != 0)
                 {
                     //var target = new DtwPathNode((int)seq1FrameNum[currentI - 1], (int)seq2FrameNum[currentJ - 1], tab[currentI, currentJ]);
                     var target = new DtwPathNode((int)seq1FrameNum[seq1.Count - currentI], (int)seq2FrameNum[seq2.Count - currentJ], tab[currentI, currentJ]);
@@ -337,14 +340,17 @@ namespace TaiChiLearning.DTW
                     switch (min(tab[currentI, currentJ - 1], tab[currentI - 1, currentJ], tab[currentI - 1, currentJ - 1]))
                     {
                         case 1:
+                            //if(currentJ != 0)
                             currentJ -= 1;
                             //Console.WriteLine("33333333333333333");
                             break;
                         case 2:
+                            //if(currentI!=0)
                             currentI -= 1;
                             //Console.WriteLine("222222222222222222222");
                             break;
-                        case 3:                          
+                        case 3:   
+                            //if(currentI !=0 )
                             currentI -= 1;
                             currentJ -= 1;
                             //Console.WriteLine("111111111111111111111");
@@ -354,7 +360,7 @@ namespace TaiChiLearning.DTW
                 }
                 DtwRecordSelectedFrames(path);
             }
-            Console.WriteLine(tab[seq1R.Count - 1, seq2R.Count - 1] + " " + totalframe + " " + _path.Count);
+            Console.WriteLine(tab[seq1R.Count - 1, seq2R.Count - 1] + " " + totalframe + " " + _path.Count + " " + bestMatchI);
             Console.WriteLine(1 - (tab[seq1R.Count-1, seq2R.Count-1] / totalframe));
             return (1 - (tab[seq1R.Count-1, seq2R.Count-1] / totalframe));
         }
