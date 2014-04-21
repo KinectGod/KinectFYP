@@ -1,30 +1,32 @@
-﻿using System;
+﻿using Microsoft.Kinect;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using Microsoft.Kinect;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+using System.Threading.Tasks;
+using TaiChiLearning.Recorder;
 using TaiChiLearning.Replay;
 
-namespace TaiChiLearning.Recorder
+namespace GrabSkeletonData.Recorder
 {
-    class SkeletonRecorder
+    class ReplayFrameRecorder
     {
         DateTime recordingTime;
         readonly BinaryWriter writer;
 
-        internal SkeletonRecorder(BinaryWriter writer) 
+        internal ReplayFrameRecorder(BinaryWriter writer) 
         {
             this.writer = writer;
             recordingTime = DateTime.Now;
         }
 
-        public void Record(SkeletonFrame frame) 
+        public void Record(ReplaySkeletonFrame frame) 
         {
 
             // Header
-            writer.Write((int)KinectRecordOptions.Skeletons);
+            writer.Write((int)KinectRecordOptions.ReplayFrame);
 
             // Data
             TimeSpan timeSpan = DateTime.Now.Subtract(recordingTime);
@@ -39,8 +41,7 @@ namespace TaiChiLearning.Recorder
             writer.Write(frame.FrameNumber);
 
             // Skeletons
-            Skeleton[] skeletons = frame.GetSkeletons();
-            frame.CopySkeletonDataTo(skeletons);
+            Skeleton[] skeletons = frame.Skeletons;
 
             BinaryFormatter formatter = new BinaryFormatter();
             formatter.Serialize(writer.BaseStream, skeletons);
