@@ -115,9 +115,9 @@ namespace TaiChiLearning.DTW
             if (bestMatchI >= 1) //return -1; //error checking 
             {
                 //int currentI = bestMatchI;
-                int currentJ = bestMatchI;
+                //int currentJ = bestMatchI;
                 int currentI = seq1R.Count - 1;
-                //int currentJ = seq2R.Count - 1;
+                int currentJ = seq2R.Count - 1;
                 while (currentI != 0 && currentJ != 0)
                 {
                     //Console.WriteLine(target.I + " " + target.J);
