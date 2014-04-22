@@ -61,9 +61,9 @@ namespace TaiChiLearning.DTW
 
             var tab = new double[seq1R.Count, seq2R.Count];
 
-            for (int i = 0; i < seq1R.Count;i++)
+            for (int i = 0; i < seq1R.Count; i++)
             {
-                for (int j = 0; j < seq2R.Count; j++) 
+                for (int j = 0; j < seq2R.Count; j++)
                 {
                     tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold);
                 }
@@ -71,7 +71,7 @@ namespace TaiChiLearning.DTW
             tab[0, 0] = 0;
 
             if (_learnerskeletonstream != null)
-                    _learnerskeletonstream.Close();
+                _learnerskeletonstream.Close();
             while (FileDelete(@path + "LearnerSelected")) ;
             _learnerskeletonstream = File.Create(@path + "LearnerSelected");
             _lrecorder = new KinectRecorder(KinectRecordOptions.Skeletons, _learnerskeletonstream);
@@ -92,68 +92,52 @@ namespace TaiChiLearning.DTW
                         case 3:
                             tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j];
                             break;
-                        
+
                     }
                 }
             }
 
-            // Find best between seq2 and an ending (postfix) of seq1.
-            double bestMatch = double.PositiveInfinity;
-            int bestMatchI = 0;
-            for (int i = seq2R.Count - 1; i > seq2R.Count / 2; i--)
-            {
-                if (tab[seq1R.Count - 1,i] < bestMatch)
-                {
-                    bestMatch = tab[seq1R.Count - 1, i];
-                    bestMatchI = i; //trace the AugMin of bestMatch
-                }
-            }
-            
 
             int totalframe = 0;
-            //Reconstruct the best matched path
-            if (bestMatchI >= 1) //return -1; //error checking 
+            //Reconstruct the best matched path//int currentI = bestMatchI;
+            //int currentJ = bestMatchI;
+            int currentI = seq1R.Count - 1;
+            int currentJ = seq2R.Count - 1;
+            while (currentI != 0 && currentJ != 0)
             {
-                //int currentI = bestMatchI;
-                //int currentJ = bestMatchI;
-                int currentI = seq1R.Count - 1;
-                int currentJ = seq2R.Count - 1;
-                while (currentI != 0 && currentJ != 0)
+                //Console.WriteLine(target.I + " " + target.J);
+                switch (min(tab[currentI, currentJ - 1], tab[currentI - 1, currentJ - 1], tab[currentI - 1, currentJ]))
                 {
-                    //Console.WriteLine(target.I + " " + target.J);
-                    switch (min(tab[currentI, currentJ - 1], tab[currentI - 1, currentJ - 1], tab[currentI - 1, currentJ]))
-                    {
-                        case 1:
-                            //if(currentJ != 0)
-                            currentJ--;
-                            Console.Write("3");
-                            break; 
-                        case 2:   
-                            //if(currentI !=0 )
-                            currentI--;
-                            currentJ--;
-                            learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
-                            Console.Write("1");
-                            break;
-                        case 3:
-                            //if(currentI!=0)
-                            currentI--;
-                            learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
-                            Console.Write("2");
-                            break;
-                    }
-                    totalframe ++;
+                    case 1:
+                        //if(currentJ != 0)
+                        currentJ--;
+                        Console.Write("3");
+                        break;
+                    case 2:
+                        //if(currentI !=0 )
+                        currentI--;
+                        currentJ--;
+                        learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
+                        Console.Write("1");
+                        break;
+                    case 3:
+                        //if(currentI!=0)
+                        currentI--;
+                        learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
+                        Console.Write("2");
+                        break;
                 }
-                //DtwRecordSelectedFrames(path);
-                while(learnerf.Count != 0)
-                {
-                    _lrecorder.Record((SkeletonFrame)learnerf[learnerf.Count-1]);
-                    learnerf.RemoveAt(learnerf.Count - 1);
-                }
+                totalframe++;
+            }
+            //DtwRecordSelectedFrames(path);
+            while (learnerf.Count != 0)
+            {
+                _lrecorder.Record((SkeletonFrame)learnerf[learnerf.Count - 1]);
+                learnerf.RemoveAt(learnerf.Count - 1);
             }
             _learnerskeletonstream.Close();
             _lrecorder.Stop();
-            return (1 - (tab[seq1R.Count-1, seq2R.Count-1] / totalframe));
+            return (1 - (tab[seq1R.Count - 1, seq2R.Count - 1] / totalframe));
         }
 
 
