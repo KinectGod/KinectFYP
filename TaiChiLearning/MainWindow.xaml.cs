@@ -370,6 +370,7 @@
                 Point[] temppt = new Point[dimension];
                 double[] templength = new double[dimension];
                 Skeleton temp = null;
+                SkeletonFrame _learner = e.OpenSkeletonFrame();
 
                 using (SkeletonFrame frame = e.OpenSkeletonFrame())
                 {
@@ -421,12 +422,17 @@
                             }
                         }
                     }
+                    
                     if (_capturing)
                     {
                         if (_recorder == null) return;
                         _recorder.Record(frame);
                         if (!_learning) _finalframeno = frame.FrameNumber;
                     }
+                }
+                if (_learning)
+                {
+                    _learnerseqFrame.Add(_learner);
                 }
             }
 
@@ -582,10 +588,10 @@
         /// <param name="e"></param>
         void playback_SkeletonFrameReady(object sender, ReplaySkeletonFrameReadyEventArgs e)
         {
+            
             Skeleton[] skeletons;
             var frame = e.SkeletonFrame;
             if (frame == null ) return; // make sure it is replaying the dtw selected path
-            
             skeletons = new Skeleton[frame.ArrayLength];
             skeletons = frame.Skeletons;
             Point[] temppt = new Point[dimension];
@@ -940,6 +946,7 @@
             _learning = true;
             _capturing = false;
             _captureCountdown = DateTime.Now.AddSeconds(CaptureCountdownSeconds);
+            _learnerseqFrame.Clear();
 
             _captureCountdownTimer = new System.Windows.Forms.Timer();
             _captureCountdownTimer.Interval = 50;
@@ -997,7 +1004,7 @@
                 File.Move(@_temppath + "skeleton", @path + "skeleton");
                 File.Move(@_temppath + "colorStream", @path + "colorStream");
 
-                _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, path, threshold);
+                _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _learnerseqFrame, path, threshold);
                 status.Text = gestureList.Text + " added";
             }
             else
@@ -1024,6 +1031,12 @@
             string path = ".\\Records\\" + gestureList.Text + "\\";
             readLastFrame(path);
 
+            if (_recordskeletonstream != null)
+                _recordskeletonstream.Close();
+            _recordskeletonstream = File.OpenRead(@path + "skeleton");
+            _replay = new KinectReplay(_recordskeletonstream);
+            _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
+
             if (_recordcolorstream != null)
                 _recordcolorstream.Close();
             _recordcolorstream = File.OpenRead(@path + "colorStream");
@@ -1041,11 +1054,6 @@
             _dtwMskeleton = 0;
             _dtwMcolor = 0;
             */
-            if (_recordskeletonstream != null)
-                _recordskeletonstream.Close();
-            _recordskeletonstream = File.OpenRead(@path2 + "MasterSelected");
-            _replay = new KinectReplay(_recordskeletonstream);
-            _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
 
             if (_learnerskeletonstream != null)
                 _learnerskeletonstream.Close();
@@ -1063,7 +1071,7 @@
 
             _playback.Start(1000.0 / this.SelectedFPS);
             //_colorplayback.Start(1000.0 / this.SelectedFPS);
-            //_colorreplay.Start(1000.0 / this.SelectedFPS);
+            _colorreplay.Start(1000.0 / this.SelectedFPS);
             _replay.Start(1000.0 / this.SelectedFPS);
 
             status.Text = "Playing back " + gestureList.Text;

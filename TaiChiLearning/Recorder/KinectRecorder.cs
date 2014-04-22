@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using Microsoft.Kinect;
 using TaiChiLearning.Replay;
-using GrabSkeletonData.Recorder;
+using TaiChiLearning.Recorder;
 
 namespace TaiChiLearning.Recorder
 {

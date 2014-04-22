@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using TaiChiLearning.Recorder;
 using TaiChiLearning.Replay;
 
-namespace GrabSkeletonData.Recorder
+namespace TaiChiLearning.Recorder
 {
     class ReplayFrameRecorder
     {

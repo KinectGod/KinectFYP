@@ -23,11 +23,8 @@ namespace TaiChiLearning.DTW
         /// </summary>
         private readonly int _dimension;
 
-
-        private static KinectRecorder _mrecorder;
         private static KinectRecorder _lrecorder;
         private static Stream _learnerskeletonstream;
-        private static Stream _masterskeletonstream;
 
         /// <summary>
         /// Initializes a new instance of the DtwGestureRecognizer class
@@ -50,26 +47,23 @@ namespace TaiChiLearning.DTW
         /// <param name="seq1">The master array of sequences to compare</param>
         /// <param name="seq2">The learner array of sequences to compare</param>
         /// <returns>The best match</returns>
-        public double DtwComputation(ArrayList seq1, ArrayList seq2, string path, double anglethreshold)
+        public double DtwComputation(ArrayList seq1, ArrayList seq2, ArrayList learnerframe, string path, double anglethreshold)
         {
+            Console.WriteLine(learnerframe.Count);
             // Init
             var seq1R = new ArrayList(seq1);
             //seq1R.Reverse();
             var seq2R = new ArrayList(seq2);
             //seq2R.Reverse();
 
-            var tab = new double[seq1R.Count + 1, seq2R.Count + 1];
+            var tab = new double[seq1R.Count, seq2R.Count];
 
             tab[0, 0] = 0;
 
             if (_learnerskeletonstream != null)
                 _learnerskeletonstream.Close();
-            if (_masterskeletonstream != null)
-                _masterskeletonstream.Close();
             _learnerskeletonstream = File.Create(@path + "LearnerSelected");
-            _masterskeletonstream = File.Create(@path + "MasterSelected");
             _lrecorder = new KinectRecorder(KinectRecordOptions.Skeletons, _learnerskeletonstream);
-            _mrecorder = new KinectRecorder(KinectRecordOptions.ReplayFrame, _masterskeletonstream);
 
             // Dynamic computation of the DTW matrix.
             for (int i = 1; i < seq1R.Count; i++)
@@ -111,16 +105,16 @@ namespace TaiChiLearning.DTW
                 _path.Clear();
                 //int currentI = bestMatchI;
                 int currentJ = bestMatchI;
-                int currentI = seq1R.Count;
+                int currentI = seq1R.Count - 1;
                 //int currentJ = seq2R.Count;
-                while (currentI != 0 || currentJ != 0)
+                while (currentI != 0 && currentJ != 0)
                 {
                     //var target = new DtwPathNode((int)seq1FrameNum[currentI - 1], (int)seq2FrameNum[currentJ - 1], tab[currentI, currentJ]);
                     /*var target = new DtwPathNode((int)seq1Frame[seq1.Count - currentI], (int)seq2Frame[seq2.Count - currentJ], tab[currentI, currentJ]);
                     
                     _path.Add(target);*/
                     //_mrecorder.Record((ReplaySkeletonFrame)seq1Frame[seq1.Count - currentI]);
-                    //_lrecorder.Record((SkeletonFrame)seq2Frame[seq2.Count - currentJ]);
+                        
 
                     //Console.WriteLine(target.I + " " + target.J);
                     switch (min(tab[currentI, currentJ - 1], tab[currentI - 1, currentJ], tab[currentI - 1, currentJ - 1]))
@@ -133,12 +127,14 @@ namespace TaiChiLearning.DTW
                         case 2:
                             //if(currentI!=0)
                             currentI -= 1;
+                            _lrecorder.Record((SkeletonFrame)learnerframe[seq2.Count - currentJ]);
                             //Console.WriteLine("222222222222222222222");
                             break;
                         case 3:   
                             //if(currentI !=0 )
                             currentI -= 1;
                             currentJ -= 1;
+                            _lrecorder.Record((SkeletonFrame)learnerframe[seq2.Count - currentJ]);
                             //Console.WriteLine("111111111111111111111");
                             break;
                     }
@@ -149,13 +145,7 @@ namespace TaiChiLearning.DTW
 
 
             _learnerskeletonstream.Close();
-            _masterskeletonstream.Close();
             _lrecorder.Stop();
-            _mrecorder.Stop();
-
-            /*
-            Console.WriteLine(tab[seq1R.Count - 1, seq2R.Count - 1] + " " + totalframe + " " + _path.Count + " " + bestMatchI);
-            Console.WriteLine(1 - (tab[seq1R.Count-1, seq2R.Count-1] / totalframe));*/
             return (1 - (tab[seq1R.Count-1, seq2R.Count-1] / totalframe));
         }
 
