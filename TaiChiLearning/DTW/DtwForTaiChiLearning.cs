@@ -56,7 +56,7 @@ namespace TaiChiLearning.DTW
             //seq1R.Reverse();
             var seq2R = new ArrayList(seq2);
 
-            var learnerf = new ArrayList(learnerframe);
+            var learnerf = new ArrayList();
             //seq2R.Reverse();
 
             var tab = new double[seq1R.Count, seq2R.Count];
@@ -132,19 +132,24 @@ namespace TaiChiLearning.DTW
                             //if(currentI !=0 )
                             currentI--;
                             currentJ--;
-                            _lrecorder.Record((SkeletonFrame)learnerf[learnerf.Count - 1 - currentJ]);
+                            learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
                             Console.Write("1");
                             break;
                         case 3:
                             //if(currentI!=0)
                             currentI--;
-                            _lrecorder.Record((SkeletonFrame)learnerf[learnerf.Count - 1 - currentJ]);
+                            learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
                             Console.Write("2");
                             break;
                     }
                     totalframe ++;
                 }
                 //DtwRecordSelectedFrames(path);
+                while(learnerf.Count != 0)
+                {
+                    _lrecorder.Record((SkeletonFrame)learnerf[learnerf.Count-1]);
+                    learnerf.RemoveAt(learnerf.Count - 1);
+                }
             }
             _learnerskeletonstream.Close();
             _lrecorder.Stop();
@@ -217,7 +222,7 @@ namespace TaiChiLearning.DTW
             }
             //d = Math.Sqrt(d);
             //d2 = Math.Sqrt(d2);
-            mark = (d+d2)/8;
+            mark = (d+d2);
             //error checking
             /*
             if (double.IsNaN(d) || double.IsNaN(d2)) return -1;
