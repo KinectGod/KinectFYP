@@ -17,7 +17,7 @@
     using Microsoft.Speech.AudioFormat;
     using Microsoft.Speech.Recognition;
     using System.ComponentModel;
-    using Microsoft.Speech.Synthesis;
+    //using Microsoft.Speech.Synthesis;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -107,7 +107,7 @@
         ///<summary>
         ///text to speech
         ///</summary>
-        private SpeechSynthesizer synthesizer;
+        //private SpeechSynthesizer synthesizer;
 
         /// <summary>
         /// ArrayList of master's and learner motion
@@ -283,7 +283,7 @@
             _nui.Start();
             CreateSpeechRecognizer();
             //text tp speech
-            synthesizer = new SpeechSynthesizer();
+            //synthesizer = new SpeechSynthesizer();
             _masterseq.Clear();
             _learnerseq.Clear();
         }
@@ -418,9 +418,11 @@
                                         }
                                     }
                                     _learnerseq.Add(temppt);
+                                    _learnerseqFrame.Add(_learner);
                                 }
                             }
                         }
+                        
                     }
                     
                     if (_capturing)
@@ -429,10 +431,6 @@
                         _recorder.Record(frame);
                         if (!_learning) _finalframeno = frame.FrameNumber;
                     }
-                }
-                if (_learning)
-                {
-                    _learnerseqFrame.Add(_learner);
                 }
             }
 
@@ -947,6 +945,8 @@
             _capturing = false;
             _captureCountdown = DateTime.Now.AddSeconds(CaptureCountdownSeconds);
             _learnerseqFrame.Clear();
+            _masterseq.Clear();
+            _learnerseq.Clear();
 
             _captureCountdownTimer = new System.Windows.Forms.Timer();
             _captureCountdownTimer.Interval = 50;
@@ -1199,59 +1199,61 @@
                 {
                     RejectSpeech(e.Result);
                 }
-                string recognized_text = null;
+                //string recognized_text = null;
                 //and finally, here we set what we want to happen when 
-                //the SRE recognizes a word
-                
+                //the SRE recognizes 
+
+                //System.Media.SoundPlayer player = new System.Media.SoundPlayer(@_temppath + "countdown.mp3");
+                //player.Play();
                 switch (e.Result.Text.ToUpperInvariant())
                 {
                     case "KINECT RECORD MOTION":
                         if(!_replaying && !_learning && !_playingback && !_counting && !_capturing)
                         this.tcCaptureClick(null, null);
                         //status2.Text = "Record.";
-                        recognized_text = "RECOD IN FIVE SECONDS";
+                        //recognized_text = "RECOD IN FIVE SECONDS";
                         break;
                     case "KINECT STOP RECORD":
                         if(_capturing)
                         this.tcStoreClick(null, null);
                         //status2.Text = "Store.";
-                        recognized_text = "Store";
+                        //recognized_text = "Store";
                         break;
                     case "KINECT REPLAY":
                         if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
                         this.tcReplayClick(null, null);
                         //status2.Text = "Replay.";
-                        recognized_text = "Replay";
+                        //recognized_text = "Replay";
                         break;
                     case "KINECT STOP REPLAY":
                         if(_replaying)
                         this.tcStopReplayClick(null, null);
                         //status2.Text = "Stop.";
-                        recognized_text = "Stop replay";
+                        //recognized_text = "Stop replay";
                         break;
                     case "KINECT START LEARNING":
                         if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
                         this.tcStartLearningClick(null, null);
                         //status2.Text = "Learn.";
-                        recognized_text = "Start learning in five second";
+                        //recognized_text = "Start learning in five second";
                         break;
                     case "KINECT FINISH LEARNING":
                         if(_learning)
                         this.tcStopLearningClick(null, null);
                         //status2.Text = "finish.";
-                        recognized_text = "Start learning in five second";
+                        //recognized_text = "Start learning in five second";
                         break;
                     case "KINECT PLAYBACK LEARNING":
                         if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
                         this.tcPlayBack_Click(null, null);
                         //status2.Text = "finish.";
-                        recognized_text = "Playing back " + gestureList.Text;
+                        //recognized_text = "Playing back " + gestureList.Text;
                         break;
                     case "KINECT STOP PLAYBACK":
                         if (_playingback)
                         this.tcStopPlayBackClick(null, null);
                         //status2.Text = "finish.";
-                        recognized_text = "Stop playing back " + gestureList.Text;
+                        //recognized_text = "Stop playing back " + gestureList.Text;
                         break;
                     default:
                         break;
@@ -1345,28 +1347,6 @@
         /// <param name="filename">the targeted file</param>
         /// <returns></returns>
         public static bool FileDelete(string filename)
-        {
-            try
-            {
-                File.Delete(@filename);
-                while (File.Exists(@filename))
-                {
-                    Thread.Sleep(500);
-                }
-                return false;
-            }
-            catch (IOException)
-            {
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// make sure to the file is readable
-        /// </summary>
-        /// <param name="filename">the targeted file</param>
-        /// <returns></returns>
-        public static bool FileRead(string filename)
         {
             try
             {

@@ -7,6 +7,7 @@ namespace TaiChiLearning.DTW
     using System.Collections;
     using System.Drawing;
     using System.IO;
+    using System.Threading;
     using System.Windows.Media.Media3D;
     using TaiChiLearning.Recorder;
     using TaiChiLearning.Replay;
@@ -54,14 +55,24 @@ namespace TaiChiLearning.DTW
             var seq1R = new ArrayList(seq1);
             //seq1R.Reverse();
             var seq2R = new ArrayList(seq2);
+
+            var learnerf = new ArrayList(learnerframe);
             //seq2R.Reverse();
 
             var tab = new double[seq1R.Count, seq2R.Count];
 
+            for (int i = 0; i < seq1R.Count;i++)
+            {
+                for (int j = 0; j < seq2R.Count; j++) 
+                {
+                    tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold);
+                }
+            }
             tab[0, 0] = 0;
 
             if (_learnerskeletonstream != null)
-                _learnerskeletonstream.Close();
+                    _learnerskeletonstream.Close();
+            while (FileDelete(@path + "LearnerSelected")) ;
             _learnerskeletonstream = File.Create(@path + "LearnerSelected");
             _lrecorder = new KinectRecorder(KinectRecordOptions.Skeletons, _learnerskeletonstream);
 
@@ -70,17 +81,18 @@ namespace TaiChiLearning.DTW
             {
                 for (int j = 1; j < seq2R.Count; j++)
                 {
-                    switch (min(tab[i, j - 1], tab[i - 1, j], tab[i - 1, j - 1]))
+                    switch (min(tab[i, j - 1], tab[i - 1, j - 1], tab[i - 1, j]))
                     {
                         case 1:
                             tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i, j - 1];
                             break;
                         case 2:
-                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j];
-                            break;
-                        case 3:
                             tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
                             break;
+                        case 3:
+                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j];
+                            break;
+                        
                     }
                 }
             }
@@ -102,48 +114,38 @@ namespace TaiChiLearning.DTW
             //Reconstruct the best matched path
             if (bestMatchI >= 1) //return -1; //error checking 
             {
-                _path.Clear();
                 //int currentI = bestMatchI;
                 int currentJ = bestMatchI;
                 int currentI = seq1R.Count - 1;
-                //int currentJ = seq2R.Count;
+                //int currentJ = seq2R.Count - 1;
                 while (currentI != 0 && currentJ != 0)
                 {
-                    //var target = new DtwPathNode((int)seq1FrameNum[currentI - 1], (int)seq2FrameNum[currentJ - 1], tab[currentI, currentJ]);
-                    /*var target = new DtwPathNode((int)seq1Frame[seq1.Count - currentI], (int)seq2Frame[seq2.Count - currentJ], tab[currentI, currentJ]);
-                    
-                    _path.Add(target);*/
-                    //_mrecorder.Record((ReplaySkeletonFrame)seq1Frame[seq1.Count - currentI]);
-                        
-
                     //Console.WriteLine(target.I + " " + target.J);
-                    switch (min(tab[currentI, currentJ - 1], tab[currentI - 1, currentJ], tab[currentI - 1, currentJ - 1]))
+                    switch (min(tab[currentI, currentJ - 1], tab[currentI - 1, currentJ - 1], tab[currentI - 1, currentJ]))
                     {
                         case 1:
                             //if(currentJ != 0)
-                            currentJ -= 1;
-                            //Console.WriteLine("33333333333333333");
-                            break;
-                        case 2:
-                            //if(currentI!=0)
-                            currentI -= 1;
-                            _lrecorder.Record((SkeletonFrame)learnerframe[seq2.Count - currentJ]);
-                            //Console.WriteLine("222222222222222222222");
-                            break;
-                        case 3:   
+                            currentJ--;
+                            Console.Write("3");
+                            break; 
+                        case 2:   
                             //if(currentI !=0 )
-                            currentI -= 1;
-                            currentJ -= 1;
-                            _lrecorder.Record((SkeletonFrame)learnerframe[seq2.Count - currentJ]);
-                            //Console.WriteLine("111111111111111111111");
+                            currentI--;
+                            currentJ--;
+                            _lrecorder.Record((SkeletonFrame)learnerf[learnerf.Count - 1 - currentJ]);
+                            Console.Write("1");
+                            break;
+                        case 3:
+                            //if(currentI!=0)
+                            currentI--;
+                            _lrecorder.Record((SkeletonFrame)learnerf[learnerf.Count - 1 - currentJ]);
+                            Console.Write("2");
                             break;
                     }
                     totalframe ++;
                 }
                 //DtwRecordSelectedFrames(path);
             }
-
-
             _learnerskeletonstream.Close();
             _lrecorder.Stop();
             return (1 - (tab[seq1R.Count-1, seq2R.Count-1] / totalframe));
@@ -169,7 +171,7 @@ namespace TaiChiLearning.DTW
 
         private double Marker(System.Windows.Point[] a, System.Windows.Point[] b, double anglethreshold)
         {
-            
+            /*
             double mark = 0.0;
             //error checking
             if (a.Length != b.Length) return 1; //would it affect the result?
@@ -185,7 +187,7 @@ namespace TaiChiLearning.DTW
                     mark += 0.2;
                     count += 1;
                 }
-                    /*
+                    
                 else if (d > (anglethreshold * 4 / 5))
                 {
                     mark += 0.16;
@@ -195,30 +197,29 @@ namespace TaiChiLearning.DTW
                 {
                     mark += 0.12;
                     //count += 1;
-                }*/
+                }
             }
-
+            
             //return count / a.Length;
             if (count > 5 || mark > 1)
                return 1;
             else 
                 return mark;
-            /*
+           */
             double d = 0.0;
             double d2 = 0.0;
             double mark = 0.0;
-            for (int i = 0; i < _dimension; i++)
-                //error checking
-                if (a.Length != b.Length) return -1; //would it affect the result?
-            //aggregate the angle differences
-            for (int i = 0; i < a.Length; i++)
+
+            for (int i = 0; i < 8; i++)
             {
-                d += Math.Pow(Math.Abs(a[i].X - b[i].X),2); //should be a square?
-                d2 += Math.Pow(Math.Abs(a[i].Y - b[i].Y),2);
+                d += Math.Abs(a[i].X - b[i].X); //should be a square?
+                d2 += Math.Abs(a[i].Y - b[i].Y);
             }
-            d = Math.Sqrt(d);
-            d2 = Math.Sqrt(d2);
+            //d = Math.Sqrt(d);
+            //d2 = Math.Sqrt(d2);
+            mark = (d+d2)/8;
             //error checking
+            /*
             if (double.IsNaN(d) || double.IsNaN(d2)) return -1;
 
             if (d > 30 * _dimension / 2)       
@@ -255,9 +256,10 @@ namespace TaiChiLearning.DTW
             {
                 mark += 0.2;
             }
-
+             * */
+            //return d + d2;
             return mark;
-            */
+            
              
         }
         /// <summary>
@@ -299,6 +301,28 @@ namespace TaiChiLearning.DTW
             }
         }
          * */
+
+        /// <summary>
+        /// make sure to delete the file successfully
+        /// </summary>
+        /// <param name="filename">the targeted file</param>
+        /// <returns></returns>
+        public static bool FileDelete(string filename)
+        {
+            try
+            {
+                File.Delete(@filename);
+                while (File.Exists(@filename))
+                {
+                    Thread.Sleep(500);
+                }
+                return false;
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+        }
 
     }
 }

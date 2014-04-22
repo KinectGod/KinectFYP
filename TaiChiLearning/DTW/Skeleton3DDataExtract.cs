@@ -161,8 +161,11 @@ namespace TaiChiLearning.DTW
         private static Point AngleDetection(Vector3D angle)
         {
             Point temp = new Point();
+            angle.Normalize();
             Vector3D ProjectToXZ = new Vector3D(angle.X, 0, angle.Z);
             Vector3D ProjectToZY = new Vector3D(0, angle.Y, angle.Z);
+            ProjectToXZ.Normalize();
+            ProjectToZY.Normalize();
             double tempX = Vector3D.AngleBetween(angle, ProjectToXZ);
             double tempY = Vector3D.AngleBetween(angle, ProjectToZY);
 
