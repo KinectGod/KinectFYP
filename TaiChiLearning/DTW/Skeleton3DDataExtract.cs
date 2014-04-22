@@ -158,52 +158,52 @@ namespace TaiChiLearning.DTW
         }
 
        
-        private static Point AngleDetection(Vector3D angle)
+        private static Point AngleDetection(Vector3D vector)
         {
-            Point temp = new Point();
-            angle.Normalize();
-            Vector3D ProjectToXZ = new Vector3D(angle.X, 0, angle.Z);
-            Vector3D ProjectToZY = new Vector3D(0, angle.Y, angle.Z);
+            Point AnglePair = new Point();
+            vector.Normalize();
+            Vector3D ProjectToXZ = new Vector3D(vector.X, 0, vector.Z);
+            Vector3D ProjectToZY = new Vector3D(0, vector.Y, vector.Z);
             ProjectToXZ.Normalize();
             ProjectToZY.Normalize();
-            double tempX = Vector3D.AngleBetween(angle, ProjectToXZ);
-            double tempY = Vector3D.AngleBetween(angle, ProjectToZY);
+            double angleXZ = Vector3D.AngleBetween(vector, ProjectToXZ);
+            double angleYZ = Vector3D.AngleBetween(vector, ProjectToZY);
 
-            if (angle.X >= 0 && angle.Y >= 0)
+            if (vector.X >= 0 && vector.Y >= 0)
             {
-                temp.X = tempX;
+                AnglePair.X = angleXZ;
             }
-            else if (angle.X >= 0 && angle.Y <= 0)
+            else if (vector.X >= 0 && vector.Y <= 0)
             {
-                temp.X = 360 - tempX;
+                AnglePair.X = 360 - angleXZ;
             }
-            else if (angle.X <= 0 && angle.Y >= 0)
+            else if (vector.X <= 0 && vector.Y >= 0)
             {
-                temp.X = 180 - tempX;
+                AnglePair.X = 180 - angleXZ;
             }
-            else if (angle.X <= 0 && angle.Y <= 0)
+            else if (vector.X <= 0 && vector.Y <= 0)
             {
-                temp.X = 180 + tempX;
-            }
-
-            if (angle.Z >= 0 && angle.X >= 0)
-            {
-                temp.Y = tempY;
-            }
-            else if (angle.Z >= 0 && angle.X <= 0)
-            {
-                temp.Y = 360 - tempY;
-            }
-            else if (angle.Z <= 0 && angle.X >= 0)
-            {
-                temp.Y = 180 - tempY;
-            }
-            else if (angle.Z <= 0 && angle.X <= 0)
-            {
-                temp.Y = 180 + tempY;
+                AnglePair.X = 180 + angleXZ;
             }
 
-            return temp;
+            if (vector.Z >= 0 && vector.X >= 0)
+            {
+                AnglePair.Y = angleYZ;
+            }
+            else if (vector.Z >= 0 && vector.X <= 0)
+            {
+                AnglePair.Y = 360 - angleYZ;
+            }
+            else if (vector.Z <= 0 && vector.X >= 0)
+            {
+                AnglePair.Y = 180 - angleYZ;
+            }
+            else if (vector.Z <= 0 && vector.X <= 0)
+            {
+                AnglePair.Y = 180 + angleYZ;
+            }
+
+            return AnglePair;
         }
 
         public static double[] LengthGeneration(Skeleton data)
