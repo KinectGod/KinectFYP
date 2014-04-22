@@ -13,13 +13,11 @@
     using TaiChiLearning.Replay;
     using System.IO;
     using System.Threading;
-    using System.Windows.Threading;
     using System.Windows.Media;
     using Microsoft.Speech.AudioFormat;
     using Microsoft.Speech.Recognition;
     using System.ComponentModel;
     using Microsoft.Speech.Synthesis;
-    using System.Globalization;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -40,28 +38,6 @@
         SkeletonDrawManager RealTimeSkeleton;
         SkeletonDrawManager ReplaySkeleton;
         SkeletonDrawManager LearnerSkeleton;
-        //SkeletonDrawManager PlayBackSkeleton;
-
-        /// <summary>
-        /// The red index
-        /// </summary>
-        private const int RedIdx = 2;
-
-        /// <summary>
-        /// The green index
-        /// </summary>
-        private const int GreenIdx = 1;
-
-        /// <summary>
-        /// The blue index
-        /// </summary>
-        private const int BlueIdx = 0;
-
-        /// <summary>
-        /// How many skeleton frames to ignore (_flipFlop)
-        /// 1 = capture every frame, 2 = capture every second frame etc.
-        /// </summary>
-        private const int Ignore = 2;
 
         /// <summary>
         /// The minumum number of frames in the _video buffer before we attempt to start matching gestures
@@ -133,26 +109,22 @@
         ///</summary>
         private SpeechSynthesizer synthesizer;
 
-        private static Joint _masterini = new Joint();
-        private static Joint _learnerini = new Joint();
-        private static Vector3 inidiff = new Vector3();
-
         /// <summary>
         /// ArrayList of master's and learner motion
         /// </summary>
         private ArrayList _masterseq = new ArrayList();
         private ArrayList _learnerseq = new ArrayList();
 
-        private ArrayList _masterseqNum = new ArrayList();
-        private ArrayList _learnerseqNum = new ArrayList();
+        private ArrayList _learnerseqFrame = new ArrayList();
 
+        /*
         private static Point[] _dtwselected;
 
         private static int _dtwLskeleton = 0;
         private static int _dtwLcolor = 0;
         private static int _dtwMskeleton = 0;
         private static int _dtwMcolor = 0;
-
+        */
         // Kinect recorder
         private static KinectRecorder _recorder;
         private static KinectRecorder _colorrecorder;
@@ -202,7 +174,9 @@
         /// </summary>
         private int selectedFPS = 30;
         
-
+        /// <summary>
+        /// detect the slide bar value of the replay fps
+        /// </summary>
         public static readonly DependencyProperty selectedFPSProperty =
     DependencyProperty.Register("selectedFPS", typeof(string), typeof(MainWindow), new PropertyMetadata(null));
         
@@ -212,7 +186,6 @@
             {
                 return (int)this.selectedFPS;
             }
-
             set
             {
                 this.selectedFPS = (int)(value);
@@ -276,7 +249,7 @@
             //PlayBackSkeleton = new SkeletonDrawManager(PlayBackSkeletonCanvas, _nui);
             //LearningSkeleton = new SkeletonDrawManager(LearningSkeletonCanvas, _nui);
 
-            _dtw = new DtwForTaiChiLearning(dimension * 2, 3600, 120, 6, 1);
+            _dtw = new DtwForTaiChiLearning(dimension);
             // If you want to see the RGB stream then include this
             _nui.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
             _nui.ColorFrameReady += NuiColorFrameReady;
@@ -311,17 +284,8 @@
             CreateSpeechRecognizer();
             //text tp speech
             synthesizer = new SpeechSynthesizer();
-            // Configure the audio output. 
-            /*
-            synthesizer.SetOutputToDefaultAudioDevice();
-            synthesizer.Volume = 100;//聲音大小(0 ~ 100)      
-            synthesizer.Rate = -2;//聲音速度(-10 ~ 10)
-            */
             _masterseq.Clear();
             _learnerseq.Clear();
-            _masterseqNum.Clear();
-            _learnerseqNum.Clear();
-
         }
 
         void Kinects_StatusChanged(object sender, StatusChangedEventArgs e)
@@ -407,16 +371,14 @@
                 double[] templength = new double[dimension];
                 Skeleton temp = null;
 
-                using (var frame = e.OpenSkeletonFrame())
+                using (SkeletonFrame frame = e.OpenSkeletonFrame())
                 {
                     if (frame == null) return;
                     var skeletons = new Skeleton[frame.SkeletonArrayLength];
                     length = frame.SkeletonArrayLength;
                     frame.CopySkeletonDataTo(skeletons);
-
-
-                    //DrawSkeleton(skeletons, LearnerSkeletonCanvas);
                     RealTimeSkeleton.DrawSkeleton(skeletons);
+                    //_learnerseqNum.Add(frame);
 
                     if (_learning && _training && _capturing)
                     {
@@ -431,15 +393,15 @@
                             {
                                 temppt = Skeleton3DDataExtract.ProcessData(data);
                                 templength = Skeleton3DDataExtract.LengthGeneration(data);
+                                /*
                                 if(_learnerini == null && _masterini != null)
                                 {
-                                    _learnerini = data.Joints[JointType.ShoulderCenter];
-                                     inidiff = _masterini.Position.ToVector3() - _learnerini.Position.ToVector3();
+                                    //_learnerini = data.Joints[JointType.ShoulderCenter];
+                                     //inidiff = _masterini.Position.ToVector3() - _learnerini.Position.ToVector3();
                                 }
-
-                                if (_masterskeleton != null && inidiff.X < 9999)
-                                    temp = LearnerSkeleton.MasterMatchLearner(_master_length, templength, data, _masterskeleton, inidiff);
-                                //if (temppt[4].X >= 0)
+                                */
+                                if (_masterskeleton != null)
+                                    temp = LearnerSkeleton.MasterMatchLearner(_master_length, templength, data, _masterskeleton);
                                 _LearnerAngle = temppt;
                                 if (_LearnerAngle != null)
                                 {
@@ -455,12 +417,10 @@
                                         }
                                     }
                                     _learnerseq.Add(temppt);
-                                    _learnerseqNum.Add(frame.FrameNumber);
                                 }
                             }
                         }
                     }
-
                     if (_capturing)
                     {
                         if (_recorder == null) return;
@@ -508,12 +468,6 @@
             var image = e.ColorImageFrame;
 
             if (image == null) return; // sometimes frame image comes null, so skip it.
-            if (_playingback)
-            {
-                if( image.FrameNumber != _dtwselected[_dtwMcolor].X) return;
-                if (_dtwselected.Length / 2 > _dtwMcolor)
-                    _dtwMcolor++;
-            }
             ReplayColorManager.Update(image);
         }
 
@@ -527,10 +481,8 @@
             // 32-bit per pixel, RGBA image
             var image = e.ColorImageFrame;
 
-            if (image == null || image.FrameNumber != _dtwselected[_dtwLcolor].Y) return; // sometimes frame image comes null, so skip it.
+            if (image == null) return; // sometimes frame image comes null, so skip it.
             PlayBackColorManager.Update(image);
-            if (_dtwselected.Length / 2 > _dtwLcolor)
-                _dtwLcolor++;
         }
 
         /// <summary>
@@ -558,10 +510,11 @@
                 }
             }
             if (frame == null) return;
+            /*
             if (_playingback)
             {
                 if (frame.FrameNumber != _dtwselected[_dtwMskeleton].X) return; // make sure it is replaying the selected path
-                if (_dtwselected.Length > _dtwMskeleton)
+                if (_dtwselected.Length -1 > _dtwMskeleton)
                 {
                     _dtwMskeleton++;
                     DateTime mtime;
@@ -569,11 +522,12 @@
                     {
                         if (_dtwselected.Length - 1 == _dtwMskeleton) break;
                         mtime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
-                        while (DateTime.Now < mtime) ;
+                        //while (DateTime.Now < mtime) ;
                         _dtwMskeleton++;
                     }
                 }
             }
+            */
             skeletons = new Skeleton[frame.ArrayLength];
             skeletons = frame.Skeletons;
             Point[] temppt = new Point[dimension];
@@ -602,18 +556,21 @@
                         if (_LearnerAngle != null && _MasterAngle != null)
                         {
                             _masterskeleton = data;
+                            /*
                             if (_masterini == null)
                             {
                                 _masterini = data.Joints[JointType.ShoulderCenter];
                             }
+                             */
                             _master_angles = MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension, threshold, detection);
                             _master_length = Skeleton3DDataExtract.LengthGeneration(data);
                             
                             _masterseq.Add(temppt);
-                            _masterseqNum.Add(frame.FrameNumber);
+                            
                         }
                     }
                 }
+                //_masterseqNum.Add(frame);
                 
             }
         }
@@ -627,47 +584,12 @@
         {
             Skeleton[] skeletons;
             var frame = e.SkeletonFrame;
-            if (frame == null || frame.FrameNumber != _dtwselected[_dtwLskeleton].Y) return; // make sure it is replaying the dtw selected path
+            if (frame == null ) return; // make sure it is replaying the dtw selected path
             
             skeletons = new Skeleton[frame.ArrayLength];
             skeletons = frame.Skeletons;
             Point[] temppt = new Point[dimension];
 
-            if (_dtwselected.Length > _dtwLskeleton)
-            {
-                _dtwLskeleton++;
-                DateTime ltime;
-                
-                //method 1
-                new Thread((ThreadStart)delegate
-                    {
-                        while (_dtwselected[_dtwLskeleton - 1].Y == _dtwselected[_dtwLskeleton].Y)
-                        {
-                            Console.WriteLine(_dtwLskeleton + "\t" + _dtwMskeleton);
-                            if (_dtwselected.Length - 1 == _dtwLskeleton) break;
-                            //Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
-                            System.Threading.Thread.Sleep(1000 / this.SelectedFPS);
-                            
-                            //ltime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
-                            //while (DateTime.Now < ltime) ;
-
-                            _dtwLskeleton++;
-                        }
-                    }).Start();
-
-                //method 2 
-                while (_dtwselected[_dtwLskeleton - 1].Y == _dtwselected[_dtwLskeleton].Y)
-                {
-                    System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-                    timer.Interval = 1000 / this.SelectedFPS;
-                    timer.Tick += new EventHandler(skeletoncheck);
-                    if (_dtwselected.Length - 1 == _dtwLskeleton) break;
-                    timer.Start();
-                }
-
-
-            }
-            
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
             RealTimeSkeleton.DrawSkeleton(skeletons);
             
@@ -697,18 +619,25 @@
                 }
             }
             
-            
-        }
+            /*
+            if (_dtwselected.Length - 1 > _dtwLskeleton)
+            {
+                _dtwLskeleton++;
+                DateTime ltime;
 
-        /// <summary>
-        /// _dtwLskeleton++
-        /// </summary>
-        private void skeletoncheck(object sender, EventArgs e)
-        {
-            _dtwLskeleton++;
-            Console.WriteLine("_dtwLskeleton++" + _dtwLskeleton);
+                while (_dtwselected[_dtwLskeleton - 1].Y == _dtwselected[_dtwLskeleton].Y)
+                {
+                    Console.WriteLine(_dtwLskeleton + "\t" + _dtwMskeleton);
+                    if (_dtwselected.Length - 1 == _dtwLskeleton) break;
+                    //Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
+                    ltime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
+                    while (DateTime.Now < ltime) ;
+                    //Thread.Sleep(1200);
+                    _dtwLskeleton++;
+                }
+            }
+             * */
         }
-
 
         /// <summary>
         /// Runs after the window is loaded
@@ -818,9 +747,6 @@
             }
             else
             {
-                // Set the buttons enabled state
-                //dtwRead.IsEnabled = false;
-                //tcCapture.IsEnabled = false;
                 tcStore.IsEnabled = true;
                 // Set the capturing? flag
                 status.Text = "Recording motion " + gestureList.Text;
@@ -971,6 +897,7 @@
             tcCapture.IsEnabled = false;
             tcStartLearning.IsEnabled = false;
             tcReplay.IsEnabled = false;
+            tcPlayBack.IsEnabled = false;
             status.Text = "Replaying master motion " + gestureList.Text;
             string path = ".\\Records\\" + gestureList.Text + "\\";
             readLastFrame(path);
@@ -986,7 +913,6 @@
                 _recordcolorstream.Close();
             _recordcolorstream = File.OpenRead(@path + "colorStream");
             _colorreplay = new KinectReplay(_recordcolorstream);
-            //recordColorStream.Close();
             _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
             _colorreplay.Start(1000.0/this.SelectedFPS);
 
@@ -1001,6 +927,7 @@
             tcStopReplay.IsEnabled = false;
             tcStartLearning.IsEnabled = true;
             tcReplay.IsEnabled = true;
+            tcPlayBack.IsEnabled = true;
             _replay.Stop();
             _colorreplay.Stop();
 
@@ -1070,7 +997,7 @@
                 File.Move(@_temppath + "skeleton", @path + "skeleton");
                 File.Move(@_temppath + "colorStream", @path + "colorStream");
 
-                _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _masterseqNum, _learnerseqNum, path, threshold);
+                _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, path, threshold);
                 status.Text = gestureList.Text + " added";
             }
             else
@@ -1097,13 +1024,6 @@
             string path = ".\\Records\\" + gestureList.Text + "\\";
             readLastFrame(path);
 
-            if (_recordskeletonstream != null)
-                _recordskeletonstream.Close();
-            _recordskeletonstream = File.OpenRead(@path + "skeleton");
-            _replay = new KinectReplay(_recordskeletonstream);
-            _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
-            
-
             if (_recordcolorstream != null)
                 _recordcolorstream.Close();
             _recordcolorstream = File.OpenRead(@path + "colorStream");
@@ -1114,17 +1034,25 @@
             string path2 = ".\\Learnings\\" + gestureList.Text + "\\";
             readLastFrame(path);
             // read the previous saved dtw selected path
+            /*
             _dtwselected = DtwReadSelectedFrames(path2);
             _dtwLskeleton = 0;
             _dtwLcolor = 0;
             _dtwMskeleton = 0;
             _dtwMcolor = 0;
+            */
+            if (_recordskeletonstream != null)
+                _recordskeletonstream.Close();
+            _recordskeletonstream = File.OpenRead(@path2 + "MasterSelected");
+            _replay = new KinectReplay(_recordskeletonstream);
+            _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
 
             if (_learnerskeletonstream != null)
                 _learnerskeletonstream.Close();
-            _learnerskeletonstream = File.OpenRead(@path2 + "skeleton");
+            _learnerskeletonstream = File.OpenRead(@path2 + "LearnerSelected");
             _playback = new KinectReplay(_learnerskeletonstream);
             _playback.SkeletonFrameReady += playback_SkeletonFrameReady;
+            
             
 
             if (_learnercolorstream != null)
@@ -1140,6 +1068,7 @@
 
             status.Text = "Playing back " + gestureList.Text;
         }
+
         /// <summary>
         /// Event handler for the stop play back button, which will stop the playing back action
         /// </summary>
@@ -1197,60 +1126,6 @@
                 Grammar grammar = new Grammar(actionMenu);
                 grammar.Name = "button";
                 speechRecognizer.LoadGrammar(grammar);
-
-                 
-/*
-                //Now we need to add the words we want our program to recognise
-                //  Create lists of alternative choices.
-                Choices speechaction = new Choices(new string[] { "RECORD", "STORE RECORD", "REPLAY", "STOP REPLAY", "LEARN", "FINISH", "PLAYBACK", "STOP PLAYBACK"  });
-
-                // Create a GrammarBuilder object and assemble the grammar components.
-                GrammarBuilder actionMenu = new GrammarBuilder("KINECT");
-                //actionMenu.Append("KINECT");
-                actionMenu.Append(speechaction);
-                //actionMenu.Append("KINECT");
-
-
-                // Build a Grammar object from the GrammarBuilder.
-                Grammar grammar = new Grammar(actionMenu);
-                grammar.Name = "button";
-                speechRecognizer.LoadGrammar(grammar);
-                
-*/
-                //var grammar_start = new Choices();
-                //grammar_start.Add("Kinect");
-                /*
-                var grammar = new Choices();
-                grammar.Add(new SemanticResultValue("Record", "RECORD"));
-                grammar.Add(new SemanticResultValue("Store", "STORE"));
-                grammar.Add(new SemanticResultValue("Replay", "REPLAY"));
-                grammar.Add(new SemanticResultValue("Stop", "STOP"));
-                grammar.Add(new SemanticResultValue("Learn", "LEARN"));
-                grammar.Add(new SemanticResultValue("Finish", "FINISH"));
-                 * */
-                /*
-                 * var directions = new Choices();
-                * directions.Add(new SemanticResultValue("forward", "FORWARD"));
-                * directions.Add(new SemanticResultValue("forwards", "FORWARD"));
-                * directions.Add(new SemanticResultValue("straight", "FORWARD"));
-                * directions.Add(new SemanticResultValue("backward", "BACKWARD"));
-                * directions.Add(new SemanticResultValue("backwards", "BACKWARD"));
-                * directions.Add(new SemanticResultValue("back", "BACKWARD"));
-                * directions.Add(new SemanticResultValue("turn left", "LEFT"));
-                * directions.Add(new SemanticResultValue("turn right", "RIGHT"));
-                */
-
-
-
-                
-                //set culture - language, country/region
-               // var gb = new GrammarBuilder { Culture = ri.Culture };
-                //gb.Append(grammar);
-                //gb.Append(grammar_start);
-
-                //set up the grammar builder
-                //var g = new Grammar(gb);
-                //speechRecognizer.LoadGrammar(g);
                 
                 //Set events for recognizing, hypothesising and rejecting speech
                 //speechRecognizer.SpeechRecognized += SreSpeechStartRecogn;
@@ -1468,7 +1343,29 @@
                 File.Delete(@filename);
                 while (File.Exists(@filename))
                 {
-                    Thread.Sleep(2000);
+                    Thread.Sleep(500);
+                }
+                return false;
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// make sure to the file is readable
+        /// </summary>
+        /// <param name="filename">the targeted file</param>
+        /// <returns></returns>
+        public static bool FileRead(string filename)
+        {
+            try
+            {
+                File.Delete(@filename);
+                while (File.Exists(@filename))
+                {
+                    Thread.Sleep(500);
                 }
                 return false;
             }

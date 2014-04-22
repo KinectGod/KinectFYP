@@ -326,7 +326,7 @@ namespace TaiChiLearning
             return EndPoint;
         }
         */
-        public Skeleton MasterMatchLearner (double[] ml, double[] ll, Skeleton data, Skeleton mdata, Vector3 inidiff)
+        public Skeleton MasterMatchLearner (double[] ml, double[] ll, Skeleton data, Skeleton mdata)
         {
             var brush = new SolidColorBrush(Color.FromRgb(180, 180, 180));
             rootCanvas.Children.Clear();
