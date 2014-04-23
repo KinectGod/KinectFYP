@@ -285,8 +285,8 @@
                         <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcStopReplay" Content="Stop Replay" Click="tcStopReplayClick" IsEnabled="False"  />
                         <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcStartLearning" Content="Start Learning" Click="tcStartLearningClick" IsEnabled="True"  />
                         <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcStopLearning" Content="Finish Learning" Click="tcStopLearningClick" IsEnabled="False"  />
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcPlayBack" Content="Playback Learning" IsEnabled="True" Click="tcPlayBack_Click"  />
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcStopPlayBack" Content="Stop Playback" IsEnabled="False" Click="tcStopPlayBackClick"  />
+                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcPlayBack" Content="Improve Learning" IsEnabled="True" Click="tcPlayBack_Click"  />
+                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcStopPlayBack" Content="Stop Improving" IsEnabled="False" Click="tcStopPlayBackClick"  />
                     </StackPanel>
 
                 </Grid>

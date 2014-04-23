@@ -210,9 +210,14 @@ namespace TaiChiLearning.DTW
             {
                 d += Math.Abs(a[i].X - b[i].X) + Math.Abs(a[i].Y - b[i].Y);
             }
-            //d = Math.Sqrt(d);
-            //d2 = Math.Sqrt(d2);
-            mark = d;
+
+            for (int i = 8; i < _dimension; i++)
+            {
+                d += Math.Abs(a[i].X - b[i].X) + Math.Abs(a[i].Y - b[i].Y) * 0.35;
+            }
+                //d = Math.Sqrt(d);
+                //d2 = Math.Sqrt(d2);
+                mark = d;
             //error checking
             /*
             if (double.IsNaN(d) || double.IsNaN(d2)) return -1;
@@ -253,7 +258,7 @@ namespace TaiChiLearning.DTW
             }
              * */
             //return d + d2;
-            return mark;
+            return mark / _dimension;
             
              
         }
