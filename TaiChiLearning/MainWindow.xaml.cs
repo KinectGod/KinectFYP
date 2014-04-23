@@ -140,6 +140,7 @@
         private KinectReplay _colorplayback;
 
         private string _temppath = ".\\";
+        private string _recordname;
 
         /// 
         private DateTime _captureCountdown = DateTime.Now;
@@ -270,7 +271,7 @@
             ReplayImage.DataContext = ReplayColorManager;
             //PlayBackImage.DataContext = PlayBackColorManager;
 
-            string path = ".\\Records\\" + "@1stMotion" + "\\";
+            string path = ".\\Records\\" + "@demo1" + "\\";
             if (File.Exists(@path + "frame_number"))
             {
                 using (FileStream fs = File.OpenRead(@path + "frame_number"))
@@ -787,12 +788,17 @@
         /// <param name="e">Routed Event Args</param>
         private void tcCaptureClick(object sender, RoutedEventArgs e)
         {
+            var inputbox = Microsoft.VisualBasic.Interaction.InputBox("Your recording name", "HAPPY TAI CHI", "Default Text");
+            _recordname = inputbox;
+            gestureList.Items.Add("@" + inputbox);
+            gestureList.SelectedItem = ("@" + inputbox);
             _learning = false;
             //dtwRead.IsEnabled = false;
             //tcCapture.IsEnabled = false;
             tcStore.IsEnabled = false;
             tcReplay.IsEnabled = false;
             tcStartLearning.IsEnabled = false;
+
             _captureCountdown = DateTime.Now.AddSeconds(CaptureCountdownSeconds);
 
             _captureCountdownTimer = new System.Windows.Forms.Timer();

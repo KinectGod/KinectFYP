@@ -257,6 +257,7 @@
         <Grid Grid.Row="2" Height="245" VerticalAlignment="Top">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
@@ -269,30 +270,49 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Background="{StaticResource KinectPurpleBrush}" Margin="-1 -1 -1 0">
-                        <TextBlock Style="{StaticResource KinectTextFormat}" Foreground="White">Actions</TextBlock>
+                        <TextBlock Style="{StaticResource KinectTextFormat}" Foreground="White">Recording Panel</TextBlock>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="1">
+                    <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
                         <ComboBox x:Name="gestureList" Width="200">
-                            <ComboBoxItem IsSelected="True" Content="@1stMotion"/>
+                            <ComboBoxItem IsSelected="True" Content="@demo1"/>
+                            <ComboBoxItem Content="@demo2"/>
+                            <ComboBoxItem Content="@1stMotion"/>
                             <ComboBoxItem Content="@2ndMotion"/>
                             <ComboBoxItem Content="@3rdMotion"/>
                             <ComboBoxItem Content="@4thMotion"/>
+                            <ComboBoxItem Content="@5thMotion"/>
+                            <ComboBoxItem Content="@6thMotion"/>
+                            <ComboBoxItem Content="@7thMotion"/>
                         </ComboBox>
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcCapture" Content="Record Motion" Click="tcCaptureClick"/>
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcStore" Content="Stop Record" IsEnabled="False" Click="tcStoreClick" />
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcReplay" Content="Replay" Click="tcReplayClick" IsEnabled="True" />
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcStopReplay" Content="Stop Replay" Click="tcStopReplayClick" IsEnabled="False"  />
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcStartLearning" Content="Start Learning" Click="tcStartLearningClick" IsEnabled="True"  />
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcStopLearning" Content="Finish Learning" Click="tcStopLearningClick" IsEnabled="False"  />
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcPlayBack" Content="Improve Learning" IsEnabled="True" Click="tcPlayBack_Click"  />
-                        <Button Margin="0 0 0 0" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="25" Width="186" Foreground="White" Focusable="False" x:Name="tcStopPlayBack" Content="Stop Improving" IsEnabled="False" Click="tcStopPlayBackClick"  />
+                        <Button Margin="0 0 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="4" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcCapture" Content="Record Motion" Click="tcCaptureClick"/>
+                        <Button Margin="0 0 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="4" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcStore" Content="Stop Record" IsEnabled="False" Click="tcStoreClick" />
+                        <Button Margin="0 0 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="4" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcReplay" Content="Replay" Click="tcReplayClick" IsEnabled="True" />
+                        <Button Margin="0 0 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="4" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcStopReplay" Content="Stop Replay" Click="tcStopReplayClick" IsEnabled="False"  />
                     </StackPanel>
 
                 </Grid>
             </Border>
 
             <Border Grid.Column="1" BorderBrush="{StaticResource KinectPurpleBrush}" BorderThickness="2" Margin="-1 0 0 0" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Background="{StaticResource KinectPurpleBrush}" Margin="-1 -1 -1 0">
+                        <TextBlock Style="{StaticResource KinectTextFormat}" Foreground="White">Learning Panel</TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1">
+                        <Button Margin="0 22 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcStartLearning" Content="Start Learning" Click="tcStartLearningClick" IsEnabled="True"  />
+                        <Button Margin="0 0 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcStopLearning" Content="Finish Learning" Click="tcStopLearningClick" IsEnabled="False"  />
+                        <Button Margin="0 0 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcPlayBack" Content="Improve Learning" IsEnabled="True" Click="tcPlayBack_Click"  />
+                        <Button Margin="0 0 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcStopPlayBack" Content="Stop Improving" IsEnabled="False" Click="tcStopPlayBackClick"  />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="2" BorderBrush="{StaticResource KinectPurpleBrush}" BorderThickness="2" Margin="-1 0 0 0" >
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -340,7 +360,7 @@
                 </Grid>
             </Border>
 
-            <Grid Grid.Column="2">
+            <Grid Grid.Column="3">
                 <TextBlock Style="{StaticResource KinectTextFormat}" x:Name="txtDTW" Foreground="{StaticResource KinectPurpleBrush}" Margin="0 0 5 0" />
                 <TextBlock Style="{StaticResource KinectTextFormat}" x:Name="txtDTWmark" Foreground="{StaticResource KinectPurpleBrush}" Margin="0 0 5 0" Text="{Binding DTWresult}"/>
             </Grid>
