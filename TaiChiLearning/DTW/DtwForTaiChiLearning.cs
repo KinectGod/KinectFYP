@@ -65,7 +65,7 @@ namespace TaiChiLearning.DTW
             {
                 for (int j = 0; j < seq2R.Count; j++)
                 {
-                    tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold);
+                    tab[i, j] = Double.MaxValue;
                 }
             }
             tab[0, 0] = 0;
@@ -128,8 +128,7 @@ namespace TaiChiLearning.DTW
                         //if(currentI!=0)
                         currentI--;
                         learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
-                        if(!chosen)
-                        correctfream++;
+                        if(!chosen) correctfream++;
                         chosen = true;
                         Console.Write("2");
                         break;
@@ -213,7 +212,7 @@ namespace TaiChiLearning.DTW
 
             for (int i = 8; i < _dimension; i++)
             {
-                d += Math.Abs(a[i].X - b[i].X) + Math.Abs(a[i].Y - b[i].Y) * 0.35;
+                d += Math.Abs(a[i].X - b[i].X) + Math.Abs(a[i].Y - b[i].Y) * 0.3;
             }
                 //d = Math.Sqrt(d);
                 //d2 = Math.Sqrt(d2);
