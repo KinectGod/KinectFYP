@@ -381,7 +381,7 @@
                     RealTimeSkeleton.DrawSkeleton(skeletons);
                     //_learnerseqNum.Add(frame);
 
-                    if (_learning && _training && _capturing)
+                    if (_learning && _capturing)
                     {
                         //RealTimeSkeleton.DrawSkeleton(skeletons);
                         var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
@@ -406,14 +406,17 @@
                                 _LearnerAngle = temppt;
                                 if (_LearnerAngle != null)
                                 {
-                                    for (int i = 0; i < dimension; i++)
+                                    if (_training)
                                     {
-                                        if (DetectionTemp[i] > 0)
+                                        for (int i = 0; i < dimension; i++)
                                         {
-                                            RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], _master_angles[i], i);
-                                            if (temp != null)
+                                            if (DetectionTemp[i] > 0)
                                             {
-                                                ReplaySkeleton.DrawCorrection(temp, DetectionTemp[i], _master_angles[i], i);
+                                                RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], _master_angles[i], i);
+                                                if (temp != null)
+                                                {
+                                                    ReplaySkeleton.DrawCorrection(temp, DetectionTemp[i], _master_angles[i], i);
+                                                }
                                             }
                                         }
                                     }
@@ -514,24 +517,7 @@
                 }
             }
             if (frame == null) return;
-            /*
-            if (_playingback)
-            {
-                if (frame.FrameNumber != _dtwselected[_dtwMskeleton].X) return; // make sure it is replaying the selected path
-                if (_dtwselected.Length -1 > _dtwMskeleton)
-                {
-                    _dtwMskeleton++;
-                    DateTime mtime;
-                    while (_dtwselected[_dtwMskeleton - 1].X == _dtwselected[_dtwMskeleton].X)
-                    {
-                        if (_dtwselected.Length - 1 == _dtwMskeleton) break;
-                        mtime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
-                        //while (DateTime.Now < mtime) ;
-                        _dtwMskeleton++;
-                    }
-                }
-            }
-            */
+
             skeletons = new Skeleton[frame.ArrayLength];
             skeletons = frame.Skeletons;
             Point[] temppt = new Point[dimension];
@@ -560,17 +546,10 @@
                         if (_LearnerAngle != null && _MasterAngle != null)
                         {
                             _masterskeleton = data;
-                            /*
-                            if (_masterini == null)
-                            {
-                                _masterini = data.Joints[JointType.ShoulderCenter];
-                            }
-                             */
                             _master_angles = MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension, threshold, detection);
                             _master_length = Skeleton3DDataExtract.LengthGeneration(data);
                             
                             _masterseq.Add(temppt);
-                            
                         }
                     }
                 }
