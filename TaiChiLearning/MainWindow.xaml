@@ -275,15 +275,6 @@
 
                     <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
                         <ComboBox x:Name="gestureList" Width="200">
-                            <ComboBoxItem IsSelected="True" Content="@demo1"/>
-                            <ComboBoxItem Content="@demo2"/>
-                            <ComboBoxItem Content="@1stMotion"/>
-                            <ComboBoxItem Content="@2ndMotion"/>
-                            <ComboBoxItem Content="@3rdMotion"/>
-                            <ComboBoxItem Content="@4thMotion"/>
-                            <ComboBoxItem Content="@5thMotion"/>
-                            <ComboBoxItem Content="@6thMotion"/>
-                            <ComboBoxItem Content="@7thMotion"/>
                         </ComboBox>
                         <Button Margin="0 0 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="4" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcCapture" Content="Record Motion" Click="tcCaptureClick"/>
                         <Button Margin="0 0 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="4" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcStore" Content="Stop Record" IsEnabled="False" Click="tcStoreClick" />

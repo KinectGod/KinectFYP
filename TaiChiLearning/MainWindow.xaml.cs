@@ -271,6 +271,7 @@
             ReplayImage.DataContext = ReplayColorManager;
             //PlayBackImage.DataContext = PlayBackColorManager;
 
+            /*
             string path = ".\\Records\\" + "@demo1" + "\\";
             if (File.Exists(@path + "frame_number"))
             {
@@ -280,8 +281,16 @@
                     _finalframeno = reader.ReadInt32();
                 }
             }
+             * */
 
-            _nui.Start();
+            string[] directories = _temppath.Split(Path.DirectorySeparatorChar);
+            for (int i = 0; i < directories.Length; i++)
+            {
+                gestureList.Items.Add(directories[i]);
+                gestureList.SelectedItem = directories[0];
+            }
+
+                _nui.Start();
             CreateSpeechRecognizer();
             //text tp speech
             //synthesizer = new SpeechSynthesizer();
@@ -566,7 +575,6 @@
         /// <param name="e"></param>
         void playback_SkeletonFrameReady(object sender, ReplaySkeletonFrameReadyEventArgs e)
         {
-            
             Skeleton[] skeletons;
             var frame = e.SkeletonFrame;
             if (frame == null ) return; // make sure it is replaying the dtw selected path
@@ -881,31 +889,34 @@
         //Replay the saved skeleton
         private void tcReplayClick (object sender, RoutedEventArgs e) 
         {
-            _replaying = true;
-            _learning = false;
-            tcCapture.IsEnabled = false;
-            tcStartLearning.IsEnabled = false;
-            tcReplay.IsEnabled = false;
-            tcPlayBack.IsEnabled = false;
-            status.Text = "Replaying master motion " + gestureList.Text;
-            string path = ".\\Records\\" + gestureList.Text + "\\";
-            readLastFrame(path);
+            if (gestureList.SelectedItem != null)
+            {
+                _replaying = true;
+                _learning = false;
+                tcCapture.IsEnabled = false;
+                tcStartLearning.IsEnabled = false;
+                tcReplay.IsEnabled = false;
+                tcPlayBack.IsEnabled = false;
+                status.Text = "Replaying master motion " + gestureList.Text;
+                string path = ".\\Records\\" + gestureList.Text + "\\";
+                readLastFrame(path);
 
-            if (_recordskeletonstream != null)
-                _recordskeletonstream.Close();
-            _recordskeletonstream = File.OpenRead(@path + "skeleton");
-            _replay = new KinectReplay(_recordskeletonstream);
-            _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
-            _replay.Start(1000.0 / this.SelectedFPS);
+                if (_recordskeletonstream != null)
+                    _recordskeletonstream.Close();
+                _recordskeletonstream = File.OpenRead(@path + "skeleton");
+                _replay = new KinectReplay(_recordskeletonstream);
+                _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
+                _replay.Start(1000.0 / this.SelectedFPS);
 
-            if (_recordcolorstream != null)
-                _recordcolorstream.Close();
-            _recordcolorstream = File.OpenRead(@path + "colorStream");
-            _colorreplay = new KinectReplay(_recordcolorstream);
-            _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
-            _colorreplay.Start(1000.0/this.SelectedFPS);
+                if (_recordcolorstream != null)
+                    _recordcolorstream.Close();
+                _recordcolorstream = File.OpenRead(@path + "colorStream");
+                _colorreplay = new KinectReplay(_recordcolorstream);
+                _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
+                _colorreplay.Start(1000.0 / this.SelectedFPS);
 
-            tcStopReplay.IsEnabled = true;
+                tcStopReplay.IsEnabled = true;
+            }
         }
 
         private void tcStopReplayClick(object sender, RoutedEventArgs e)
@@ -926,17 +937,20 @@
 
         private void tcStartLearningClick(object sender, RoutedEventArgs e)
         {
-            _learning = true;
-            _capturing = false;
-            _captureCountdown = DateTime.Now.AddSeconds(CaptureCountdownSeconds);
-            _learnerseqFrame.Clear();
-            _masterseq.Clear();
-            _learnerseq.Clear();
+            if (gestureList.SelectedItem != null)
+            {
+                _learning = true;
+                _capturing = false;
+                _captureCountdown = DateTime.Now.AddSeconds(CaptureCountdownSeconds);
+                _learnerseqFrame.Clear();
+                _masterseq.Clear();
+                _learnerseq.Clear();
 
-            _captureCountdownTimer = new System.Windows.Forms.Timer();
-            _captureCountdownTimer.Interval = 50;
-            _captureCountdownTimer.Start();
-            _captureCountdownTimer.Tick += CaptureCountdown;
+                _captureCountdownTimer = new System.Windows.Forms.Timer();
+                _captureCountdownTimer.Interval = 50;
+                _captureCountdownTimer.Start();
+                _captureCountdownTimer.Tick += CaptureCountdown;
+            }
         }
         
         /// <summary>
@@ -1001,65 +1015,68 @@
 
         private void tcPlayBack_Click(object sender, RoutedEventArgs e)
         {
-            _learning = false;
-            _capturing = false;
-            _playingback = true;
+            if (gestureList.SelectedItem != null)
+            {
+                _learning = false;
+                _capturing = false;
+                _playingback = true;
 
-            tcCapture.IsEnabled = false;
-            tcStartLearning.IsEnabled = false;
-            tcReplay.IsEnabled = false;
-            tcStopLearning.IsEnabled = false;
-            tcStopPlayBack.IsEnabled = true;
+                tcCapture.IsEnabled = false;
+                tcStartLearning.IsEnabled = false;
+                tcReplay.IsEnabled = false;
+                tcStopLearning.IsEnabled = false;
+                tcStopPlayBack.IsEnabled = true;
 
-            RealTimeImage.DataContext = PlayBackColorManager;
+                RealTimeImage.DataContext = PlayBackColorManager;
 
-            string path = ".\\Records\\" + gestureList.Text + "\\";
-            readLastFrame(path);
+                string path = ".\\Records\\" + gestureList.Text + "\\";
+                readLastFrame(path);
 
-            if (_recordskeletonstream != null)
-                _recordskeletonstream.Close();
-            _recordskeletonstream = File.OpenRead(@path + "skeleton");
-            _replay = new KinectReplay(_recordskeletonstream);
-            _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
+                if (_recordskeletonstream != null)
+                    _recordskeletonstream.Close();
+                _recordskeletonstream = File.OpenRead(@path + "skeleton");
+                _replay = new KinectReplay(_recordskeletonstream);
+                _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
 
-            if (_recordcolorstream != null)
-                _recordcolorstream.Close();
-            _recordcolorstream = File.OpenRead(@path + "colorStream");
-            _colorreplay = new KinectReplay(_recordcolorstream);
-            _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
-            
+                if (_recordcolorstream != null)
+                    _recordcolorstream.Close();
+                _recordcolorstream = File.OpenRead(@path + "colorStream");
+                _colorreplay = new KinectReplay(_recordcolorstream);
+                _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
 
-            string path2 = ".\\Learnings\\" + gestureList.Text + "\\";
-            readLastFrame(path);
-            // read the previous saved dtw selected path
-            /*
-            _dtwselected = DtwReadSelectedFrames(path2);
-            _dtwLskeleton = 0;
-            _dtwLcolor = 0;
-            _dtwMskeleton = 0;
-            _dtwMcolor = 0;
-            */
 
-            if (_learnerskeletonstream != null)
-                _learnerskeletonstream.Close();
-            _learnerskeletonstream = File.OpenRead(@path2 + "LearnerSelected");
-            _playback = new KinectReplay(_learnerskeletonstream);
-            _playback.SkeletonFrameReady += playback_SkeletonFrameReady;
-            
-            
+                string path2 = ".\\Learnings\\" + gestureList.Text + "\\";
+                readLastFrame(path);
+                // read the previous saved dtw selected path
+                /*
+                _dtwselected = DtwReadSelectedFrames(path2);
+                _dtwLskeleton = 0;
+                _dtwLcolor = 0;
+                _dtwMskeleton = 0;
+                _dtwMcolor = 0;
+                */
 
-            if (_learnercolorstream != null)
-                _learnercolorstream.Close();
-            _learnercolorstream = File.OpenRead(@path2 + "colorStream");
-            _colorplayback = new KinectReplay(_learnercolorstream);
-            _colorplayback.ColorImageFrameReady += playback_ColorImageFrameReady;
+                if (_learnerskeletonstream != null)
+                    _learnerskeletonstream.Close();
+                _learnerskeletonstream = File.OpenRead(@path2 + "LearnerSelected");
+                _playback = new KinectReplay(_learnerskeletonstream);
+                _playback.SkeletonFrameReady += playback_SkeletonFrameReady;
 
-            _playback.Start(1000.0 / this.SelectedFPS);
-            //_colorplayback.Start(1000.0 / this.SelectedFPS);
-            _colorreplay.Start(1000.0 / this.SelectedFPS);
-            _replay.Start(1000.0 / this.SelectedFPS);
 
-            status.Text = "Playing back " + gestureList.Text;
+
+                if (_learnercolorstream != null)
+                    _learnercolorstream.Close();
+                _learnercolorstream = File.OpenRead(@path2 + "colorStream");
+                _colorplayback = new KinectReplay(_learnercolorstream);
+                _colorplayback.ColorImageFrameReady += playback_ColorImageFrameReady;
+
+                _playback.Start(1000.0 / this.SelectedFPS);
+                //_colorplayback.Start(1000.0 / this.SelectedFPS);
+                _colorreplay.Start(1000.0 / this.SelectedFPS);
+                _replay.Start(1000.0 / this.SelectedFPS);
+
+                status.Text = "Playing back " + gestureList.Text;
+            }
         }
 
         /// <summary>
