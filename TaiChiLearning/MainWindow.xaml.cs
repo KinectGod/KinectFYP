@@ -283,9 +283,10 @@
             }
              * */
 
-            string[] directories = _temppath.Split(Path.DirectorySeparatorChar);
+            string[] directories = Directory.GetDirectories(@_temppath + ".\\Records\\");
             for (int i = 0; i < directories.Length; i++)
             {
+                directories[i] = Path.GetFileName(directories[i]);
                 gestureList.Items.Add(directories[i]);
                 gestureList.SelectedItem = directories[0];
             }
@@ -797,9 +798,9 @@
         private void tcCaptureClick(object sender, RoutedEventArgs e)
         {
             var inputbox = Microsoft.VisualBasic.Interaction.InputBox("Your recording name", "HAPPY TAI CHI", "Default Text");
-            _recordname = inputbox;
-            gestureList.Items.Add("@" + inputbox);
-            gestureList.SelectedItem = ("@" + inputbox);
+            if (inputbox == "") return;
+            gestureList.Items.Add(inputbox);
+            gestureList.SelectedItem = (inputbox);
             _learning = false;
             //dtwRead.IsEnabled = false;
             //tcCapture.IsEnabled = false;
