@@ -1124,7 +1124,8 @@
                                 
                 //Now we need to add the words we want our program to recognise
                 //  Create lists of alternative choices.
-                Choices speechaction = new Choices(new string[] { "RECORD MOTION", "STOP RECORD", "REPLAY", "STOP REPLAY", "START LEARNING", "FINISH LEARNING", "IMPROVE LEARNING", "STOP IMPROVE"  });
+                Choices speechaction = new Choices(new string[] { "RECORD MOTION", "STOP RECORD", "REPLAY", 
+                    "STOP REPLAY", "START LEARNING", "FINISH LEARNING", "PLAYBACK IMPROVED MOTION", "STOP PLAYBACK MOTION"  });
 
                 // Create a GrammarBuilder object and assemble the grammar components.
                 GrammarBuilder actionMenu = new GrammarBuilder("KINECT");
@@ -1246,13 +1247,13 @@
                         //status2.Text = "finish.";
                         //recognized_text = "Start learning in five second";
                         break;
-                    case "KINECT IMPROVE LEARNING":
+                    case "KINECT PLAYBACK IMPROVED MOTION":
                         if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
                         this.tcPlayBack_Click(null, null);
                         //status2.Text = "finish.";
                         //recognized_text = "Playing back " + gestureList.Text;
                         break;
-                    case "KINECT STOP IMPROVE":
+                    case "KINECT STOP PLAYBACK MOTION":
                         if (_playingback)
                         this.tcStopPlayBackClick(null, null);
                         //status2.Text = "finish.";
