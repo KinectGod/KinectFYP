@@ -961,7 +961,7 @@
         /// <param name="e"></param>
         private void tcStopLearningClick(object sender, RoutedEventArgs e)
         {
-            status.Text = "Stopped learning";
+            status.Text = "Stopped learning, waiting for process complete.";
             tcCapture.IsEnabled = true;
             tcStopReplay.IsEnabled = false;
             tcStartLearning.IsEnabled = true;
