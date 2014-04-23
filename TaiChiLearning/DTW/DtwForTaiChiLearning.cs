@@ -111,6 +111,7 @@ namespace TaiChiLearning.DTW
             
 
             int totalframe = 0;
+            int correctfream = 0;
             //Reconstruct the best matched path
             if (bestMatchI >= 1) //return -1; //error checking 
             {
@@ -133,12 +134,14 @@ namespace TaiChiLearning.DTW
                             currentI--;
                             currentJ--;
                             learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
+                            correctfream += 2;
                             Console.Write("1");
                             break;
                         case 3:
                             //if(currentI!=0)
                             currentI--;
                             learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
+                            correctfream++;
                             Console.Write("2");
                             break;
                     }
@@ -153,6 +156,7 @@ namespace TaiChiLearning.DTW
             }
             _learnerskeletonstream.Close();
             _lrecorder.Stop();
+            Console.WriteLine( "mark "+(Double)correctfream / (Double)totalframe/4*3);
             return (1 - (tab[seq1R.Count-1, seq2R.Count-1] / totalframe));
         }
 
