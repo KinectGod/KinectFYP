@@ -328,7 +328,7 @@ namespace TaiChiLearning
         */
         public Skeleton MasterMatchLearner (double[] ml, double[] ll, Skeleton data, Skeleton mdata)
         {
-            var brush = new SolidColorBrush(Color.FromRgb(180, 180, 180));
+            var brush = new SolidColorBrush(Color.FromRgb(205, 92, 92));
             rootCanvas.Children.Clear();
             Skeleton matchdata = new Skeleton();
 
