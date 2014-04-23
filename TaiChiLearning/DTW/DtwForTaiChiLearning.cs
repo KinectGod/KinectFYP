@@ -59,16 +59,16 @@ namespace TaiChiLearning.DTW
             var learnerf = new ArrayList();
             //seq2R.Reverse();
 
-            var tab = new double[seq1R.Count, seq2R.Count];
+            var cell = new double[seq1R.Count, seq2R.Count];
 
             for (int i = 0; i < seq1R.Count; i++)
             {
                 for (int j = 0; j < seq2R.Count; j++)
                 {
-                    tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold);
+                    cell[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]);
                 }
             }
-            tab[0, 0] = 0;
+            cell[0, 0] = 0;
 
             if (_learnerskeletonstream != null)
                 _learnerskeletonstream.Close();
@@ -81,16 +81,16 @@ namespace TaiChiLearning.DTW
             {
                 for (int j = 1; j < seq2R.Count; j++)
                 {
-                    switch (min(tab[i, j - 1], tab[i - 1, j - 1], tab[i - 1, j]))
+                    switch (min(cell[i, j - 1], cell[i - 1, j - 1], cell[i - 1, j]))
                     {
                         case 1:
-                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i, j - 1];
+                            cell[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]) + cell[i, j - 1];
                             break;
                         case 2:
-                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
+                            cell[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]) + cell[i - 1, j - 1];
                             break;
                         case 3:
-                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j];
+                            cell[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j]) + cell[i - 1, j];
                             break;
 
                     }
@@ -103,33 +103,27 @@ namespace TaiChiLearning.DTW
             //int currentJ = bestMatchI;
             int currentI = seq1R.Count - 1;
             int currentJ = seq2R.Count - 1;
+
             while (currentI != 0 && currentJ != 0)
             {
-                //Console.WriteLine(target.I + " " + target.J);
-                switch (min(tab[currentI, currentJ - 1], tab[currentI - 1, currentJ - 1], tab[currentI - 1, currentJ]))
+                switch (min(cell[currentI, currentJ - 1], cell[currentI - 1, currentJ - 1], cell[currentI - 1, currentJ]))
                 {
                     case 1:
-                        //if(currentJ != 0)
                         currentJ--;
-                        Console.Write("3");
                         break;
                     case 2:
-                        //if(currentI !=0 )
                         currentI--;
                         currentJ--;
                         learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
-                        Console.Write("1");
                         break;
                     case 3:
-                        //if(currentI!=0)
                         currentI--;
                         learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
-                        Console.Write("2");
                         break;
                 }
                 totalframe++;
             }
-            //DtwRecordSelectedFrames(path);
+
             while (learnerf.Count != 0)
             {
                 _lrecorder.Record((SkeletonFrame)learnerf[learnerf.Count - 1]);
@@ -137,7 +131,7 @@ namespace TaiChiLearning.DTW
             }
             _learnerskeletonstream.Close();
             _lrecorder.Stop();
-            return (1 - (tab[seq1R.Count - 1, seq2R.Count - 1] / totalframe));
+            return (1 - (cell[seq1R.Count - 1, seq2R.Count - 1] / totalframe));
         }
 
 
@@ -158,8 +152,7 @@ namespace TaiChiLearning.DTW
         /// <param name="b">Point b (double)</param>
         /// <returns>Euclidian distance between the two points</returns>
 
-        private double Marker(System.Windows.Point[] a, System.Windows.Point[] b, double anglethreshold)
-        {
+        
             /*
             double mark = 0.0;
             //error checking
@@ -195,18 +188,17 @@ namespace TaiChiLearning.DTW
             else 
                 return mark;
            */
-            double d = 0.0;
-            double d2 = 0.0;
-            double mark = 0.0;
 
-            for (int i = 0; i < 8; i++)
+        private double Marker(System.Windows.Point[] a, System.Windows.Point[] b)
+        {
+            double mark = 0.0;
+            for (int i = 0; i < _dimension; i++)
             {
-                d += Math.Abs(a[i].X - b[i].X); //should be a square?
-                d2 += Math.Abs(a[i].Y - b[i].Y);
+                mark += Math.Abs(a[i].X - b[i].X) + Math.Abs(a[i].Y - b[i].Y);
             }
-            //d = Math.Sqrt(d);
-            //d2 = Math.Sqrt(d2);
-            mark = (d+d2);
+            return mark;
+        }
+
             //error checking
             /*
             if (double.IsNaN(d) || double.IsNaN(d2)) return -1;
@@ -247,10 +239,7 @@ namespace TaiChiLearning.DTW
             }
              * */
             //return d + d2;
-            return mark;
             
-             
-        }
         /// <summary>
         /// Calculate the result
         /// </summary>
