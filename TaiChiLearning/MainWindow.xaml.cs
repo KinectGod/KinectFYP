@@ -163,7 +163,7 @@
         private static int _finalframeno;
         private static int _finalframeno2;
         ///Difficulty
-        private static double threshold = 80.0;
+        private static double threshold = 60.0;
 
         /// <summary>
         /// Property change event
@@ -699,11 +699,13 @@
                 _counting = true;
                 if (DateTime.Now < _captureCountdown)
                 {
-                    status.Text = "Wait " + ((_captureCountdown - DateTime.Now).Seconds + 1) + " seconds";
+                    paragraph.Inlines.Clear();
+                    paragraph.Inlines.Add( "Wait " + ((_captureCountdown - DateTime.Now).Seconds + 1) + " seconds");
                 }
                 else
                 {
                     _captureCountdownTimer.Stop();
+                    paragraph.Inlines.Clear();
                     _counting = false;
                     if (_learning)
                     {
@@ -962,6 +964,7 @@
                 _learnerseqFrame.Clear();
                 _masterseq.Clear();
                 _learnerseq.Clear();
+                _learnercolorFrame.Clear();
 
                 _captureCountdownTimer = new System.Windows.Forms.Timer();
                 _captureCountdownTimer.Interval = 50;
@@ -1020,8 +1023,6 @@
                 if (_learnerskeletonstream != null)
                     _learnerskeletonstream.Close();
 
-                
-
                 using (FileStream fs = File.Create(@path + "frame_number")) 
                 {
                     using (BinaryWriter sw = new BinaryWriter(fs))
@@ -1030,30 +1031,32 @@
                     }
                 }
 
-                _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _learnerseqFrame, path, threshold);
+                if (_learnerseqFrame.Count > 0)
+                {
+                    _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _learnerseqFrame, path, threshold);
 
-                if (_dTWresult > 80.0)
-                {
-                    paragraph.Inlines.Add("Excellent, your learning score is " + (int)_dTWresult);
+                    if (_dTWresult > 80.0)
+                    {
+                        paragraph.Inlines.Add("Excellent, your learning score is " + (int)_dTWresult);
+                    }
+                    else if (_dTWresult > 60.0)
+                    {
+                        paragraph.Inlines.Add("Good, your learning score is " + (int)_dTWresult);
+                    }
+                    else if (_dTWresult > 40.0)
+                    {
+                        paragraph.Inlines.Add("Please work harder, your learning score is " + (int)_dTWresult);
+                    }
+                    else
+                    {
+                        paragraph.Inlines.Add("Too bad, your learning score is " + (int)_dTWresult);
+                    }
                 }
-                else if (_dTWresult > 60.0) 
-                {
-                    paragraph.Inlines.Add("Good, your learning score is " + (int)_dTWresult);
-                }
-                else if (_dTWresult > 40.0)
-                {
-                    paragraph.Inlines.Add("Please work harder, your learning score is " + (int)_dTWresult);
-                }
-                else
-                {
-                    paragraph.Inlines.Add("Too bad, your learning score is " + (int)_dTWresult);
-                }
-
                 if (File.Exists(@path + "skeleton")) while (FileDelete(@path + "skeleton")) ;
                 if (File.Exists(@path + "colorStream")) while (FileDelete(@path + "colorStream")) ;
 
-                File.Move(@_temppath + "skeleton", @path + "skeleton");
-                File.Move(@_temppath + "colorStream", @path + "colorStream");
+                File.Copy(@_temppath + "skeleton", @path + "skeleton");
+                File.Copy(@_temppath + "colorStream", @path + "colorStream");
 
                 status.Text = gestureList.Text + " added";
             }
@@ -1068,6 +1071,14 @@
         {
             if (gestureList.SelectedItem != null)
             {
+                string path = ".\\Learnings\\" + gestureList.Text + "\\";
+                if (!File.Exists(@path+"skeleton"))
+                {
+                    System.Windows.MessageBox.Show("You have not recorded your learning of " + gestureList.SelectedItem);
+                    return;
+                }
+                if (TempReplayImage.Source != null)
+                    ReplayImage.Source = TempReplayImage.Source;
                 _learning = false;
                 _capturing = false;
                 _playingback = true;
@@ -1080,7 +1091,7 @@
 
                 RealTimeImage.DataContext = PlayBackColorManager;
 
-                string path = ".\\Learnings\\" + gestureList.Text + "\\";
+                
                 readLastFrame(path);
 
                 if (_recordskeletonstream != null)
@@ -1095,32 +1106,11 @@
                 _colorreplay = new KinectReplay(_recordcolorstream);
                 _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
 
-
-                string path2 = ".\\Learnings\\" + gestureList.Text + "\\";
-                readLastFrame(path);
-                // read the previous saved dtw selected path
-                /*
-                _dtwselected = DtwReadSelectedFrames(path2);
-                _dtwLskeleton = 0;
-                _dtwLcolor = 0;
-                _dtwMskeleton = 0;
-                _dtwMcolor = 0;
-                */
-
                 if (_learnerskeletonstream != null)
                     _learnerskeletonstream.Close();
-                _learnerskeletonstream = File.OpenRead(@path2 + "LearnerSelected");
+                _learnerskeletonstream = File.OpenRead(@path + "LearnerSelected");
                 _playback = new KinectReplay(_learnerskeletonstream);
                 _playback.SkeletonFrameReady += playback_SkeletonFrameReady;
-
-
-                /*
-                if (_learnercolorstream != null)
-                    _learnercolorstream.Close();
-                _learnercolorstream = File.OpenRead(@path2 + "colorStream");
-                _colorplayback = new KinectReplay(_learnercolorstream);
-                _colorplayback.ColorImageFrameReady += playback_ColorImageFrameReady;
-                 * */
 
                 _playback.Start(1000.0 / this.SelectedFPS);
                 //_colorplayback.Start(1000.0 / this.SelectedFPS);
@@ -1158,10 +1148,12 @@
             _replay.Stop();
             _colorreplay.Stop();
             _playback.Stop();
-            _colorplayback.Stop();
+            //_colorplayback.Stop();
 
             MasterSkeletonCanvas.Children.Clear();
             RealTimeSkeletonCanvas.Children.Clear();
+            TempReplayImage.Source = ReplayImage.Source;
+            ReplayImage.Source = null;
         }
 
         private void CreateSpeechRecognizer()

@@ -249,11 +249,9 @@
                 </Viewbox>
                 <Viewbox>
                     <Image  Width="480" Height="360" x:Name="RealTimeImage" Margin="5,5,5,5" RenderTransformOrigin="0.475,0.5" Source="{Binding Bitmap}"/>
-                    <!--0.475,0.5-->
                 </Viewbox>
                 <Viewbox>
                     <Canvas Width="480" Height="360" x:Name="RealTimeSkeletonCanvas" ClipToBounds="True" Margin="5,5,5,5" RenderTransformOrigin="0.489,0.555">
-                        <!--0.489,0.555-->
                         <Canvas Background="transparent" IsHitTestVisible="true"/>
                     </Canvas>
                 </Viewbox>

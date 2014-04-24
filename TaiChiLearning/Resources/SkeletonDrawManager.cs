@@ -92,7 +92,7 @@ namespace TaiChiLearning
             var polyline = new Polyline();
             polyline.Points = points;
             polyline.Stroke = brush;
-            polyline.StrokeThickness = 5;
+            polyline.StrokeThickness = 4;
             return polyline;
         }
 
@@ -103,13 +103,7 @@ namespace TaiChiLearning
         public void DrawSkeleton(Skeleton[] skeletons)
         {
             int iSkeleton = 0;
-            var brushes = new Brush[6];
-            brushes[0] = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-            brushes[1] = new SolidColorBrush(Color.FromRgb(0, 255, 0));
-            brushes[2] = new SolidColorBrush(Color.FromRgb(64, 255, 255));
-            brushes[3] = new SolidColorBrush(Color.FromRgb(255, 255, 64));
-            brushes[4] = new SolidColorBrush(Color.FromRgb(255, 64, 255));
-            brushes[5] = new SolidColorBrush(Color.FromRgb(192, 192, 192));
+            var brushes = new SolidColorBrush(Color.FromRgb(0, 255, 0));
 
             rootCanvas.Children.Clear();
             foreach (var data in skeletons)
@@ -118,29 +112,36 @@ namespace TaiChiLearning
                 {
                     // Draw bones
                     //REMARK. change bone color here
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brushes[5], JointType.HipCenter, JointType.Spine, JointType.ShoulderCenter, JointType.Head));
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brushes[5], JointType.ShoulderCenter, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft));
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brushes[5], JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brushes[5], JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
-                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brushes[5], JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brushes, JointType.HipCenter, JointType.Spine, JointType.ShoulderCenter, JointType.Head));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brushes, JointType.ShoulderCenter, JointType.ShoulderLeft, JointType.ElbowLeft, JointType.WristLeft, JointType.HandLeft));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brushes, JointType.ShoulderCenter, JointType.ShoulderRight, JointType.ElbowRight, JointType.WristRight, JointType.HandRight));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brushes, JointType.HipCenter, JointType.HipLeft, JointType.KneeLeft, JointType.AnkleLeft, JointType.FootLeft));
+                    rootCanvas.Children.Add(GetBodySegment(data.Joints, brushes, JointType.HipCenter, JointType.HipRight, JointType.KneeRight, JointType.AnkleRight, JointType.FootRight));
 
 
                     // Draw joints
                     foreach (Joint joint in data.Joints)
                     {
                         Point jointPos = GetDisplayPosition(joint);
+                        var jointLine = new Ellipse();
+                        /*
                         var jointLine = new Line();
                         jointLine.X1 = jointPos.X - 3;
                         jointLine.X2 = jointLine.X1 + 6;
                         jointLine.Y1 = jointLine.Y2 = jointPos.Y;
                         jointLine.Stroke = _jointColors[joint.JointType];
                         jointLine.StrokeThickness = 6;
+                         * */
+                        jointLine.Height = 12;
+                        jointLine.Width = 12;
+                        jointLine.Fill = brushes;
+                        jointLine.Margin = new Thickness(jointPos.X - 6, jointPos.Y - 6, 0, 0);
+
                         rootCanvas.Children.Add(jointLine);
                     }
                 }
                 iSkeleton++;
             } // for each skeleton
-
         }
 
         /// <summary>
@@ -328,7 +329,7 @@ namespace TaiChiLearning
         */
         public Skeleton MasterMatchLearner (double[] ml, double[] ll, Skeleton data, Skeleton mdata)
         {
-            var brush = new SolidColorBrush(Color.FromRgb(205, 92, 92));
+            var brush = new SolidColorBrush(Color.FromRgb(0, 191, 255));
             rootCanvas.Children.Clear();
             Skeleton matchdata = new Skeleton();
 
@@ -391,12 +392,20 @@ namespace TaiChiLearning
                 foreach (Joint joint in matchdata.Joints)
                 {
                     Point jointPos = GetDisplayPosition(joint);
+                    var jointLine = new Ellipse();
+                    /*
                     var jointLine = new Line();
                     jointLine.X1 = jointPos.X - 3;
                     jointLine.X2 = jointLine.X1 + 6;
                     jointLine.Y1 = jointLine.Y2 = jointPos.Y;
                     jointLine.Stroke = _jointColors[joint.JointType];
                     jointLine.StrokeThickness = 6;
+                     * */
+                    jointLine.Height = 12;
+                    jointLine.Width = 12;
+                    jointLine.Fill = brush;
+                    jointLine.Margin = new Thickness(jointPos.X - 6, jointPos.Y - 6, 0, 0);
+
                     rootCanvas.Children.Add(jointLine);
                 }
                 return matchdata;

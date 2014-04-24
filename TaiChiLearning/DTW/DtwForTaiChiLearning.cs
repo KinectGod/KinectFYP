@@ -158,7 +158,7 @@ namespace TaiChiLearning.DTW
             _lrecorder.Stop();
             //_learnercolorstream.Close();
            // _lcolorrecorder.Stop();
-            return (Double)correctfream / (Double)totalframe;
+            return (Double)correctfream / (Double)totalframe * 100;
         }
 
 

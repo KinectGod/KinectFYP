@@ -50,68 +50,10 @@ namespace TaiChiLearning.Replay
                     if (FrameReady != null)
                         FrameReady(frame);
                 }
-
                 IsFinished = true;
             }, token);
         }
 
-        /*
-        public void StartDTWSelected(double rateinmsec, Point[] dtwselected, string whose)
-        {
-            Stop();
-
-            IsFinished = false;
-
-            cancellationTokenSource = new CancellationTokenSource();
-
-            CancellationToken token = cancellationTokenSource.Token;
-
-            int dtwskeleton = 0;
-
-            Task.Factory.StartNew(() =>
-            {
-                foreach (T frame in frames)
-                {
-                    if (whose == "Learner")
-                    {
-                        if (dtwselected.Length / 2 > dtwskeleton)
-                        {
-                            while (dtwselected[dtwskeleton + 1].Y == dtwselected[dtwskeleton].Y)
-                            {
-                                if (dtwselected.Length / 2 == dtwskeleton - 1 ) break;
-                                Thread.Sleep(TimeSpan.FromMilliseconds(rateinmsec));
-                                dtwskeleton++;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (dtwselected.Length / 2 > dtwskeleton)
-                        {
-                            while (dtwselected[dtwskeleton + 1].X == dtwselected[dtwskeleton].X)
-                            {
-                                if (dtwselected.Length / 2 == dtwskeleton - 1) break;
-                                Thread.Sleep(TimeSpan.FromMilliseconds(rateinmsec));
-                                dtwskeleton++;
-                            }
-                        }
-                    }
-                    
-                    Thread.Sleep(TimeSpan.FromMilliseconds(rateinmsec));
-
-                    if (token.IsCancellationRequested)
-                        break;
-
-                    if (FrameReady != null)
-                        FrameReady(frame);
-
-                    dtwskeleton++;
-                }
-
-                IsFinished = true;
-            }, token);
-        }
-        */
         public void Stop()
         {
             if (cancellationTokenSource == null)
