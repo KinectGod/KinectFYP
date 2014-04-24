@@ -224,6 +224,9 @@
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="0">
+                <Viewbox Width="0" Height="0">
+                    <Image  x:Name="TempReplayImage"/>
+                </Viewbox>
                 <Viewbox>
                     <Image  Width="480" Height="360" x:Name="ReplayImage" Margin="5,5,5,5" RenderTransformOrigin="0.475,0.5" Source="{Binding Bitmap}"/>
                 </Viewbox>
@@ -241,6 +244,9 @@
             </Grid>
 
             <Grid Grid.Column="1">
+                <Viewbox Width="0" Height="0">
+                    <Image  x:Name="TempRealTimeImage"/>
+                </Viewbox>
                 <Viewbox>
                     <Image  Width="480" Height="360" x:Name="RealTimeImage" Margin="5,5,5,5" RenderTransformOrigin="0.475,0.5" Source="{Binding Bitmap}"/>
                     <!--0.475,0.5-->
@@ -258,8 +264,8 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0" BorderBrush="{StaticResource KinectPurpleBrush}" BorderThickness="2">
@@ -274,7 +280,7 @@
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
-                        <ComboBox x:Name="gestureList" Width="200">
+                        <ComboBox x:Name="gestureList" Width="200" SelectionChanged="gestureList_SelectionChanged">
                         </ComboBox>
                         <Button Margin="0 0 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="4" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcCapture" Content="Record Motion" Click="tcCaptureClick"/>
                         <Button Margin="0 0 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="4" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcStore" Content="Stop Record" IsEnabled="False" Click="tcStoreClick" />
@@ -351,10 +357,25 @@
                 </Grid>
             </Border>
 
-            <Grid Grid.Column="3">
-                <TextBlock Style="{StaticResource KinectTextFormat}" x:Name="txtDTW" Foreground="{StaticResource KinectPurpleBrush}" Margin="0 0 5 0" />
-                <TextBlock Style="{StaticResource KinectTextFormat}" x:Name="txtDTWmark" Foreground="{StaticResource KinectPurpleBrush}" Margin="0 0 5 0" Text="{Binding DTWresult}"/>
-            </Grid>
+            <Border Grid.Column="3" BorderBrush="{StaticResource KinectPurpleBrush}" BorderThickness="2" Margin="-1 0 0 0" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Background="{StaticResource KinectPurpleBrush}" Margin="-1 -1 -1 0">
+                        <TextBlock Style="{StaticResource KinectTextFormat}" Foreground="White"></TextBlock>
+                    </StackPanel>
+
+                    <RichTextBox Grid.Row="1" Margin="10,10,10,10" BorderThickness="0">
+                        <FlowDocument>
+                            <Paragraph x:Name="paragraph" FontSize="18" BorderThickness="0">
+                                <Bold>Enjoy !!</Bold>
+                            </Paragraph>
+                        </FlowDocument>
+                    </RichTextBox>
+                </Grid>
+            </Border>
         </Grid>
 
         <Grid Grid.Row="3" Height="20"  VerticalAlignment="Top">

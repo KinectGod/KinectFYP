@@ -6,10 +6,10 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{B13AAE51-47AD-46DE-8F31-D11683E0F945}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GrabSkeletonData</RootNamespace>
-    <AssemblyName>GrabSkeletonData</AssemblyName>
+    <RootNamespace>TaiChiLearning</RootNamespace>
+    <AssemblyName>TaiChiLearning</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -47,6 +47,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Windows\assembly\GAC_MSIL\Microsoft.Speech\11.0.0.0__31bf3856ad364e35\Microsoft.Speech.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -80,6 +81,7 @@
     <Compile Include="Math\Vector3.cs" />
     <Compile Include="Recorder\ColorRecorder.cs" />
     <Compile Include="Recorder\CompressImage.cs" />
+    <Compile Include="Recorder\ReplayFrameRecorder.cs" />
     <Compile Include="Replay\ReplayColorImageFrame.cs" />
     <Compile Include="Replay\ReplayColorImageFrameReadyEventArgs.cs" />
     <Compile Include="Resources\SkeletonDrawManager.cs" />
@@ -149,6 +151,9 @@
     <Resource Include="Images\Status.png" />
     <Resource Include="Images\UncheckedHover.png" />
     <Resource Include="Images\UncheckedNormal.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\white.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

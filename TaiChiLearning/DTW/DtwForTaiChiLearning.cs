@@ -26,6 +26,8 @@ namespace TaiChiLearning.DTW
 
         private static KinectRecorder _lrecorder;
         private static Stream _learnerskeletonstream;
+        private static KinectRecorder _lcolorrecorder;
+        private static Stream _learnercolorstream;
 
         /// <summary>
         /// Initializes a new instance of the DtwGestureRecognizer class
@@ -57,6 +59,8 @@ namespace TaiChiLearning.DTW
             var seq2R = new ArrayList(seq2);
 
             var learnerf = new ArrayList();
+
+            var learnerc = new ArrayList();
             //seq2R.Reverse();
 
             var tab = new double[seq1R.Count, seq2R.Count];
@@ -75,6 +79,14 @@ namespace TaiChiLearning.DTW
             while (FileDelete(@path + "LearnerSelected")) ;
             _learnerskeletonstream = File.Create(@path + "LearnerSelected");
             _lrecorder = new KinectRecorder(KinectRecordOptions.Skeletons, _learnerskeletonstream);
+
+            /*
+            if (_learnercolorstream != null)
+                _learnercolorstream.Close();
+            while (FileDelete(@path + "LearnerSelectedColor")) ;
+            _learnercolorstream = File.Create(@path + "LearnerSelectedColor");
+            _lcolorrecorder = new KinectRecorder(KinectRecordOptions.Skeletons, _learnercolorstream);
+             * */
 
             // Dynamic computation of the DTW matrix.
             for (int i = 1; i < seq1R.Count; i++)
@@ -112,7 +124,6 @@ namespace TaiChiLearning.DTW
                     case 1:
                         //if(currentJ != 0)
                         currentJ--;
-                        Console.Write("3");
                         chosen = false;
                         break;
                     case 2:
@@ -120,17 +131,17 @@ namespace TaiChiLearning.DTW
                         currentI--;
                         currentJ--;
                         learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
+                        //learnerc.Add((ColorImageFrame)learnercolorframe[currentJ]);
                         correctfream++;
                         chosen = false;
-                        Console.Write("1");
                         break;
                     case 3:
                         //if(currentI!=0)
                         currentI--;
                         learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
+                        //learnerc.Add((ColorImageFrame)learnercolorframe[currentJ]);
                         if(!chosen) correctfream++;
                         chosen = true;
-                        Console.Write("2");
                         break;
                 }
                 totalframe++;
@@ -139,12 +150,15 @@ namespace TaiChiLearning.DTW
             while (learnerf.Count != 0)
             {
                 _lrecorder.Record((SkeletonFrame)learnerf[learnerf.Count - 1]);
+                //_lcolorrecorder.Record((ColorImageFrame)learnercolorframe[learnerf.Count - 1]);
                 learnerf.RemoveAt(learnerf.Count - 1);
+                //learnerc.RemoveAt(learnerc.Count-1);
             }
             _learnerskeletonstream.Close();
             _lrecorder.Stop();
-            Console.WriteLine("mark " + (Double)correctfream / (Double)totalframe);
-            return (1 - (tab[seq1R.Count - 1, seq2R.Count - 1] / totalframe));
+            //_learnercolorstream.Close();
+           // _lcolorrecorder.Stop();
+            return (Double)correctfream / (Double)totalframe;
         }
 
 

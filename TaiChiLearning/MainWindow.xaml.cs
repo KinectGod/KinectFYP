@@ -116,6 +116,7 @@
         private ArrayList _learnerseq = new ArrayList();
 
         private ArrayList _learnerseqFrame = new ArrayList();
+        private ArrayList _learnercolorFrame = new ArrayList();
 
         /*
         private static Point[] _dtwselected;
@@ -140,7 +141,6 @@
         private KinectReplay _colorplayback;
 
         private string _temppath = ".\\";
-        private string _recordname;
 
         /// 
         private DateTime _captureCountdown = DateTime.Now;
@@ -161,7 +161,7 @@
         private static double[] _master_length = new double[dimension];
 
         private static int _finalframeno;
-
+        private static int _finalframeno2;
         ///Difficulty
         private static double threshold = 80.0;
 
@@ -272,29 +272,29 @@
             //PlayBackImage.DataContext = PlayBackColorManager;
 
             /*
-            string path = ".\\Records\\" + "@demo1" + "\\";
-            if (File.Exists(@path + "frame_number"))
+            
+             * */
+            if (Directory.Exists(@_temppath + ".\\Records\\"))
             {
-                using (FileStream fs = File.OpenRead(@path + "frame_number"))
+                string[] directories = Directory.GetDirectories(@_temppath + ".\\Records\\");
+                for (int i = 0; i < directories.Length; i++)
                 {
-                    BinaryReader reader = new BinaryReader(fs);
-                    _finalframeno = reader.ReadInt32();
+                    directories[i] = Path.GetFileName(directories[i]);
+                    gestureList.Items.Add(directories[i]);
+                    gestureList.SelectedItem = directories[0];
+                    string path = ".\\Records\\" + directories[0] + "\\";
+                    if (File.Exists(@path + "frame_number"))
+                    {
+                        using (FileStream fs = File.OpenRead(@path + "frame_number"))
+                        {
+                            BinaryReader reader = new BinaryReader(fs);
+                            _finalframeno = reader.ReadInt32();
+                        }
+                    }
                 }
             }
-             * */
-
-            string[] directories = Directory.GetDirectories(@_temppath + ".\\Records\\");
-            for (int i = 0; i < directories.Length; i++)
-            {
-                directories[i] = Path.GetFileName(directories[i]);
-                gestureList.Items.Add(directories[i]);
-                gestureList.SelectedItem = directories[0];
-            }
-
                 _nui.Start();
             CreateSpeechRecognizer();
-            //text tp speech
-            //synthesizer = new SpeechSynthesizer();
             _masterseq.Clear();
             _learnerseq.Clear();
         }
@@ -444,6 +444,7 @@
                         if (_recorder == null) return;
                         _recorder.Record(frame);
                         if (!_learning) _finalframeno = frame.FrameNumber;
+                        else _finalframeno2 = frame.FrameNumber;
                     }
                 }
             }
@@ -460,6 +461,7 @@
         private void NuiColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)
         {
             // 32-bit per pixel, RGBA image
+            var image2 = e.OpenColorImageFrame();
             using (var image = e.OpenColorImageFrame())
             {
                 if (image == null) return; // sometimes frame image comes null, so skip it.
@@ -467,10 +469,12 @@
                 RealTimeColorManager.Update(image);
                 if (_capturing)
                 {
-                    if (image == null)
-                        return;
                     if(_colorrecorder != null)
                     _colorrecorder.Record(image);
+                }
+                if (_learning)
+                {
+                    //_learnercolorFrame.Add(image2);
                 }
             }
         }
@@ -807,6 +811,7 @@
             tcStore.IsEnabled = false;
             tcReplay.IsEnabled = false;
             tcStartLearning.IsEnabled = false;
+            tcPlayBack.IsEnabled = false;
 
             _captureCountdown = DateTime.Now.AddSeconds(CaptureCountdownSeconds);
 
@@ -828,6 +833,7 @@
             tcStore.IsEnabled = false;
             tcReplay.IsEnabled = true;
             tcStartLearning.IsEnabled = true;
+            tcPlayBack.IsEnabled = true;
             // Set the capturing? flag
             _learning = false;
             _capturing = false;
@@ -892,6 +898,8 @@
         {
             if (gestureList.SelectedItem != null)
             {
+                if(TempReplayImage.Source != null)
+                ReplayImage.Source = TempReplayImage.Source;
                 _replaying = true;
                 _learning = false;
                 tcCapture.IsEnabled = false;
@@ -918,6 +926,10 @@
 
                 tcStopReplay.IsEnabled = true;
             }
+            else
+            {
+                System.Windows.MessageBox.Show("Please select a motion.");
+            }
         }
 
         private void tcStopReplayClick(object sender, RoutedEventArgs e)
@@ -933,13 +945,17 @@
             _colorreplay.Stop();
 
             MasterSkeletonCanvas.Children.Clear();
-            //ReplayImage.Source = null;
+            TempReplayImage.Source = ReplayImage.Source;
+            ReplayImage.Source = null;
         }
 
         private void tcStartLearningClick(object sender, RoutedEventArgs e)
         {
             if (gestureList.SelectedItem != null)
             {
+                if (TempReplayImage.Source != null)
+                    ReplayImage.Source = TempReplayImage.Source;
+                paragraph.Inlines.Clear();
                 _learning = true;
                 _capturing = false;
                 _captureCountdown = DateTime.Now.AddSeconds(CaptureCountdownSeconds);
@@ -951,6 +967,10 @@
                 _captureCountdownTimer.Interval = 50;
                 _captureCountdownTimer.Start();
                 _captureCountdownTimer.Tick += CaptureCountdown;
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("Please select a motion.");
             }
         }
         
@@ -974,6 +994,8 @@
             _colorreplay.Stop();
             MasterSkeletonCanvas.Children.Clear();
             RealTimeSkeletonCanvas.Children.Clear();
+            TempReplayImage.Source = ReplayImage.Source;
+            ReplayImage.Source = null;
             _recorder = null;
             _colorrecorder = null;
             
@@ -998,13 +1020,41 @@
                 if (_learnerskeletonstream != null)
                     _learnerskeletonstream.Close();
 
+                
+
+                using (FileStream fs = File.Create(@path + "frame_number")) 
+                {
+                    using (BinaryWriter sw = new BinaryWriter(fs))
+                    {
+                        sw.Write(_finalframeno2);
+                    }
+                }
+
+                _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _learnerseqFrame, path, threshold);
+
+                if (_dTWresult > 80.0)
+                {
+                    paragraph.Inlines.Add("Excellent, your learning score is " + (int)_dTWresult);
+                }
+                else if (_dTWresult > 60.0) 
+                {
+                    paragraph.Inlines.Add("Good, your learning score is " + (int)_dTWresult);
+                }
+                else if (_dTWresult > 40.0)
+                {
+                    paragraph.Inlines.Add("Please work harder, your learning score is " + (int)_dTWresult);
+                }
+                else
+                {
+                    paragraph.Inlines.Add("Too bad, your learning score is " + (int)_dTWresult);
+                }
+
                 if (File.Exists(@path + "skeleton")) while (FileDelete(@path + "skeleton")) ;
                 if (File.Exists(@path + "colorStream")) while (FileDelete(@path + "colorStream")) ;
 
                 File.Move(@_temppath + "skeleton", @path + "skeleton");
                 File.Move(@_temppath + "colorStream", @path + "colorStream");
 
-                _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _learnerseqFrame, path, threshold);
                 status.Text = gestureList.Text + " added";
             }
             else
@@ -1030,7 +1080,7 @@
 
                 RealTimeImage.DataContext = PlayBackColorManager;
 
-                string path = ".\\Records\\" + gestureList.Text + "\\";
+                string path = ".\\Learnings\\" + gestureList.Text + "\\";
                 readLastFrame(path);
 
                 if (_recordskeletonstream != null)
@@ -1064,12 +1114,13 @@
                 _playback.SkeletonFrameReady += playback_SkeletonFrameReady;
 
 
-
+                /*
                 if (_learnercolorstream != null)
                     _learnercolorstream.Close();
                 _learnercolorstream = File.OpenRead(@path2 + "colorStream");
                 _colorplayback = new KinectReplay(_learnercolorstream);
                 _colorplayback.ColorImageFrameReady += playback_ColorImageFrameReady;
+                 * */
 
                 _playback.Start(1000.0 / this.SelectedFPS);
                 //_colorplayback.Start(1000.0 / this.SelectedFPS);
@@ -1077,6 +1128,10 @@
                 _replay.Start(1000.0 / this.SelectedFPS);
 
                 status.Text = "Playing back " + gestureList.Text;
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("Please select a motion.");
             }
         }
 
@@ -1332,9 +1387,8 @@
             return dtwselected;
         }
 
-        private void readLastFrame(string gesture)
+        private void readLastFrame(string path)
         {
-            String path = ".\\Records\\" + gesture + "\\";
             if (Directory.Exists(path))
             {
                 using (FileStream fs = File.OpenRead(@path + "frame_number"))
@@ -1364,6 +1418,19 @@
             catch (IOException)
             {
                 return true;
+            }
+        }
+
+        private void gestureList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            string path = ".\\Records\\" + gestureList.SelectedItem + "\\";
+            if (File.Exists(@path + "frame_number"))
+            {
+                using (FileStream fs = File.OpenRead(@path + "frame_number"))
+                {
+                    BinaryReader reader = new BinaryReader(fs);
+                    _finalframeno = reader.ReadInt32();
+                }
             }
         }
 
