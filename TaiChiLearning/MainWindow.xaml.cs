@@ -540,14 +540,10 @@
             double[] templength = new double[dimension];
 
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
-            if (!_learning || _playingback)
-            {
-                ReplaySkeleton.DrawSkeleton(skeletons);
-            }
 
             /// get the joint angle data of master
             /// then make comparison
-            if (_learning || _playingback)
+            if (_learning)
             {
                 foreach (var data in skeletons)
                 {
@@ -570,7 +566,10 @@
                     }
                 }
                 //_masterseqNum.Add(frame);
-                
+            }
+            else if(_replaying || _playingback || _learning) 
+            {
+                ReplaySkeleton.DrawSkeleton(skeletons);
             }
         }
 
