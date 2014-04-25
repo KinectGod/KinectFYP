@@ -844,6 +844,9 @@
             _recorder = null;
             _colorrecorder = null;
 
+            paragraph.Inlines.Clear();
+
+            /*
             const string message = "Are you sure that you would like to store the TaiChi motion?";
             const string caption = "Confirmation";
             var result = System.Windows.Forms.MessageBox.Show(message, caption,
@@ -852,7 +855,7 @@
 
             // If the no button was pressed ... 
             if (result == System.Windows.Forms.DialogResult.Yes)
-            {
+            {*/
                 status.Text = "Remembering " + gestureList.Text + ", please stay there until the saving process finished :)";
 
                 string path = ".\\Records\\" + gestureList.Text + "\\";
@@ -888,13 +891,13 @@
                     }
                 }
                 status.Text = gestureList.Text + " added";
-            }
-            else
-            {
-                _recordskeletonstream.Close();
-                _recordcolorstream.Close();
-                return;
-            }
+           // }
+           // else
+           // {
+            //    _recordskeletonstream.Close();
+           //     _recordcolorstream.Close();
+            //    return;
+           // }
         }
 
         //Replay the saved skeleton
@@ -1005,6 +1008,7 @@
             _recorder = null;
             _colorrecorder = null;
             
+            /*
             const string message = "Are you satisfied with your performance this time, save or not?";
             const string caption = "Confirmation";
             var result = System.Windows.Forms.MessageBox.Show(message, caption,
@@ -1012,7 +1016,9 @@
                                          MessageBoxIcon.Question);
             // If the no button was pressed ... 
             if (result == System.Windows.Forms.DialogResult.Yes)
-            {
+             
+            {*/
+            paragraph.Inlines.Clear();
                 status.Text = "Remembering " + gestureList.Text + ", please stay there until the saving process finished :)";
 
                 string path = ".\\Learnings\\" + gestureList.Text + "\\";
@@ -1062,12 +1068,12 @@
                 File.Move(@_temppath + "colorStream", @path + "colorStream");
 
                 status.Text = gestureList.Text + " added";
-            }
-            else
-            {
-                _learnerskeletonstream.Close();
-                _learnercolorstream.Close();
-            }
+           // }
+            //else
+           // {
+            //    _learnerskeletonstream.Close();
+           //     _learnercolorstream.Close();
+           // }
         }
 
         private void tcPlayBack_Click(object sender, RoutedEventArgs e)
@@ -1215,7 +1221,6 @@
                 //reduce background and ambient noise for better accuracy
                 _nui.AudioSource.EchoCancellationMode = EchoCancellationMode.None;
                 _nui.AudioSource.AutomaticGainControlEnabled = false;
-                this.status.Text = "Speech ready";
             }
         }
 
@@ -1223,7 +1228,7 @@
         private void RejectSpeech(RecognitionResult result)
         {
             if (_speechrecognition)
-            status.Text = "Speech is rejected!";
+            status.Text = "Speech " + result.Text + "is rejected!";
         }
 
         private void SreSpeechRecognitionRejected(object sender, SpeechRecognitionRejectedEventArgs e)
@@ -1267,52 +1272,38 @@
                 switch (e.Result.Text.ToUpperInvariant())
                 {
                     case "KINECT RECORD MOTION":
-                        if(!_replaying && !_learning && !_playingback && !_counting && !_capturing)
+                        if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
                         this.tcCaptureClick(null, null);
-                        //status2.Text = "Record.";
-                        //recognized_text = "RECOD IN FIVE SECONDS";
+                        status.Text = "Recognized as Record Motion";
                         break;
                     case "KINECT STOP RECORD":
                         if(_capturing)
                         this.tcStoreClick(null, null);
-                        //status2.Text = "Store.";
-                        //recognized_text = "Store";
                         break;
                     case "KINECT REPLAY":
                         if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
                         this.tcReplayClick(null, null);
-                        //status2.Text = "Replay.";
-                        //recognized_text = "Replay";
                         break;
                     case "KINECT STOP REPLAY":
                         if(_replaying)
                         this.tcStopReplayClick(null, null);
-                        //status2.Text = "Stop.";
-                        //recognized_text = "Stop replay";
                         break;
                     case "KINECT START LEARNING":
                         if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
                         this.tcStartLearningClick(null, null);
-                        //status2.Text = "Learn.";
-                        //recognized_text = "Start learning in five second";
+                        status.Text = "Recognized as Start Learning";
                         break;
                     case "KINECT FINISH LEARNING":
                         if(_learning)
                         this.tcStopLearningClick(null, null);
-                        //status2.Text = "finish.";
-                        //recognized_text = "Start learning in five second";
                         break;
                     case "KINECT PLAYBACK IMPROVED MOTION":
                         if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
                         this.tcPlayBack_Click(null, null);
-                        //status2.Text = "finish.";
-                        //recognized_text = "Playing back " + gestureList.Text;
                         break;
                     case "KINECT STOP PLAYBACK MOTION":
                         if (_playingback)
                         this.tcStopPlayBackClick(null, null);
-                        //status2.Text = "finish.";
-                        //recognized_text = "Stop playing back " + gestureList.Text;
                         break;
                     default:
                         break;
