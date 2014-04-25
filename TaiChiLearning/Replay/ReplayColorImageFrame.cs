@@ -11,7 +11,6 @@ namespace TaiChiLearning.Replay
         long streamPosition;
         Stream stream;
 
-        public ColorImageFrame test { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }
         public int BytesPerPixel { get; private set; }

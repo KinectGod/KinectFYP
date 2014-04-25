@@ -7,6 +7,7 @@ namespace TaiChiLearning.DTW
     using System.Collections;
     using System.Drawing;
     using System.IO;
+    using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading;
     using System.Windows.Media.Media3D;
     using TaiChiLearning.Recorder;
@@ -26,9 +27,19 @@ namespace TaiChiLearning.DTW
 
         private static KinectRecorder _lrecorder;
         private static Stream _learnerskeletonstream;
-        private static KinectRecorder _lcolorrecorder;
+        private static BinaryWriter _lcolorrecorder;
         private static Stream _learnercolorstream;
 
+        DateTime recordingTime;
+        Stream stream;
+        long streamPosition;
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public int BytesPerPixel { get; private set; }
+        public ColorImageFormat Format { get; private set; }
+        public int PixelDataLength { get; set; }
+        public int FrameNumber { get; protected set; }
+        public long TimeStamp { get; protected set; }
         /// <summary>
         /// Initializes a new instance of the DtwGestureRecognizer class
         /// Second DTW constructor
@@ -50,7 +61,7 @@ namespace TaiChiLearning.DTW
         /// <param name="seq1">The master array of sequences to compare</param>
         /// <param name="seq2">The learner array of sequences to compare</param>
         /// <returns>The best match</returns>
-        public double DtwComputation(ArrayList seq1, ArrayList seq2, ArrayList learnerframe, string path, double anglethreshold)
+        public double DtwComputation(ArrayList seq1, ArrayList seq2, ArrayList learnerframe, ArrayList learnercolorframe, string path, double anglethreshold)
         {
             Console.WriteLine(learnerframe.Count);
             // Init
@@ -80,29 +91,38 @@ namespace TaiChiLearning.DTW
             _learnerskeletonstream = File.Create(@path + "LearnerSelected");
             _lrecorder = new KinectRecorder(KinectRecordOptions.Skeletons, _learnerskeletonstream);
 
-            /*
+
             if (_learnercolorstream != null)
                 _learnercolorstream.Close();
             while (FileDelete(@path + "LearnerSelectedColor")) ;
             _learnercolorstream = File.Create(@path + "LearnerSelectedColor");
-            _lcolorrecorder = new KinectRecorder(KinectRecordOptions.Skeletons, _learnercolorstream);
-             * */
+            _lcolorrecorder = new BinaryWriter( _learnercolorstream);
 
+            int []max_slope = new int [3];
+            
             // Dynamic computation of the DTW matrix.
             for (int i = 1; i < seq1R.Count; i++)
             {
                 for (int j = 1; j < seq2R.Count; j++)
                 {
-                    switch (min(tab[i, j - 1], tab[i - 1, j - 1], tab[i - 1, j]))
+                    switch (min(tab[i - 1, j - 1], tab[i, j - 1], tab[i - 1, j]))
                     {
                         case 1:
-                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i, j - 1];
+                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
+                            max_slope[0] = 0;
+                            max_slope[2] = 0;
                             break;
                         case 2:
-                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
+                            if(max_slope[0]++ %6 != 0) tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i, j - 1];
+                            else tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
+                            max_slope[1] = 0;
+                            max_slope[2] = 0;
                             break;
                         case 3:
-                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j];
+                            if (max_slope[2]++ % 6 != 0) tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
+                            else tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j];
+                            max_slope[0] = 0;
+                            max_slope[1] = 0;
                             break;
 
                     }
@@ -110,7 +130,7 @@ namespace TaiChiLearning.DTW
             }
 
             int totalframe = 0;
-            int correctfream = 0;
+            int correctframe = 0;
             bool chosen = false;
             //Reconstruct the best matched path  //int currentI = bestMatchI;
             //int currentJ = bestMatchI;
@@ -119,46 +139,66 @@ namespace TaiChiLearning.DTW
             while (currentI != 0 && currentJ != 0)
             {
                 //Console.WriteLine(target.I + " " + target.J);
-                switch (min(tab[currentI, currentJ - 1], tab[currentI - 1, currentJ - 1], tab[currentI - 1, currentJ]))
+                switch (min(tab[currentI - 1, currentJ - 1], tab[currentI, currentJ - 1], tab[currentI - 1, currentJ]))
                 {
                     case 1:
-                        //if(currentJ != 0)
+                        currentI--;
                         currentJ--;
+                        learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
+                        learnerc.Add((int)learnercolorframe[currentJ]);
+                        correctframe++;
                         chosen = false;
                         break;
                     case 2:
-                        //if(currentI !=0 )
-                        currentI--;
                         currentJ--;
-                        learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
-                        //learnerc.Add((ColorImageFrame)learnercolorframe[currentJ]);
-                        correctfream++;
-                        chosen = false;
+                        chosen = false; 
+                        max_slope[1] = 0;
+                        max_slope[2] = 0;
                         break;
                     case 3:
-                        //if(currentI!=0)
                         currentI--;
                         learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
-                        //learnerc.Add((ColorImageFrame)learnercolorframe[currentJ]);
-                        if(!chosen) correctfream++;
+                        learnerc.Add((int)learnercolorframe[currentJ]);
+                        if(!chosen) correctframe++;
                         chosen = true;
                         break;
                 }
                 totalframe++;
             }
-            //DtwRecordSelectedFrames(path);
+
             while (learnerf.Count != 0)
             {
                 _lrecorder.Record((SkeletonFrame)learnerf[learnerf.Count - 1]);
-                //_lcolorrecorder.Record((ColorImageFrame)learnercolorframe[learnerf.Count - 1]);
                 learnerf.RemoveAt(learnerf.Count - 1);
-                //learnerc.RemoveAt(learnerc.Count-1);
+            }
+
+            while (FileReadable(@path + "colorStream")) ;
+            using (FileStream fs = File.OpenRead(".\\colorStream"))
+            {
+                using (BinaryReader reader = new BinaryReader(fs))
+                {
+                    int temp = reader.ReadInt32();
+                    _lcolorrecorder.Write(temp);
+                    CreateFromReader(reader);
+                    while (learnerc.Count != 0)
+                    {
+                        if (FrameNumber == (int)learnerc[learnerc.Count - 1])
+                        {
+                            Record(_lcolorrecorder);
+                            learnerc.RemoveAt(learnerc.Count - 1);
+                        }
+                        else
+                        {
+                            CreateFromReader(reader);
+                        }
+                    }
+                }
             }
             _learnerskeletonstream.Close();
             _lrecorder.Stop();
-            //_learnercolorstream.Close();
-           // _lcolorrecorder.Stop();
-            return (Double)correctfream / (Double)totalframe * 100;
+            _learnercolorstream.Close();
+            _lcolorrecorder.Close();
+            return (Double)correctframe / (Double)totalframe * 100;
         }
 
 
@@ -271,7 +311,7 @@ namespace TaiChiLearning.DTW
             }
              * */
             //return d + d2;
-            return mark / _dimension;
+            return mark;
             
              
         }
@@ -287,6 +327,53 @@ namespace TaiChiLearning.DTW
             return score;
         }
 
+        private void CreateFromReader(BinaryReader reader)
+        {
+            int temp = reader.ReadInt32();
+            TimeStamp = reader.ReadInt64();
+            BytesPerPixel = reader.ReadInt32();
+            Format = (ColorImageFormat)reader.ReadInt32();
+            Width = reader.ReadInt32();
+            Height = reader.ReadInt32();
+            FrameNumber = reader.ReadInt32();
+
+            PixelDataLength = reader.ReadInt32();
+
+            stream = reader.BaseStream;
+            streamPosition = stream.Position;
+
+            stream.Position += PixelDataLength;
+
+        }
+
+        public void Record(BinaryWriter writer)
+        {
+            // Header
+            writer.Write((int)KinectRecordOptions.Color);
+
+            // ColorFrame Information   
+            TimeSpan timeSpan = DateTime.Now.Subtract(recordingTime);
+            recordingTime = DateTime.Now;
+            writer.Write((long)timeSpan.TotalMilliseconds);
+            writer.Write(BytesPerPixel);
+            writer.Write((int)Format);
+            writer.Write(Width);
+            writer.Write(Height);
+            writer.Write(FrameNumber);
+
+            // Bytes
+            writer.Write(PixelDataLength);
+            byte[] pixelData = new byte[PixelDataLength];
+
+            long savedPosition = stream.Position;
+            stream.Position = streamPosition;
+
+            stream.Read(pixelData, 0, PixelDataLength);
+
+            stream.Position = savedPosition;
+            // Save the Frame Pixel Data
+            writer.Write(pixelData);
+        }
         /*
         /// <summary>
         /// record the selected dtw path in files
@@ -337,5 +424,18 @@ namespace TaiChiLearning.DTW
             }
         }
 
+        public static bool FileReadable(string filename) 
+        {
+            try 
+            {
+                using (FileStream fs = File.OpenRead(@filename)) ;
+                Thread.Sleep(500);
+                return false;
+            }
+            catch(IOException)
+            {
+                return true;
+            }
+        }
     }
 }

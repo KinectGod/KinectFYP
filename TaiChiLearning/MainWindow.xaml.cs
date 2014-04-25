@@ -469,13 +469,14 @@
                 RealTimeColorManager.Update(image);
                 if (_capturing)
                 {
-                    if(_colorrecorder != null)
-                    _colorrecorder.Record(image);
+                    if (_colorrecorder != null)
+                        _colorrecorder.Record(image);
+                    if (_learning)
+                    {
+                        _learnercolorFrame.Add(image2.FrameNumber);
+                    }
                 }
-                if (_learning)
-                {
-                    //_learnercolorFrame.Add(image2);
-                }
+                
             }
         }
 
@@ -728,7 +729,9 @@
         private void StartCapture()
         {
             _capturing = true;
-            
+
+            paragraph.Inlines.Clear();
+            paragraph.Inlines.Add("Start ...");
             // Clear the _video buffer and start from the beginning
             //test _video = new ArrayList();
             if (File.Exists(@_temppath + "skeleton")) while (FileDelete(@_temppath + "skeleton")) ;
@@ -772,6 +775,7 @@
             tcStartLearning.IsEnabled = false;
             tcReplay.IsEnabled = false;
             tcStopLearning.IsEnabled = true;
+            tcPlayBack.IsEnabled = false;
             string path = ".\\Records\\" + gestureList.Text + "\\";
             readLastFrame(path);
 
@@ -793,8 +797,6 @@
 
             status.Text = "Learning " + gestureList.Text;
         }
-        
-
 
         /// <summary>
         /// Starts a countdown timer to enable the player to get in position to record gestures
@@ -809,7 +811,7 @@
             gestureList.SelectedItem = (inputbox);
             _learning = false;
             //dtwRead.IsEnabled = false;
-            //tcCapture.IsEnabled = false;
+            tcCapture.IsEnabled = false;
             tcStore.IsEnabled = false;
             tcReplay.IsEnabled = false;
             tcStartLearning.IsEnabled = false;
@@ -822,6 +824,7 @@
             _captureCountdownTimer.Start();
             _captureCountdownTimer.Tick += CaptureCountdown;
         }
+
         /// <summary>
         /// Stores our gesture to the DTW sequences list
         /// </summary>
@@ -831,7 +834,7 @@
         {
             // Set the buttons enabled state
             //dtwRead.IsEnabled = false;
-            //tcCapture.IsEnabled = true;
+            tcCapture.IsEnabled = true;
             tcStore.IsEnabled = false;
             tcReplay.IsEnabled = true;
             tcStartLearning.IsEnabled = true;
@@ -990,6 +993,7 @@
             tcStartLearning.IsEnabled = true;
             tcStopLearning.IsEnabled = false;
             tcReplay.IsEnabled = true;
+            tcPlayBack.IsEnabled = true;
             _learning = false;
             _capturing = false;
 
@@ -1030,10 +1034,11 @@
                         sw.Write(_finalframeno2);
                     }
                 }
+                
 
                 if (_learnerseqFrame.Count > 0)
                 {
-                    _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _learnerseqFrame, path, threshold);
+                    _dTWresult = _dtw.DtwComputation(_masterseq, _learnerseq, _learnerseqFrame, _learnercolorFrame, path, threshold);
 
                     if (_dTWresult > 80.0)
                     {
@@ -1054,9 +1059,8 @@
                 }
                 if (File.Exists(@path + "skeleton")) while (FileDelete(@path + "skeleton")) ;
                 if (File.Exists(@path + "colorStream")) while (FileDelete(@path + "colorStream")) ;
-
-                File.Copy(@_temppath + "skeleton", @path + "skeleton");
-                File.Copy(@_temppath + "colorStream", @path + "colorStream");
+                File.Move(@_temppath + "skeleton", @path + "skeleton");
+                File.Move(@_temppath + "colorStream", @path + "colorStream");
 
                 status.Text = gestureList.Text + " added";
             }
@@ -1077,6 +1081,7 @@
                     System.Windows.MessageBox.Show("You have not recorded your learning of " + gestureList.SelectedItem);
                     return;
                 }
+
                 if (TempReplayImage.Source != null)
                     ReplayImage.Source = TempReplayImage.Source;
                 _learning = false;
@@ -1090,8 +1095,6 @@
                 tcStopPlayBack.IsEnabled = true;
 
                 RealTimeImage.DataContext = PlayBackColorManager;
-
-                
                 readLastFrame(path);
 
                 if (_recordskeletonstream != null)
@@ -1112,8 +1115,14 @@
                 _playback = new KinectReplay(_learnerskeletonstream);
                 _playback.SkeletonFrameReady += playback_SkeletonFrameReady;
 
+                if (_learnercolorstream != null)
+                    _learnercolorstream.Close();
+                _learnercolorstream = File.OpenRead(@path + "LearnerSelectedColor");
+                _colorplayback = new KinectReplay(_learnercolorstream);
+                _colorplayback.ColorImageFrameReady += playback_ColorImageFrameReady;
+
                 _playback.Start(1000.0 / this.SelectedFPS);
-                //_colorplayback.Start(1000.0 / this.SelectedFPS);
+                _colorplayback.Start(1000.0 / this.SelectedFPS);
                 _colorreplay.Start(1000.0 / this.SelectedFPS);
                 _replay.Start(1000.0 / this.SelectedFPS);
 
