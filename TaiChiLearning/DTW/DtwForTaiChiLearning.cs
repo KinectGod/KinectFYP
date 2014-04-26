@@ -63,7 +63,6 @@ namespace TaiChiLearning.DTW
         /// <returns>The best match</returns>
         public double DtwComputation(ArrayList seq1, ArrayList seq2, ArrayList learnerframe, ArrayList learnercolorframe, string path, double anglethreshold)
         {
-            Console.WriteLine(learnerframe.Count);
             // Init
             var seq1R = new ArrayList(seq1);
             //seq1R.Reverse();
@@ -80,7 +79,8 @@ namespace TaiChiLearning.DTW
             {
                 for (int j = 0; j < seq2R.Count; j++)
                 {
-                    tab[i, j] = Double.MaxValue;
+                    tab[i, j] = Double.PositiveInfinity;
+                    //tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold);
                 }
             }
             tab[0, 0] = 0;
@@ -105,22 +105,24 @@ namespace TaiChiLearning.DTW
             {
                 for (int j = 1; j < seq2R.Count; j++)
                 {
-                    switch (min(tab[i - 1, j - 1], tab[i, j - 1], tab[i - 1, j]))
+                    switch (min(tab[i, j - 1], tab[i - 1, j - 1], tab[i - 1, j]))
                     {
-                        case 1:
+                        case 2:
                             tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
                             max_slope[0] = 0;
                             max_slope[2] = 0;
                             break;
-                        case 2:
-                            if(max_slope[0]++ %6 != 0) tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i, j - 1];
-                            else tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
+                        case 1:
+                            //if(max_slope[0]++ %6 != 0) 
+                                tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i, j - 1];
+                            //else tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
                             max_slope[1] = 0;
                             max_slope[2] = 0;
                             break;
                         case 3:
-                            if (max_slope[2]++ % 6 != 0) tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
-                            else tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j];
+                            //if (max_slope[2]++ % 6 != 0) 
+                            tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
+                            //else tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j];
                             max_slope[0] = 0;
                             max_slope[1] = 0;
                             break;
@@ -139,17 +141,18 @@ namespace TaiChiLearning.DTW
             while (currentI != 0 && currentJ != 0)
             {
                 //Console.WriteLine(target.I + " " + target.J);
-                switch (min(tab[currentI - 1, currentJ - 1], tab[currentI, currentJ - 1], tab[currentI - 1, currentJ]))
+                switch (min(tab[currentI, currentJ - 1], tab[currentI - 1, currentJ - 1], tab[currentI - 1, currentJ]))
                 {
-                    case 1:
+                    case 2:
                         currentI--;
                         currentJ--;
                         learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
+                        if (currentJ < learnercolorframe.Count)
                         learnerc.Add((int)learnercolorframe[currentJ]);
                         correctframe++;
                         chosen = false;
                         break;
-                    case 2:
+                    case 1:
                         currentJ--;
                         chosen = false; 
                         max_slope[1] = 0;
@@ -158,8 +161,10 @@ namespace TaiChiLearning.DTW
                     case 3:
                         currentI--;
                         learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
+                        if(currentJ < learnercolorframe.Count)
                         learnerc.Add((int)learnercolorframe[currentJ]);
-                        if(!chosen) correctframe++;
+                        if(!chosen) 
+                        correctframe++;
                         chosen = true;
                         break;
                 }
@@ -172,7 +177,7 @@ namespace TaiChiLearning.DTW
                 learnerf.RemoveAt(learnerf.Count - 1);
             }
 
-            while (FileReadable(@path + "colorStream")) ;
+            
             using (FileStream fs = File.OpenRead(".\\colorStream"))
             {
                 using (BinaryReader reader = new BinaryReader(fs))
@@ -194,6 +199,7 @@ namespace TaiChiLearning.DTW
                     }
                 }
             }
+
             _learnerskeletonstream.Close();
             _lrecorder.Stop();
             _learnercolorstream.Close();
@@ -266,7 +272,7 @@ namespace TaiChiLearning.DTW
 
             for (int i = 8; i < _dimension; i++)
             {
-                d += Math.Abs(a[i].X - b[i].X) + Math.Abs(a[i].Y - b[i].Y) * 0.3;
+                d += Math.Abs(a[i].X - b[i].X) + Math.Abs(a[i].Y - b[i].Y) * 0.8;
             }
                 //d = Math.Sqrt(d);
                 //d2 = Math.Sqrt(d2);

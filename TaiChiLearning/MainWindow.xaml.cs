@@ -82,6 +82,8 @@
 
         private static bool _counting = false;
 
+        private static bool _playingbackmaster = false;
+
         private static Skeleton _masterskeleton;
 
         /// <summary>
@@ -139,6 +141,8 @@
         private KinectReplay _colorreplay;
         private KinectReplay _playback;
         private KinectReplay _colorplayback;
+        private KinectReplay _playbackmaster;
+        private KinectReplay _colorplaybackmaster;
 
         private string _temppath = ".\\";
 
@@ -375,7 +379,7 @@
         /// <param name="e">Skeleton Frame Event Args</param>
         private void NuiSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
-            if (!_playingback)
+            if (!_playingback && !_playingbackmaster)
             {
                 int length;
                 Point[] temppt = new Point[dimension];
@@ -476,7 +480,6 @@
                         _learnercolorFrame.Add(image2.FrameNumber);
                     }
                 }
-                
             }
         }
 
@@ -527,6 +530,10 @@
                 {
                     this.tcStopPlayBackClick(null, null);
                 }
+                else if (_playingbackmaster) 
+                {
+                    this.tcStopPlaybackMasterClick(null, null);
+                }
                 else
                 {
                     this.tcStopReplayClick(null, null);
@@ -567,7 +574,7 @@
                 }
                 //_masterseqNum.Add(frame);
             }
-            else if(_replaying || _playingback || _learning) 
+            else if(_replaying || _playingback || _learning || _playingbackmaster) 
             {
                 ReplaySkeleton.DrawSkeleton(skeletons);
             }
@@ -589,7 +596,8 @@
 
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
             RealTimeSkeleton.DrawSkeleton(skeletons);
-            
+
+            /*
             /// get the joint angle data of master
             /// then make comparison
             var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
@@ -616,7 +624,7 @@
                 }
             }
             
-            /*
+            
             if (_dtwselected.Length - 1 > _dtwLskeleton)
             {
                 _dtwLskeleton++;
@@ -709,7 +717,7 @@
                     _counting = false;
                     if (_learning)
                     {
-                        status.Text = "Recognizing motion";
+                        status.Text = "Learning";
                         StartRegcon();
                         StartCapture();
                     }
@@ -770,11 +778,7 @@
             _learning = true;
             _capturing = true; 
 
-            tcCapture.IsEnabled = false;
-            tcStartLearning.IsEnabled = false;
-            tcReplay.IsEnabled = false;
-            tcStopLearning.IsEnabled = true;
-            tcPlayBack.IsEnabled = false;
+            
             string path = ".\\Records\\" + gestureList.Text + "\\";
             readLastFrame(path);
 
@@ -810,6 +814,7 @@
             gestureList.SelectedItem = (inputbox);
             _learning = false;
             //dtwRead.IsEnabled = false;
+            tcPlaybackMaster.IsEnabled = false;
             tcCapture.IsEnabled = false;
             tcStore.IsEnabled = false;
             tcReplay.IsEnabled = false;
@@ -838,6 +843,7 @@
             tcReplay.IsEnabled = true;
             tcStartLearning.IsEnabled = true;
             tcPlayBack.IsEnabled = true;
+            tcPlaybackMaster.IsEnabled = true;
             // Set the capturing? flag
             _learning = false;
             _capturing = false;
@@ -872,9 +878,9 @@
                 if (File.Exists(@path + "skeleton")) while (FileDelete(@path + "skeleton")) ;
                 if (File.Exists(@path + "colorStream")) while (FileDelete(@path + "colorStream")) ;
                 if (File.Exists(@path + "frame_number")) while (FileDelete(@path + "frame_number")) ;
-
-                File.Move(@_temppath + "skeleton", @path + "skeleton");
-                File.Move(@_temppath + "colorStream", @path + "colorStream");
+ 
+                File.Copy(@_temppath + "skeleton", @path + "skeleton");
+                File.Copy(@_temppath + "colorStream", @path + "colorStream");
 
                 /*
                 while (IsFileClosed(@_temppath + "colorStream") && IsFileClosed(@path + "colorStream"))
@@ -913,6 +919,7 @@
                 tcStartLearning.IsEnabled = false;
                 tcReplay.IsEnabled = false;
                 tcPlayBack.IsEnabled = false;
+                tcPlaybackMaster.IsEnabled = false;
                 status.Text = "Replaying master motion " + gestureList.Text;
                 string path = ".\\Records\\" + gestureList.Text + "\\";
                 readLastFrame(path);
@@ -948,6 +955,7 @@
             tcStartLearning.IsEnabled = true;
             tcReplay.IsEnabled = true;
             tcPlayBack.IsEnabled = true;
+            tcPlaybackMaster.IsEnabled = true;
             _replay.Stop();
             _colorreplay.Stop();
 
@@ -958,6 +966,13 @@
 
         private void tcStartLearningClick(object sender, RoutedEventArgs e)
         {
+            tcCapture.IsEnabled = false;
+            tcStartLearning.IsEnabled = false;
+            tcReplay.IsEnabled = false;
+            tcStopLearning.IsEnabled = true;
+            tcPlayBack.IsEnabled = false;
+            tcPlaybackMaster.IsEnabled = false;
+
             if (gestureList.SelectedItem != null)
             {
                 if (TempReplayImage.Source != null)
@@ -996,6 +1011,7 @@
             tcStopLearning.IsEnabled = false;
             tcReplay.IsEnabled = true;
             tcPlayBack.IsEnabled = true;
+            tcPlaybackMaster.IsEnabled = true;
             _learning = false;
             _capturing = false;
 
@@ -1032,6 +1048,9 @@
                 if (_learnerskeletonstream != null)
                     _learnerskeletonstream.Close();
 
+                if (File.Exists(@path + "skeleton")) while (FileDelete(@path + "skeleton")) ;
+                if (File.Exists(@path + "colorStream")) while (FileDelete(@path + "colorStream")) ;
+
                 using (FileStream fs = File.Create(@path + "frame_number")) 
                 {
                     using (BinaryWriter sw = new BinaryWriter(fs))
@@ -1062,10 +1081,9 @@
                         paragraph.Inlines.Add("Too bad, your learning score is " + (int)_dTWresult);
                     }
                 }
-                if (File.Exists(@path + "skeleton")) while (FileDelete(@path + "skeleton")) ;
-                if (File.Exists(@path + "colorStream")) while (FileDelete(@path + "colorStream")) ;
-                File.Move(@_temppath + "skeleton", @path + "skeleton");
-                File.Move(@_temppath + "colorStream", @path + "colorStream");
+                
+                File.Copy(@_temppath + "skeleton", @path + "skeleton");
+                File.Copy(@_temppath + "colorStream", @path + "colorStream");
 
                 status.Text = gestureList.Text + " added";
            // }
@@ -1092,12 +1110,14 @@
                 _learning = false;
                 _capturing = false;
                 _playingback = true;
+                _playingbackmaster = false;
 
                 tcCapture.IsEnabled = false;
                 tcStartLearning.IsEnabled = false;
                 tcReplay.IsEnabled = false;
                 tcStopLearning.IsEnabled = false;
                 tcStopPlayBack.IsEnabled = true;
+                tcPlaybackMaster.IsEnabled = false;
 
                 RealTimeImage.DataContext = PlayBackColorManager;
                 readLastFrame(path);
@@ -1149,7 +1169,8 @@
             _learning = false;
             _capturing = false;
             _playingback = false;
-
+            _playingbackmaster = false;
+            tcPlaybackMaster.IsEnabled = true;
             RealTimeImage.DataContext = RealTimeColorManager;
 
             status.Text = "Stopped playing back";
@@ -1162,7 +1183,103 @@
             _replay.Stop();
             _colorreplay.Stop();
             _playback.Stop();
-            //_colorplayback.Stop();
+            _colorplayback.Stop();
+
+            MasterSkeletonCanvas.Children.Clear();
+            RealTimeSkeletonCanvas.Children.Clear();
+            TempReplayImage.Source = ReplayImage.Source;
+            ReplayImage.Source = null;
+        }
+
+        private void tcPlaybackMasterClick(object sender, RoutedEventArgs e)
+        {
+            if (gestureList.SelectedItem != null)
+            {
+                string path = ".\\Learnings\\" + gestureList.Text + "\\";
+                string path2 = ".\\Records\\" + gestureList.Text + "\\";
+
+                if (!File.Exists(@path + "skeleton"))
+                {
+                    System.Windows.MessageBox.Show("You have not recorded your learning of " + gestureList.SelectedItem);
+                    return;
+                }
+
+                if (TempReplayImage.Source != null)
+                    ReplayImage.Source = TempReplayImage.Source;
+                _learning = false;
+                _capturing = false;
+                _playingback = false;
+                _playingbackmaster = true;
+
+                tcCapture.IsEnabled = false;
+                tcStartLearning.IsEnabled = false;
+                tcReplay.IsEnabled = false;
+                tcStopLearning.IsEnabled = false;
+                tcPlayBack.IsEnabled = false;
+                tcStopPlaybackMaster.IsEnabled = true;
+
+                RealTimeImage.DataContext = PlayBackColorManager;
+                readLastFrame(path2);
+
+                if (_recordskeletonstream != null)
+                    _recordskeletonstream.Close();
+                _recordskeletonstream = File.OpenRead(@path2 + "skeleton");
+                _replay = new KinectReplay(_recordskeletonstream);
+                _replay.SkeletonFrameReady += replay_SkeletonFrameReady;
+
+                if (_recordcolorstream != null)
+                    _recordcolorstream.Close();
+                _recordcolorstream = File.OpenRead(@path2 + "colorStream");
+                _colorreplay = new KinectReplay(_recordcolorstream);
+                _colorreplay.ColorImageFrameReady += replay_ColorImageFrameReady;
+
+                if (_learnerskeletonstream != null)
+                    _learnerskeletonstream.Close();
+                _learnerskeletonstream = File.OpenRead(@path + "LearnerSelected");
+                _playbackmaster = new KinectReplay(_learnerskeletonstream);
+                _playbackmaster.SkeletonFrameReady += playback_SkeletonFrameReady;
+
+                if (_learnercolorstream != null)
+                    _learnercolorstream.Close();
+                _learnercolorstream = File.OpenRead(@path + "LearnerSelectedColor");
+                _colorplaybackmaster = new KinectReplay(_learnercolorstream);
+                _colorplaybackmaster.ColorImageFrameReady += playback_ColorImageFrameReady;
+
+                _playbackmaster.Start(1000.0 / this.SelectedFPS);
+                _colorplaybackmaster.Start(1000.0 / this.SelectedFPS);
+                _colorreplay.Start(1000.0 / this.SelectedFPS);
+                _replay.Start(1000.0 / this.SelectedFPS);
+
+                status.Text = "Playing back " + gestureList.Text;
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("Please select a motion.");
+            }
+ 
+        }
+
+        private void tcStopPlaybackMasterClick(object sender, RoutedEventArgs e)
+        {
+            _learning = false;
+            _capturing = false;
+            _playingback = false;
+            _playingbackmaster = false;
+
+            RealTimeImage.DataContext = RealTimeColorManager;
+
+            status.Text = "Stopped playing back";
+            tcCapture.IsEnabled = true;
+            tcStopReplay.IsEnabled = false;
+            tcStartLearning.IsEnabled = true;
+            tcReplay.IsEnabled = true;
+            tcPlayBack.IsEnabled = true;
+            tcPlaybackMaster.IsEnabled = true;
+            tcStopPlaybackMaster.IsEnabled = false;
+            _replay.Stop();
+            _colorreplay.Stop();
+            _playbackmaster.Stop();
+            _colorplaybackmaster.Stop();
 
             MasterSkeletonCanvas.Children.Clear();
             RealTimeSkeletonCanvas.Children.Clear();
@@ -1185,8 +1302,8 @@
                                 
                 //Now we need to add the words we want our program to recognise
                 //  Create lists of alternative choices.
-                Choices speechaction = new Choices(new string[] { "RECORD MOTION", "STOP RECORD", "REPLAY", 
-                    "STOP REPLAY", "START LEARNING", "FINISH LEARNING", "PLAYBACK IMPROVED MOTION", "STOP PLAYBACK MOTION"  });
+                Choices speechaction = new Choices(new string[] { "RECORD MOTION", "STOP RECORD", "REPLAY",
+                    "STOP REPLAY", "START LEARNING", "FINISH LEARNING", "PLAYBACK IMPROVED MOTION", "STOP PLAYBACK MOTION", "PLAYBACK LEARNING", "STOP PLAYBACK LEARNING"  });
 
                 // Create a GrammarBuilder object and assemble the grammar components.
                 GrammarBuilder actionMenu = new GrammarBuilder("KINECT");
@@ -1272,7 +1389,8 @@
                 switch (e.Result.Text.ToUpperInvariant())
                 {
                     case "KINECT RECORD MOTION":
-                        if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
+                        //if (!_replaying && !_learning && !_playingback && !_counting && !_capturing && !_playingbackmaster)
+                        if(this.tcCapture.IsEnabled == true)
                         this.tcCaptureClick(null, null);
                         status.Text = "Recognized as Record Motion";
                         break;
@@ -1281,7 +1399,8 @@
                         this.tcStoreClick(null, null);
                         break;
                     case "KINECT REPLAY":
-                        if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
+                        //if (!_replaying && !_learning && !_playingback && !_counting && !_capturing && !_playingbackmaster)
+                        if(tcReplay.IsEnabled == true)
                         this.tcReplayClick(null, null);
                         break;
                     case "KINECT STOP REPLAY":
@@ -1289,7 +1408,8 @@
                         this.tcStopReplayClick(null, null);
                         break;
                     case "KINECT START LEARNING":
-                        if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
+                        //if (!_replaying && !_learning && !_playingback && !_counting && !_capturing && !_playingbackmaster)
+                        if(tcStartLearning.IsEnabled == true)
                         this.tcStartLearningClick(null, null);
                         status.Text = "Recognized as Start Learning";
                         break;
@@ -1298,12 +1418,22 @@
                         this.tcStopLearningClick(null, null);
                         break;
                     case "KINECT PLAYBACK IMPROVED MOTION":
-                        if (!_replaying && !_learning && !_playingback && !_counting && !_capturing)
+                        //if (!_replaying && !_learning && !_playingback && !_counting && !_capturing && !_playingbackmaster)
+                        if(tcPlayBack.IsEnabled == true)
                         this.tcPlayBack_Click(null, null);
                         break;
                     case "KINECT STOP PLAYBACK MOTION":
                         if (_playingback)
                         this.tcStopPlayBackClick(null, null);
+                        break;
+                    case "KINECT PLAYBACK LEARNING":
+                        //if (!_replaying && !_learning && !_playingback && !_counting && !_capturing && !_capturing)
+                        if(tcPlaybackMaster.IsEnabled == true)
+                            this.tcPlaybackMasterClick(null, null);
+                        break;
+                    case "KINECT STOP PLAYBACK LEARNING":
+                        if (_playingbackmaster)
+                            this.tcStopPlaybackMasterClick(null, null);
                         break;
                     default:
                         break;

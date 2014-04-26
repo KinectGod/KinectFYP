@@ -262,6 +262,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
@@ -295,19 +296,30 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Background="{StaticResource KinectPurpleBrush}" Margin="-1 -1 -1 0">
                         <TextBlock Style="{StaticResource KinectTextFormat}" Foreground="White">Learning Panel</TextBlock>
                     </StackPanel>
-                    <StackPanel Grid.Row="1">
-                        <Button Margin="0 22 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcStartLearning" Content="Start Learning" Click="tcStartLearningClick" IsEnabled="True"  />
-                        <Button Margin="0 0 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcStopLearning" Content="Finish Learning" Click="tcStopLearningClick" IsEnabled="False"  />
-                        <Button Margin="0 0 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcPlayBack" Content="Playback Improved Motion" IsEnabled="True" Click="tcPlayBack_Click"  />
-                        <Button Margin="0 0 0 5" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="40" Width="186" Foreground="White" Focusable="False" x:Name="tcStopPlayBack" Content="Stop Playback Motion" IsEnabled="False" Click="tcStopPlayBackClick"  />
+                    <StackPanel Grid.Row="1" Grid.Column="0">
+                        <Button Margin="10 22 10 10" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="55" Width="140" Foreground="White" Focusable="False" x:Name="tcStartLearning" Content="Start Learning" Click="tcStartLearningClick" IsEnabled="True"  />
+                        
+                        <Button Margin="10 0 10 10" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="55" Width="140" Foreground="White" Focusable="False" x:Name="tcPlaybackMaster" Content="PlayBack Learning" Click="tcPlaybackMasterClick" IsEnabled="True"  />
+                        <Button Margin="10 0 10 10" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="55" Width="140" Foreground="White" Focusable="False" x:Name="tcPlayBack" Content="Play Improved Motion" IsEnabled="True" Click="tcPlayBack_Click"  />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="1">
+                        <Button Margin="10 22 10 10" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="55" Width="130" Foreground="White" Focusable="False" x:Name="tcStopLearning" Content="Finish Learning" Click="tcStopLearningClick" IsEnabled="False"  />
+                        <Button Margin="10 0 10 10" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="55" Width="130" Foreground="White" Focusable="False" x:Name="tcStopPlaybackMaster" Content="Stop Play Learning" Click="tcStopPlaybackMasterClick" IsEnabled="False"  />
+                        
+                        <Button Margin="10 0 10 10" Background="{StaticResource KinectPurpleBrush}" BorderBrush="White" BorderThickness="2" Height="55" Width="130" Foreground="White" Focusable="False" x:Name="tcStopPlayBack" Content="Stop Playing Motion" IsEnabled="False" Click="tcStopPlayBackClick"  />
                     </StackPanel>
                 </Grid>
             </Border>
-            <Border Grid.Column="2" BorderBrush="{StaticResource KinectPurpleBrush}" BorderThickness="2" Margin="-1 0 0 0" >
+
+            <Border Grid.Column="3" BorderBrush="{StaticResource KinectPurpleBrush}" BorderThickness="2" Margin="-1 0 0 0" >
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -355,7 +367,7 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Column="3" BorderBrush="{StaticResource KinectPurpleBrush}" BorderThickness="2" Margin="-1 0 0 0" >
+            <Border Grid.Column="4" BorderBrush="{StaticResource KinectPurpleBrush}" BorderThickness="2" Margin="-1 0 0 0" >
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
