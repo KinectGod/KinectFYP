@@ -24,3 +24,16 @@ E:\Users\Owen\Documents\GitHub\KinectFYP\TaiChiLearning\obj\x86\Debug\TaiChiLear
 E:\Users\Owen\Documents\GitHub\KinectFYP\TaiChiLearning\obj\x86\Debug\TaiChiLearning.csproj.GenerateResource.Cache
 E:\Users\Owen\Documents\GitHub\KinectFYP\TaiChiLearning\obj\x86\Debug\TaiChiLearning.exe
 E:\Users\Owen\Documents\GitHub\KinectFYP\TaiChiLearning\obj\x86\Debug\TaiChiLearning.pdb
+D:\Documents\GitHub\KinectFYP\TaiChiLearning\bin\Debug\TaiChiLearning.exe.config
+D:\Documents\GitHub\KinectFYP\TaiChiLearning\obj\x86\Debug\TaiChiLearning.exe
+D:\Documents\GitHub\KinectFYP\TaiChiLearning\obj\x86\Debug\TaiChiLearning.pdb
+D:\Documents\GitHub\KinectFYP\TaiChiLearning\bin\Debug\TaiChiLearning.exe
+D:\Documents\GitHub\KinectFYP\TaiChiLearning\bin\Debug\TaiChiLearning.pdb
+D:\Documents\GitHub\KinectFYP\TaiChiLearning\obj\x86\Debug\TaiChiLearning.csprojResolveAssemblyReference.cache
+D:\Documents\GitHub\KinectFYP\TaiChiLearning\obj\x86\Debug\MainWindow.baml
+D:\Documents\GitHub\KinectFYP\TaiChiLearning\obj\x86\Debug\MainWindow.g.cs
+D:\Documents\GitHub\KinectFYP\TaiChiLearning\obj\x86\Debug\App.g.cs
+D:\Documents\GitHub\KinectFYP\TaiChiLearning\obj\x86\Debug\TaiChiLearning_MarkupCompile.cache
+D:\Documents\GitHub\KinectFYP\TaiChiLearning\obj\x86\Debug\TaiChiLearning.g.resources
+D:\Documents\GitHub\KinectFYP\TaiChiLearning\obj\x86\Debug\TaiChiLearning.Properties.Resources.resources
+D:\Documents\GitHub\KinectFYP\TaiChiLearning\obj\x86\Debug\TaiChiLearning.csproj.GenerateResource.Cache

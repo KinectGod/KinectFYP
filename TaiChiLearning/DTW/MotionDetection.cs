@@ -20,44 +20,33 @@ namespace TaiChiLearning.DTW
              * */
             //int[] Detect = new int[a1.Length];
             double[] angles = new double[dimension];
+
             for (int i = 0; i < 8; i++)
             {
                 //a.x = xy-plane  a.y = yz-plane
-                if ((Math.Abs(a1[i].X - a2[i].X) > threshold && Math.Abs(a1[i].X - a2[i].X) < (360 - threshold)))
+                angles[i] = Math.Abs(a1[i].X - a2[i].X) + Math.Abs(a1[i].Y - a2[i].Y);
+                if ((Math.Abs(a1[i].X - a2[i].X) > threshold && Math.Abs(a1[i].X - a2[i].X) < (360 - threshold))||(Math.Abs(a1[i].Y - a2[i].Y) > threshold && Math.Abs(a1[i].Y - a2[i].Y) < (360 - threshold)))
                 {
-                    angles[i] = Math.Abs(a1[i].X - a2[i].X);
                     _detection[i] = 1;
-                    if (Math.Abs(a1[i].Y - a2[i].Y) > threshold && Math.Abs(a1[i].Y - a2[i].Y) < (360 - threshold))
-                    {
-                        angles[i] += Math.Abs(a1[i].Y - a2[i].Y);
-                        _detection[i] = 1;
-                    }
                 }
                 else
                 {
                     _detection[i] = 0;
-                    angles[i] = 0;
                 }
             }
 
             double ratio = 0.6;
             for (int i = 8; i < dimension; i++)
             {
+                angles[i] = Math.Abs(a1[i].X - a2[i].X) + Math.Abs(a1[i].Y - a2[i].Y) * ratio;
                 //a.x = xy-plane  a.y = yz-plane
-                if ((Math.Abs(a1[i].X - a2[i].X) * ratio > threshold && Math.Abs(a1[i].X - a2[i].X) * ratio < (360 - threshold)))
+                if ((Math.Abs(a1[i].X - a2[i].X) * ratio > threshold && Math.Abs(a1[i].X - a2[i].X) * ratio < (360 - threshold)) || (Math.Abs(a1[i].Y - a2[i].Y) * ratio > threshold && Math.Abs(a1[i].Y - a2[i].Y) * ratio < (360 - threshold)))
                 {
-                    angles[i] = Math.Abs(a1[i].X - a2[i].X) * ratio;
                     _detection[i] = 1;
-                    if (Math.Abs(a1[i].Y - a2[i].Y) * ratio > threshold && Math.Abs(a1[i].Y - a2[i].Y) * ratio < (360 - threshold))
-                    {
-                        angles[i] += Math.Abs(a1[i].Y - a2[i].Y) * ratio;
-                        _detection[i] = 1;
-                    }
                 }
                 else
                 {
                     _detection[i] = 0;
-                    angles[i] = 0;
                 }
             }
 
