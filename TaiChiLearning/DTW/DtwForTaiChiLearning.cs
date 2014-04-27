@@ -13,10 +13,6 @@ namespace TaiChiLearning.DTW
     using TaiChiLearning.Recorder;
     using TaiChiLearning.Replay;
 
-    /// <summary>
-    /// Dynamic Time Warping nearest neighbour sequence comparison class.
-    /// Called 'Gesture Recognizer' but really it can work with any vectors
-    /// </summary>
     public class DtwForTaiChiLearning
     {
         private ArrayList _path;
@@ -40,14 +36,7 @@ namespace TaiChiLearning.DTW
         public int PixelDataLength { get; set; }
         public int FrameNumber { get; protected set; }
         public long TimeStamp { get; protected set; }
-        /// <summary>
-        /// Initializes a new instance of the DtwGestureRecognizer class
-        /// Second DTW constructor
-        /// </summary>
-        /// <param name="dim">Vector size</param>
-        /// <param name="threshold">Maximum distance between the last observations of each sequence</param>
-        /// <param name="firstThreshold">Minimum threshold</param>
-        /// <param name="ms">Maximum vertical or horizontal steps in a row</param>
+
         public DtwForTaiChiLearning(int dim)
         {
             _dimension = dim;
@@ -79,8 +68,8 @@ namespace TaiChiLearning.DTW
             {
                 for (int j = 0; j < seq2R.Count; j++)
                 {
-                    tab[i, j] = Double.PositiveInfinity;
-                    //tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold);
+                    //tab[i, j] = Double.PositiveInfinity;
+                    tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold);
                 }
             }
             tab[0, 0] = 0;
@@ -107,26 +96,28 @@ namespace TaiChiLearning.DTW
                 {
                     switch (min(tab[i, j - 1], tab[i - 1, j - 1], tab[i - 1, j]))
                     {
+                        case 1:
+                            if(max_slope[0]++ %6 != 0) 
+                             tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i, j - 1];
+                            else tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
+                            max_slope[1] = 0;
+                            max_slope[2] = 0;
+                            break;
                         case 2:
                             tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
                             max_slope[0] = 0;
                             max_slope[2] = 0;
                             break;
-                        case 1:
-                            //if(max_slope[0]++ %6 != 0) 
-                                tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i, j - 1];
-                            //else tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
-                            max_slope[1] = 0;
-                            max_slope[2] = 0;
-                            break;
                         case 3:
-                            //if (max_slope[2]++ % 6 != 0) 
+                            if (max_slope[2]++ % 6 != 0) 
                             tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j - 1];
-                            //else tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j];
+                            else tab[i, j] = Marker((System.Windows.Point[])seq1R[i], (System.Windows.Point[])seq2R[j], anglethreshold) + tab[i - 1, j];
                             max_slope[0] = 0;
                             max_slope[1] = 0;
                             break;
-
+                        default:
+                            tab[i, j] = double.PositiveInfinity;
+                            break;
                     }
                 }
             }
@@ -143,29 +134,28 @@ namespace TaiChiLearning.DTW
                 //Console.WriteLine(target.I + " " + target.J);
                 switch (min(tab[currentI, currentJ - 1], tab[currentI - 1, currentJ - 1], tab[currentI - 1, currentJ]))
                 {
+                    case 1:
+                        currentJ--;
+                        chosen = false;
+                        break;
                     case 2:
                         currentI--;
                         currentJ--;
                         learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
-                        if (currentJ < learnercolorframe.Count)
-                        learnerc.Add((int)learnercolorframe[currentJ]);
+                        if (currentJ < learnercolorframe.Count) learnerc.Add((int)learnercolorframe[currentJ]);
                         correctframe++;
                         chosen = false;
-                        break;
-                    case 1:
-                        currentJ--;
-                        chosen = false; 
-                        max_slope[1] = 0;
-                        max_slope[2] = 0;
                         break;
                     case 3:
                         currentI--;
                         learnerf.Add((SkeletonFrame)learnerframe[currentJ]);
-                        if(currentJ < learnercolorframe.Count)
-                        learnerc.Add((int)learnercolorframe[currentJ]);
-                        if(!chosen) 
-                        correctframe++;
+                        if(currentJ < learnercolorframe.Count) learnerc.Add((int)learnercolorframe[currentJ]);// sometimes the color image frame number is smaller
+                        if(!chosen) correctframe++;
                         chosen = true;
+                        break;
+                    default:
+                        currentJ--;
+                        chosen = false;
                         break;
                 }
                 totalframe++;
@@ -210,6 +200,8 @@ namespace TaiChiLearning.DTW
 
         private int min(double a, double b, double c)
         {
+            if (a == double.PositiveInfinity && b == double.PositiveInfinity && c == double.PositiveInfinity)
+                return 4;
             if (Math.Min(Math.Min(a, b), c) == a)
                 return 1;
             else if (Math.Min(Math.Min(a, b), c) == b)
@@ -219,7 +211,7 @@ namespace TaiChiLearning.DTW
         }
 
         /// <summary>
-        /// Computes a 2-distance between two observations. (aka Euclidian distance).
+        /// Computes a 2-distance between two observations. 
         /// </summary>
         /// <param name="a">Point a (double)</param>
         /// <param name="b">Point b (double)</param>
@@ -227,100 +219,42 @@ namespace TaiChiLearning.DTW
 
         private double Marker(System.Windows.Point[] a, System.Windows.Point[] b, double anglethreshold)
         {
-            /*
             double mark = 0.0;
-            //error checking
-            if (a.Length != b.Length) return 1; //would it affect the result?
-            //aggregate the angle differences
-            //a.3,7,11,16
-            int count = 0;
-            for (int i = 0; i < a.Length; i++)
+            double diffX = 0.0;
+            double diffY = 0.0;
+            int outofthreshold = 0;
+
+            for (int i = 0; i < _dimension; i++)
             {
-                double d = Math.Sqrt(Math.Pow(Math.Abs(a[i].X - b[i].X), 2) + Math.Pow(Math.Abs(a[i].Y - b[i].Y), 2));
-                
-                if (d > anglethreshold && i != 3 && i != 7 && i != 11 && i != 16 )
+                diffX = Math.Abs(a[i].X - b[i].X);
+                diffY = Math.Abs(a[i].Y - b[i].Y);
+                if ((diffX > anglethreshold && diffX < 360 - anglethreshold) || (diffY > anglethreshold && diffY < 360 - anglethreshold))
                 {
-                    mark += 0.2;
-                    count += 1;
+                    outofthreshold++;
                 }
-                    
-                else if (d > (anglethreshold * 4 / 5))
-                {
-                    mark += 0.16;
-                    count += 1;
-                }
-                else if (d > (anglethreshold * 3 / 5))
-                {
-                    mark += 0.12;
-                    //count += 1;
-                }
-            }
-            
-            //return count / a.Length;
-            if (count > 5 || mark > 1)
-               return 1;
-            else 
-                return mark;
-           */
-            double d = 0.0;
-            double mark = 0.0;
+                if (Math.Abs(a[i].X - b[i].X) > 180)
+                    mark += 360 - Math.Abs(a[i].X - b[i].X);
+                else mark += Math.Abs(a[i].X - b[i].X);
 
-            for (int i = 0; i < 8; i++)
-            {
-                d += Math.Abs(a[i].X - b[i].X) + Math.Abs(a[i].Y - b[i].Y);
+                if (Math.Abs(a[i].Y - b[i].Y) > 180)
+                    mark += 360 - Math.Abs(a[i].Y - b[i].Y);
+                else mark += Math.Abs(a[i].Y - b[i].Y);
             }
-
-            for (int i = 8; i < _dimension; i++)
+            mark /= _dimension;
+            if (outofthreshold > 3 && outofthreshold < 6)
             {
-                d += Math.Abs(a[i].X - b[i].X) + Math.Abs(a[i].Y - b[i].Y) * 0.8;
+                mark *= 2;
             }
-                //d = Math.Sqrt(d);
-                //d2 = Math.Sqrt(d2);
-                mark = d;
-            //error checking
-            /*
-            if (double.IsNaN(d) || double.IsNaN(d2)) return -1;
-
-            if (d > 30 * _dimension / 2)       
+            else if (outofthreshold > 3 && outofthreshold < 12)
             {
-                mark += 0.5;
+                mark *= 3;
             }
-            else if (d > 24 * _dimension / 2)
-            {
-                mark += 0.4;
-            }
-            else if (d > 18 * _dimension / 2)
-            {
-                mark += 0.3;
-            }
-            else if (d > 12 * _dimension / 2)
-            {
-                mark += 0.2;
-            }
-
-
-            if (d2 > 30 * _dimension / 2)
-            {
-                mark += 0.5;
-            }
-            else if (d2 > 24 * _dimension / 2)
-            {
-                mark += 0.4;
-            }
-            else if (d2 > 18 * _dimension / 2)
-            {
-                mark += 0.3;
-            }
-            else if (d2 > 12 * _dimension / 2)
-            {
-                mark += 0.2;
-            }
-             * */
-            //return d + d2;
+            else if (outofthreshold > 3)
+                mark = double.PositiveInfinity;
+           
             return mark;
-            
-             
         }
+
         /// <summary>
         /// Calculate the result
         /// </summary>

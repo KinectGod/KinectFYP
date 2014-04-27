@@ -24,9 +24,6 @@
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        // We want to control how depth data gets converted into false-color data
-        // for more intuitive visualization, so we keep 32-bit color frame buffer versions of
-        // these, to be updated whenever we receive and process a 16-bit frame.
 
         /// <summary>
         /// Handle the color stream
@@ -80,10 +77,14 @@
         /// </summary>
         private static bool _learning = false;
 
-        private static bool _counting = false;
-
+        /// <summary>
+        /// flag to show whether in playback lerning mode
+        /// </summary>
         private static bool _playingbackmaster = false;
 
+        /// <summary>
+        /// used to store the masater skeleton data, ;ater support for 6 people
+        /// </summary>
         private static Skeleton _masterskeleton;
 
         /// <summary>
@@ -106,37 +107,27 @@
         ///</summary>
         private SpeechRecognitionEngine speechRecognizer;
 
-        ///<summary>
-        ///text to speech
-        ///</summary>
-        //private SpeechSynthesizer synthesizer;
-
         /// <summary>
         /// ArrayList of master's and learner motion
         /// </summary>
         private ArrayList _masterseq = new ArrayList();
         private ArrayList _learnerseq = new ArrayList();
-
         private ArrayList _learnerseqFrame = new ArrayList();
         private ArrayList _learnercolorFrame = new ArrayList();
 
-        /*
-        private static Point[] _dtwselected;
-
-        private static int _dtwLskeleton = 0;
-        private static int _dtwLcolor = 0;
-        private static int _dtwMskeleton = 0;
-        private static int _dtwMcolor = 0;
-        */
         // Kinect recorder
         private static KinectRecorder _recorder;
         private static KinectRecorder _colorrecorder;
 
+        /// <summary>
+        /// stream for File I/O operation
+        /// </summary>
         private static Stream _recordskeletonstream;
         private static Stream _recordcolorstream;
         private static Stream _learnerskeletonstream;
         private static Stream _learnercolorstream;
 
+        // kinect replay
         private KinectReplay _replay;
         private KinectReplay _colorreplay;
         private KinectReplay _playback;
@@ -146,26 +137,42 @@
 
         private string _temppath = ".\\";
 
-        /// 
+        /// <summary>
+        /// used as parameter for count down function
+        /// </summary>
         private DateTime _captureCountdown = DateTime.Now;
 
 
         /// 
         private System.Windows.Forms.Timer _captureCountdownTimer;
         
-
+        /// <summary>
+        /// used to store the master and learner instant angles
+        /// </summary>
         private static Point[] _MasterAngle;
-
         private static Point[] _LearnerAngle;
 
+        /// <summary>
+        /// flag to indicate whether the body segment is too wrong
+        /// </summary>
         public static int[] detection = new int [dimension];
 
-        private static double[] _master_angles = new double [dimension];
+        /// <summary>
+        /// used to store the angles differences
+        /// </summary>
+        private static double[] _anglesdiff = new double [dimension];
 
+        /// <summary>
+        /// used to store the body segment length of master
+        /// </summary>
         private static double[] _master_length = new double[dimension];
 
+        /// <summary>
+        /// used to store the final frame number of a replaying video, to check whether it is the end of video
+        /// </summary>
         private static int _finalframeno;
         private static int _finalframeno2;
+
         ///Difficulty
         private static double threshold = 60.0;
 
@@ -427,10 +434,10 @@
                                         {
                                             if (DetectionTemp[i] > 0)
                                             {
-                                                RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], _master_angles[i], i);
+                                                RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], _anglesdiff[i], i);
                                                 if (temp != null)
                                                 {
-                                                    ReplaySkeleton.DrawCorrection(temp, DetectionTemp[i], _master_angles[i], i);
+                                                    ReplaySkeleton.DrawCorrection(temp, DetectionTemp[i], _anglesdiff[i], i);
                                                 }
                                             }
                                         }
@@ -565,7 +572,7 @@
                         if (_LearnerAngle != null && _MasterAngle != null)
                         {
                             _masterskeleton = data;
-                            _master_angles = MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension, threshold, detection);
+                            _anglesdiff = MotionDetection.Detect(_LearnerAngle, _MasterAngle, dimension, threshold, detection);
                             _master_length = Skeleton3DDataExtract.LengthGeneration(data);
                             
                             _masterseq.Add(temppt);
@@ -597,51 +604,6 @@
             //DrawSkeleton(skeletons, MasterSkeletonCanvas);
             RealTimeSkeleton.DrawSkeleton(skeletons);
 
-            /*
-            /// get the joint angle data of master
-            /// then make comparison
-            var brush = new SolidColorBrush(Color.FromRgb(255, 0, 0));
-            int[] DetectionTemp = new int[dimension];
-            DetectionTemp = detection;
-
-            foreach (var data in skeletons)
-            {
-                if (SkeletonTrackingState.Tracked == data.TrackingState)
-                {
-                    temppt = Skeleton3DDataExtract.ProcessData(data);
-                    if (temppt[4].X >= 0)
-                        _LearnerAngle = temppt;
-                    if (_LearnerAngle != null)
-                    {
-                        for (int i = 0; i < dimension; i++)
-                        {
-                            if (DetectionTemp[i] > 0)
-                            {
-                                RealTimeSkeleton.DrawCorrection(data, DetectionTemp[i], _master_angles[i], i);
-                            }
-                        }
-                    }
-                }
-            }
-            
-            
-            if (_dtwselected.Length - 1 > _dtwLskeleton)
-            {
-                _dtwLskeleton++;
-                DateTime ltime;
-
-                while (_dtwselected[_dtwLskeleton - 1].Y == _dtwselected[_dtwLskeleton].Y)
-                {
-                    Console.WriteLine(_dtwLskeleton + "\t" + _dtwMskeleton);
-                    if (_dtwselected.Length - 1 == _dtwLskeleton) break;
-                    //Thread.Sleep(TimeSpan.FromMilliseconds(1000.0 / this.SelectedFPS));
-                    ltime = DateTime.Now.AddMilliseconds(1000.0 / this.SelectedFPS);
-                    while (DateTime.Now < ltime) ;
-                    //Thread.Sleep(1200);
-                    _dtwLskeleton++;
-                }
-            }
-             * */
         }
 
         /// <summary>
@@ -704,7 +666,6 @@
         {
             if (sender == _captureCountdownTimer)
             {
-                _counting = true;
                 if (DateTime.Now < _captureCountdown)
                 {
                     paragraph.Inlines.Clear();
@@ -714,7 +675,6 @@
                 {
                     _captureCountdownTimer.Stop();
                     paragraph.Inlines.Clear();
-                    _counting = false;
                     if (_learning)
                     {
                         status.Text = "Learning";
@@ -1117,6 +1077,7 @@
                 tcReplay.IsEnabled = false;
                 tcStopLearning.IsEnabled = false;
                 tcStopPlayBack.IsEnabled = true;
+                tcPlayBack.IsEnabled = false;
                 tcPlaybackMaster.IsEnabled = false;
 
                 RealTimeImage.DataContext = PlayBackColorManager;
@@ -1216,6 +1177,7 @@
                 tcReplay.IsEnabled = false;
                 tcStopLearning.IsEnabled = false;
                 tcPlayBack.IsEnabled = false;
+                tcPlaybackMaster.IsEnabled = false;
                 tcStopPlaybackMaster.IsEnabled = true;
 
                 RealTimeImage.DataContext = PlayBackColorManager;

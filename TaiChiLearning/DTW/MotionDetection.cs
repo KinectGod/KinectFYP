@@ -24,7 +24,7 @@ namespace TaiChiLearning.DTW
             for (int i = 0; i < 8; i++)
             {
                 //a.x = xy-plane  a.y = yz-plane
-                angles[i] = Math.Abs(a1[i].X - a2[i].X) + Math.Abs(a1[i].Y - a2[i].Y);
+                angles[i] = Math.Abs(a1[i].X - a2[i].X);                    //+ Math.Abs(a1[i].Y - a2[i].Y);
                 if ((Math.Abs(a1[i].X - a2[i].X) > threshold && Math.Abs(a1[i].X - a2[i].X) < (360 - threshold))||(Math.Abs(a1[i].Y - a2[i].Y) > threshold && Math.Abs(a1[i].Y - a2[i].Y) < (360 - threshold)))
                 {
                     _detection[i] = 1;
@@ -35,10 +35,11 @@ namespace TaiChiLearning.DTW
                 }
             }
 
-            double ratio = 0.6;
+            double ratio = 1;
             for (int i = 8; i < dimension; i++)
             {
-                angles[i] = Math.Abs(a1[i].X - a2[i].X) + Math.Abs(a1[i].Y - a2[i].Y) * ratio;
+                angles[i] = Math.Abs(a1[i].X - a2[i].X);
+                    //+ Math.Abs(a1[i].Y - a2[i].Y) * ratio;
                 //a.x = xy-plane  a.y = yz-plane
                 if ((Math.Abs(a1[i].X - a2[i].X) * ratio > threshold && Math.Abs(a1[i].X - a2[i].X) * ratio < (360 - threshold)) || (Math.Abs(a1[i].Y - a2[i].Y) * ratio > threshold && Math.Abs(a1[i].Y - a2[i].Y) * ratio < (360 - threshold)))
                 {
